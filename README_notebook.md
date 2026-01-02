@@ -19,11 +19,12 @@ pip install xarray pandas matplotlib cartopy numpy scikit-learn xgboost joblib
 - **scikit-learn**: For machine learning algorithms (Random Forest, feature selection)
 - **xgboost**: For XGBoost machine learning model
 - **joblib**: For saving and loading trained models
+- **seaborn**: For creating statistical graphs
 
 ### Optional - Using conda:
 
 ```bash
-conda install -c conda-forge xarray pandas matplotlib cartopy numpy scikit-learn xgboost joblib
+conda install -c conda-forge xarray pandas matplotlib cartopy numpy scikit-learn xgboost joblib seaborn
 ```
 
 ## Folder Structure
