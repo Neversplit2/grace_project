@@ -217,14 +217,15 @@ if __name__ == "__main__":
         df_CSR["lat_r"] = (df_CSR["lat"] / step).round() * step
         df_CSR["lon_r"] = (df_CSR["lon"] / step).round() * step
 
-        df_ERA["lat_r"] = (df_ERA["lat"] / step).round() * step
-        df_ERA["lon_r"] = (df_ERA["lon"] / step).round() * step
+        df_ERA2=df_ERA.copy()
+        df_ERA2["lat_r"] = (df_ERA2["lat"] / step).round() * step
+        df_ERA2["lon_r"] = (df_ERA2["lon"] / step).round() * step
 
-        df_ERA = df_ERA.groupby(["year", "month", "lat_r", "lon_r"]).mean().reset_index()
+        df_ERA2 = df_ERA2.groupby(["year", "month", "lat_r", "lon_r"]).mean().reset_index()
         #Merge 2 dataframes
         merged = pd.merge(
             df_CSR,
-            df_ERA,
+            df_ERA2,
             on=["year", "month", "lat_r", "lon_r"],
             how="inner",
             suffixes=("_grace", "_era")
@@ -237,5 +238,6 @@ if __name__ == "__main__":
 
         data_out = ['time','lat_r','lat_era','lon_r','lon_era']
         merged = merged.drop(columns = data_out, errors='ignore')
+        merged.rename(columns={"lon_grace": "lon", "lat_grace": "lat"}, inplace=True)
         # We are ready for ML
 
