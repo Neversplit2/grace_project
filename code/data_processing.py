@@ -99,7 +99,7 @@ def slice_nc(ds, ds_name, lat_min, lat_max, lon_min, lon_max):
 
 #This is also a helping function that converts xarrays dataset to pandas dataframe.
 def conv_2_df(ds,name):
-    print(f"{Fore.CYAN} converting {name} to dataframe {Fore.RESET}")
+    print(f"{Fore.CYAN} Converting {name} to dataframe {Fore.RESET}")
     df = ds.to_dataframe().reset_index() 
 
     possible_time_names = ['time', 'valid_time']
@@ -146,8 +146,8 @@ def Load_slice_conv_dataset(lat_min, lat_max, lon_min, lon_max):
 
         df_CSR = conv_2_df(ds_CSR_sliced,"GRACE")
 
-        return df_ERA, df_CSR
+        return df_ERA, df_CSR, ds_ERA_sliced
     # We save the error message in variable e and print it
     except Exception as e:
         print(f"{Fore.RED} Error during processing: {e}{Fore.RESET}")
-        return None, None
+        return None, None, None

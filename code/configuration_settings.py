@@ -5,9 +5,9 @@ DATA_DIR = Path("../data")
 RESULTS_DIR = Path("../results")
 MODELS_DIR =Path("../models")
 MAPS_DIR = Path("../maps")
-# I should change the name from my directory in order to be compatible
+
 ERA5_FILE = "ERA5_data.nc"
-GRACE_CSR_FILE = "CSR_Mascon_Grace"
+GRACE_CSR_FILE = "CSR_Mascon_Grace.nc"
 # Ensure that user has the wanted folder structure
 # If not create it
 # Creating a loop to check 
