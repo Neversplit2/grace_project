@@ -10,18 +10,17 @@ import seaborn as sns
 
 #So i want to create a function for the dynamic approach
 
-
 def dynamic_t(directory, filename, extension=""):
     #I am adding the ../ in order to create the filepath
     directory = f"../{directory}"
     # Check if the chosen folder exists else terminate
-
-    try:
-        os.makedirs(directory, exist_ok= True)
-    except OSError:
-        print(f" {Fore.RED} Wrong directory name!.{Fore.RESET}")
+    #try:
+     #   os.makedirs(directory, exist_ok= True)
+    ##   print(f" {Fore.RED} Wrong directory name!.{Fore.RESET}")
+      #  sys.exit()
+    if not os.path.exists(directory):
+        print(f" {Fore.RED} Error: The directory '{directory}' does not exist!{Fore.RESET}")
         sys.exit()
-
     # Ensure extension has a dot
     if not extension.startswith("."):
         extension = f".{extension}"
@@ -33,8 +32,10 @@ def dynamic_t(directory, filename, extension=""):
         i=i+1
     return output_path.replace("\\", "/")   
  
+#ERA5 map
 
-
+#Comparison_GRACE
+    #prediction
     
     
  

@@ -36,7 +36,7 @@ GRACE_CSR_FILE = "CSR_Mascon_Grace"
 # Creating a loop to check 
 for d in [DATA_DIR, RESULTS_DIR, MODELS_DIR, MAPS_DIR]:
     d.mkdir(parents=True, exist_ok=True) #Parents= true: Create the folder, #exist_ok= true: If it already exists do nothing
-#-------------------
+#---------------
 # Data processing
 #---------------
 # FUNCTIONS

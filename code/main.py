@@ -68,7 +68,6 @@ if __name__ == "__main__":
 
     #ERA5 Map
 
-
     feature_list = list(ds_ERA_sliced.data_vars)
     # Creating numeric list of ds_era5_merged features 
     print("\n Available Features ")
