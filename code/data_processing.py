@@ -7,6 +7,7 @@ import xarray as xr
 import pandas as pd
 import configuration_settings as cs
 from colorama import Fore
+from scipy.interpolate import griddata
 
 #ERA5 data 
 def ERA5_data_downloader():
@@ -146,8 +147,43 @@ def Load_slice_conv_dataset(lat_min, lat_max, lon_min, lon_max):
 
         df_CSR = conv_2_df(ds_CSR_sliced,"GRACE")
 
-        return df_ERA, df_CSR, ds_ERA_sliced
+        return df_ERA, df_CSR, ds_ERA_sliced, ds_CSR_sliced
     # We save the error message in variable e and print it
     except Exception as e:
         print(f"{Fore.RED} Error during processing: {e}{Fore.RESET}")
         return None, None, None
+
+#dataset_CSR = df_CSR, dataset_ERA = df_ERA 
+def CSR_interp(dataset_CSR, dataset_ERA):
+    grace_df2= dataset_CSR.copy()
+    data_off = ['time','lat_r','lon_r']
+    grace_df2 = grace_df2.drop(columns= data_off, errors='ignore')
+    target_lats = np.sort(dataset_ERA["lat"].unique())
+    target_lons = np.sort(dataset_ERA["lon"].unique())
+    #indexing ='' Cartesian (‘xy’, default) or matrix (‘ij’) 
+    grid_lat, grid_lon = np.meshgrid(target_lats, target_lons, indexing='ij')
+
+    grace_regridded_list = []
+
+    for (year, month), group in grace_df2.groupby(['year', 'month']):
+        # Source Points (Old GRACE Grid)
+        points = group[['lat', 'lon']].values
+        values = group['lwe_thickness'].values
+        # Interpolate onto the ERA5 Grid
+        # method='nearest' ensures we just copy the closest value (Big Tile logic)
+        grid_z = griddata(points, values, (grid_lat, grid_lon), method='nearest')
+        # Store result
+        grace_regridded_list.append(pd.DataFrame({
+            'year': year,
+            'month': month,
+            'lat': grid_lat.flatten(),
+            'lon': grid_lon.flatten(),
+            'lwe_thickness': grid_z.flatten()
+        }))
+
+    CSR_on_ERA_grid = pd.concat(grace_regridded_list)
+    
+    return CSR_on_ERA_grid
+    
+
+
