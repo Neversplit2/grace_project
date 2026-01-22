@@ -151,7 +151,7 @@ def Load_slice_conv_dataset(lat_min, lat_max, lon_min, lon_max):
     # We save the error message in variable e and print it
     except Exception as e:
         print(f"{Fore.RED} Error during processing: {e}{Fore.RESET}")
-        return None, None, None
+        return None, None, None, None
 
 #dataset_CSR = df_CSR, dataset_ERA = df_ERA 
 def CSR_interp(dataset_CSR, dataset_ERA):

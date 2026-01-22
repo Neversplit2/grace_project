@@ -134,16 +134,30 @@ def CSR_plot(model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA,
         X_pred = input_ERA_data[required_features]
         input_ERA_data["lwe_pred"] = model.predict(X_pred)
 
+        #data_predicted2 is the dataframe that i am gonna use for the lwe_diff
+        data_predicted2 = input_ERA_data.copy()
+
+
         ds_pred = input_ERA_data.groupby(["lat", "lon"])[["lwe_pred"]].mean().to_xarray()
         data_predicted = ds_pred["lwe_pred"]
 
     # -------------------------
     # lwe_difference
     # -------------------------
+    #print(dataset_CSR2)
+    #print(data_predicted)
+    
+
+    #As we can check from the prints grace_df_2 starts from 04/2002 and input_data from 01/2002
+    # So we are gonna drop from input_data these 3 months (i suppose)
+    to_drop = (data_predicted2['year'] == 2002) & (data_predicted2['month'] < 4)
+
+    #Keep everything that is NOT (~) in that condition
+    data_predicted2 = data_predicted2[~to_drop]
 
     dataset_diff = pd.merge(
         dataset_CSR2,
-        data_predicted,
+        data_predicted2,
         on=["year", "month", "lat", "lon"],
         how="inner",
         suffixes=("_grace", "_grace_pred")

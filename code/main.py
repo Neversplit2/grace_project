@@ -158,11 +158,11 @@ if __name__ == "__main__":
     var_to_plot = "lwe_thickness"
     #Exw dialejei model= full_model_path, month, year, basin_name, kai eftiaxa kai to output path moy
 
-    CSR_on_ERA_grid = dp.CSR_interp(df_CSR, df_ERA)
+    df_CSR_on_ERA_grid = dp.CSR_interp(df_CSR, df_ERA)
     # Ekana rigrid kai to CSR se reso 0.1
 
 #dataset_CSR = ds_CSR_sliced, #dataset_ERA = df_ERA, dataset_diff = pros to parwn to ftiaxnw mesa argotera isws to prosthesw alliws 
 #output = output_CSR, dataset_CSR2 = dataset_CSR_regrid
 #model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA, var_to_plot, basin_name)
-
-    vis.CSR_plot(full_model_path, map_year, map_month, output_CSR, ds_CSR_sliced, CSR_on_ERA_grid, df_ERA, var_to_plot, basin_name)
+#def CSR_plot(model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA, var_to_plot, basin_name)
+    vis.CSR_plot(full_model_path, map_year, map_month, output_CSR, ds_CSR_sliced, df_CSR_on_ERA_grid, df_ERA, var_to_plot, basin_name)
