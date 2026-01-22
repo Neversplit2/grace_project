@@ -66,6 +66,22 @@ if __name__ == "__main__":
         merged.rename(columns={"lon_grace": "lon", "lat_grace": "lat"}, inplace=True)
 # We are ready for ML
 
+#RFE
+    print(f"{Fore.CYAN}Starting Random Feature Selection (RFE){Fore.RESET}")
+    try:
+        model_RFE = (input(f"{Fore.CYAN}Choose the model you want to use: (XGBoost/RF) {Fore.RESET}"))
+    except ValueError:
+        print(f"{Fore.RED}Error! Please enter 'XGBoost' or 'RF'.{Fore.RESET}")
+        sys.exit()
+    try: 
+        n_features_to_select = int(input("Insert the number of features you want to select : ")) 
+        print(f"The RFE will be performed with: {n_features_to_select} features")
+    except ValueError:
+        print("Invalid input!")
+        sys.exit()
+
+    rfe, selected_features = tr.rfe(merged,model_RFE,n_features_to_select)
+
     #ERA5 Map
     print(f"{Fore.CYAN}Creating ERA5 feature map{Fore.RESET}")
 
@@ -120,7 +136,6 @@ if __name__ == "__main__":
 
     models_dir = cs.MODELS_DIR
     
-
     # Select trained Model
     print(f"\nScanning directory: {models_dir} ")
     try:
