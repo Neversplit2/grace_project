@@ -165,4 +165,4 @@ if __name__ == "__main__":
 #output = output_CSR, dataset_CSR2 = dataset_CSR_regrid
 #model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA, var_to_plot, basin_name)
 #def CSR_plot(model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA, var_to_plot, basin_name)
-    vis.CSR_plot(full_model_path, map_year, map_month, output_CSR, ds_CSR_sliced, df_CSR_on_ERA_grid, df_ERA, var_to_plot, basin_name)
+    vis.CSR_plot2(full_model_path, map_year, map_month, output_CSR, ds_CSR_sliced, df_CSR_on_ERA_grid, df_ERA, var_to_plot, basin_name)

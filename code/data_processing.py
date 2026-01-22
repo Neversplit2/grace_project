@@ -8,6 +8,7 @@ import pandas as pd
 import configuration_settings as cs
 from colorama import Fore
 from scipy.interpolate import griddata
+import os, joblib, sys
 
 #ERA5 data 
 def ERA5_data_downloader():
@@ -184,6 +185,29 @@ def CSR_interp(dataset_CSR, dataset_ERA):
     CSR_on_ERA_grid = pd.concat(grace_regridded_list)
     
     return CSR_on_ERA_grid
-    
 
+# dataset =df_ERA , model = full_model_path, year = map_year, month = map_month
+def prediction(dataset, model, year, month):
+    target_ym = f"{year}-{month:02d}"
+    input_ERA_data = dataset[(dataset["year"] == year) & (dataset["month"] == month)].copy()
+    if input_ERA_data.empty:
+        print(Fore.RED + f" Error: ERA5 data not found for {target_ym}.")
+        sys.exit()
+    else:
+        
+        try:
+            required_features = model.feature_names_in_
+        except AttributeError:
+            print(f"{Fore.RED}Error!{Fore.RESET}")
+            sys.exit()
+            #print("Using default features")
+            #required_features = features
+
+        missing_feats = [c for c in required_features if c not in input_ERA_data.columns]
+        if missing_feats:
+            raise KeyError(f"Missing required features in ERA5 input_data: {missing_feats}")
+
+        X_pred = input_ERA_data[required_features]
+        input_ERA_data["lwe_pred"] = model.predict(X_pred)
+        return input_ERA_data
 
