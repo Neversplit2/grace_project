@@ -56,4 +56,4 @@ def rfe(dataset, model, n_features_to_select):
     print("\n RFE Results!")
     print(f"{Fore.GREEN} The {n_features_to_select} Best Features are: {Fore.RESET}")
     print(f"{Fore.GREEN}{selected_features}{Fore.RESET}")
-    return rfe, selected_features
+    return rfe, selected_features, x

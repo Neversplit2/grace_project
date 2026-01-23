@@ -80,10 +80,22 @@ if __name__ == "__main__":
         print("Invalid input!")
         sys.exit()
 
-    rfe, selected_features = tr.rfe(merged,model_RFE,n_features_to_select)
+    rfe, selected_features, x = tr.rfe(merged,model_RFE,n_features_to_select)
+   
+    print(f"{Fore.CYAN}Creating rfe feature ranking plot{Fore.RESET}")
+
 
     #ERA5 Map
     print(f"{Fore.CYAN}Creating ERA5 feature map{Fore.RESET}")
+    
+    folder_name_rfe = str(input(f"{Fore.CYAN}Insert folder name you want to save the plot {Fore.RESET}"))
+    title_rfe = str(input(f"{Fore.CYAN}Insert title  {Fore.RESET}"))
+    extension_rfe = str(input(f"{Fore.CYAN}Insert .extension (eg. .jpg) {Fore.RESET}"))
+
+    output_rfe = vis.dynamic_t(folder_name_rfe, title_rfe, extension_rfe)
+
+    vis.rfe_plot(rfe, x, output_rfe)
+
 
     feature_list = list(ds_ERA_sliced.data_vars)
     # Creating numeric list of ds_era5_merged features 

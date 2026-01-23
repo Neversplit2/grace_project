@@ -36,6 +36,34 @@ def dynamic_t(directory, filename, extension=""):
     return output_path.replace("\\", "/")   
  
 #RFE_ranking
+#rfe = rfe , x=selected_features, output = output_rfe
+def rfe_plot(rfe, x, output):
+    df_ranking = pd.DataFrame()
+    # Creating column "Feature" in order to save the rfe feature names participating 
+    df_ranking["Feature"] = x.columns
+    # Creating column "Rank" in order to save the rfe feature ranking
+    df_ranking["Rank"] = rfe.ranking_ 
+    # Sorting df_ranking based on column "Rank", in ascending order (True)
+    df_ranking = df_ranking.sort_values(by=['Rank'], ascending=True)
+    #print(df_ranking)
+
+    # Creating figure
+    plt.figure(figsize=(4, 5), dpi=200) 
+    # hue = controls the colour by grouping the input data
+    # creating the barplot graph
+    sns.barplot(data=df_ranking, x="Rank", y="Feature", hue="Rank",palette="coolwarm", legend=False)
+
+    #Formatting
+    plt.title(f"RFE Feature Ranking (Top {rfe.n_features_} Selected)", fontsize=11)
+    plt.xlabel("Rank (1 = Selected, Higher = Eliminated Early)", fontsize=8)
+    plt.ylabel("Features", fontsize=8)
+    plt.grid(axis="x", linestyle="--", alpha=0.6)
+    #Changing feature fontsize
+    plt.yticks(fontsize=6)
+    # Show the plot
+
+    plt.savefig(output)
+    plt.show()
 
 
 
