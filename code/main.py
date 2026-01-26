@@ -24,7 +24,12 @@ if __name__ == "__main__":
         print(f"\nArea of Interest: Lat[{lat_min}, {lat_max}], Lon[{lon_min}, {lon_max}]")
 
     df_ERA, df_CSR, ds_ERA_sliced, ds_CSR_sliced = dp.Load_slice_conv_dataset(lat_min, lat_max, lon_min, lon_max)
+# **********************************************************************************
 
+# Anastria's comment: Should the Regrid ERA5 be part of the training or preprocesing? 
+# It is harmless if it stays in main, I am just commenting that for best practices purposes
+
+# **********************************************************************************
 # Regrid ERA5 and merge
     if  df_ERA is not None and df_CSR is not None:
         # Compute GRACE resolution
