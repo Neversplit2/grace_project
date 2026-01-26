@@ -68,7 +68,7 @@ def rfe_plot(rfe, x, output):
 
 
 #ERA5 map
-#Jekinaei i sinartisi
+#Function or plotting ERA5 data
 def ERA_plot(dataset, year, month, var_to_plot, basin_name, output):
     data_slice = dataset[var_to_plot].sel(valid_time=f'{year}-{month}-01 23:00', method='nearest')
     time_str = data_slice.valid_time.dt.strftime("%m-%Y").item()
@@ -117,6 +117,11 @@ def ERA_plot(dataset, year, month, var_to_plot, basin_name, output):
     plt.show()
 
 #Comparison_GRACE
+    # **********************************************************************************
+
+    # Anastria's comment: You have 2 very similar (almost identical?). I guess you'll decide which to keep..?
+
+    # **********************************************************************************
 
 #model= full_model_path, #year= map_year, month=map_month
 #dataset_CSR = ds_CSR_sliced, #dataset_ERA = df_ERA, dataset_diff = pros to parwn to ftiaxnw mesa argotera isws to prosthesw alliws 
@@ -169,15 +174,34 @@ def CSR_plot(model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA,
 
         ds_pred = input_ERA_data.groupby(["lat", "lon"])[["lwe_pred"]].mean().to_xarray()
         data_predicted = ds_pred["lwe_pred"]
+    # **********************************************************************************
+
+    # Anastria's comment: Why are you calculating the mean ? Am i missing something?
+    # There is no need to calculate the mean to do a predection.. 
+    # It is actually harmles, since the mean of a unique value it is the unique value..
+    # I know I have missed that from the backend-notebook
+
+    # **********************************************************************************
 
     # -------------------------
     # lwe_difference
     # -------------------------
     #print(dataset_CSR2)
     #print(data_predicted)
+
     
     #As we can check from the prints grace_df_2 starts from 04/2002 and input_data from 01/2002
     # So we are gonna drop from input_data these 3 months (i suppose)
+    
+    # **********************************************************************************
+
+    # Anastria's comment: there is real no need to drop for the first 3 months of 2002 the data. 
+    # Since you don't have a seperate way to plot those out of range predictions, i would not drop them
+    # I would add some code to just plot those predictions and not the 3 subplot image instead of changing the neat code below. 
+
+    # **********************************************************************************
+
+    
     to_drop = (data_predicted2['year'] == 2002) & (data_predicted2['month'] < 4)
 
     #Keep everything that is NOT (~) in that condition
@@ -193,13 +217,30 @@ def CSR_plot(model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA,
 
     data_out=['t2m', 'tp', 'e', 'pev', 'ssro', 'sro', 'evabs','swvl1', 'swvl2', 'swvl3', 'swvl4', 'lai_hv', 'lai_lv']
     dataset_diff = dataset_diff.drop(columns=data_out, errors='ignore')
-    dataset_diff["lwe_difference"] = abs(dataset_diff["lwe_pred"] - dataset_diff["lwe_thickness"])
+    # **********************************************************************************
 
+    # Anastria's comment: why we assume that dataset_diff would have the data_out variables? 
+    # 99.99999% it shouldn't
+
+    # **********************************************************************************
+    dataset_diff["lwe_difference"] = abs(dataset_diff["lwe_pred"] - dataset_diff["lwe_thickness"])
+    # **********************************************************************************
+
+    # Anastria's comment: The way you calculate the differences is 100% correct!
+
+    # **********************************************************************************
 
     input_diff_data = dataset_diff[(dataset_diff['year'] == year) & (dataset_diff['month'] == month)]
     if input_diff_data.empty:
         print(Fore.RED + f"No data found for {month}/{year}!")
         sys.exit()
+    # **********************************************************************************
+
+    # Anastria's comment: The check above should be made before, just after dropping those months.
+    # CSR/ GRACE has some gaps, so those 3 months at the beginning of 2002 are not the only months missing
+    # Same as before though, it is scientifically good practice to print the predictions 
+
+    # **********************************************************************************
 
     ds_diff = input_diff_data.set_index(['lat', 'lon']).to_xarray()
     data_slice_diff = ds_diff['lwe_difference']
@@ -302,6 +343,7 @@ def CSR_plot2(model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA
 
     ds_pred = input_ERA_data.groupby(["lat", "lon"])[["lwe_pred"]].mean().to_xarray()
     data_predicted = ds_pred["lwe_pred"]
+
 
     # -------------------------
     # lwe_difference
