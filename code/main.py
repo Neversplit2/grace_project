@@ -186,7 +186,7 @@ if __name__ == "__main__":
     #Exw dialejei model= full_model_path, month, year, basin_name, kai eftiaxa kai to output path moy
 
     df_CSR_on_ERA_grid = dp.CSR_interp(df_CSR, df_ERA)
-    # Ekana rigrid kai to CSR se reso 0.1
+   
 
 #dataset_CSR = ds_CSR_sliced, #dataset_ERA = df_ERA, dataset_diff = pros to parwn to ftiaxnw mesa argotera isws to prosthesw alliws 
 #output = output_CSR, dataset_CSR2 = dataset_CSR_regrid
