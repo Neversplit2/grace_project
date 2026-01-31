@@ -1,5 +1,5 @@
 import configuration_settings as cs
-import data_processing as dp
+import data_processing as dpr
 from colorama import Fore
 import sys
 import os, joblib
@@ -127,7 +127,7 @@ def CSR_plot2(model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA
     # ERA5 data after prediction
     # -------------------------
    # dataset = , model = full_model_path, year = map_year, month = map_month
-    input_ERA_data = dp.prediction(dataset_ERA, model, year, month, )
+    input_ERA_data = dpr.prediction(dataset_ERA, model, year, month, )
 
         #data_predicted2 is the dataframe that i am gonna use for the lwe_diff
     data_predicted2 = input_ERA_data.copy()

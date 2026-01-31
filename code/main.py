@@ -1,7 +1,7 @@
 #Import libraries
 from colorama import Fore
 import configuration_settings as cs
-import data_processing as dp
+import data_processing as dpr
 import visualization as vis
 import training as tr
 import numpy as np
@@ -9,7 +9,7 @@ import pandas as pd
 import sys, os 
 
 if __name__ == "__main__":
-    dp.ERA5_data_downloader()
+    dpr.ERA5_data_downloader()
 
     #User Input for Area of Interest
     print("Input Area of Interest extend lat[-90,90], lon[-180,180]")
@@ -23,47 +23,12 @@ if __name__ == "__main__":
         print(f"{Fore.RED} Wrong input! Please insert a number!{Fore.RESET}")
         print(f"\nArea of Interest: Lat[{lat_min}, {lat_max}], Lon[{lon_min}, {lon_max}]")
 
-    df_ERA, df_CSR, ds_ERA_sliced, ds_CSR_sliced = dp.Load_slice_conv_dataset(lat_min, lat_max, lon_min, lon_max)
+    df_ERA, df_CSR, ds_ERA_sliced, ds_CSR_sliced = dpr.Load_slice_conv_dataset(lat_min, lat_max, lon_min, lon_max)
 
 # Regrid ERA5 and merge
     if  df_ERA is not None and df_CSR is not None:
-        # Compute GRACE resolution
-        g_lats = np.sort(df_CSR["lat"].unique()) 
-        g_lons = np.sort(df_CSR["lon"].unique())
-
-        dlat = np.diff(g_lats)
-        dlon = np.diff(g_lons)
-
-        step_lat = dlat[dlat > 0].min()
-        step_lon = dlon[dlon > 0].min()
-
-        step = float(min(step_lat, step_lon))
-        #Regrid ERA5 
-        df_CSR["lat_r"] = (df_CSR["lat"] / step).round() * step
-        df_CSR["lon_r"] = (df_CSR["lon"] / step).round() * step
-
-        df_ERA2=df_ERA.copy()
-        df_ERA2["lat_r"] = (df_ERA2["lat"] / step).round() * step
-        df_ERA2["lon_r"] = (df_ERA2["lon"] / step).round() * step
-
-        df_ERA2 = df_ERA2.groupby(["year", "month", "lat_r", "lon_r"]).mean().reset_index()
-        #Merge 2 dataframes
-        merged = pd.merge(
-            df_CSR,
-            df_ERA2,
-            on=["year", "month", "lat_r", "lon_r"],
-            how="inner",
-            suffixes=("_grace", "_era")
-        )
-
-        # Remove rows with year 2025 and above. Training is going to be done up to 2024. 
-        # 2025 and on is going to be used for testing
-        merged= merged[merged['year'] <= 2024]
-        print(f"Most recent year in training dataset: {merged['year'].max()}")
-
-        data_out = ['time','lat_r','lat_era','lon_r','lon_era']
-        merged = merged.drop(columns = data_out, errors='ignore')
-        merged.rename(columns={"lon_grace": "lon", "lat_grace": "lat"}, inplace=True)
+        print(f"{Fore.CYAN} Regriding ERA5 to CSR Grace Resolution {Fore.RESET}")
+        merged = dpr.Era_2_Csr(df_CSR, df_ERA)
 # We are ready for ML
 
 #RFE
@@ -155,7 +120,7 @@ if __name__ == "__main__":
         if not available_models:
             print(Fore.RED + " Error: No .pkl files found in the models directory!")
             sys.exit()
-    # comment 
+    
         print(" Available Models:")
         for i, model_file in enumerate(available_models):
             print(f"  [{i+1}] {model_file}")
@@ -185,7 +150,7 @@ if __name__ == "__main__":
     var_to_plot = "lwe_thickness"
     #Exw dialejei model= full_model_path, month, year, basin_name, kai eftiaxa kai to output path moy
 
-    df_CSR_on_ERA_grid = dp.CSR_interp(df_CSR, df_ERA)
+    df_CSR_on_ERA_grid = dpr.CSR_interp(df_CSR, df_ERA)
    
 
 #dataset_CSR = ds_CSR_sliced, #dataset_ERA = df_ERA, dataset_diff = pros to parwn to ftiaxnw mesa argotera isws to prosthesw alliws 

@@ -153,6 +153,49 @@ def Load_slice_conv_dataset(lat_min, lat_max, lon_min, lon_max):
     except Exception as e:
         print(f"{Fore.RED} Error during processing: {e}{Fore.RESET}")
         return None, None, None, None
+    
+#dataset_CSR = df_CSR 
+def Era_2_Csr(dataset_CSR, dataset_ERA):
+        # Compute GRACE resolution
+        g_lats = np.sort(dataset_CSR["lat"].unique()) 
+        g_lons = np.sort(dataset_CSR["lon"].unique())
+
+        dlat = np.diff(g_lats)
+        dlon = np.diff(g_lons)
+
+        step_lat = dlat[dlat > 0].min()
+        step_lon = dlon[dlon > 0].min()
+
+        step = float(min(step_lat, step_lon))
+        #Regrid ERA5 
+        dataset_CSR["lat_r"] = (dataset_CSR["lat"] / step).round() * step
+        dataset_CSR["lon_r"] = (dataset_CSR["lon"] / step).round() * step
+
+        df_ERA2=dataset_ERA.copy()
+        df_ERA2["lat_r"] = (df_ERA2["lat"] / step).round() * step
+        df_ERA2["lon_r"] = (df_ERA2["lon"] / step).round() * step
+
+        df_ERA2 = df_ERA2.groupby(["year", "month", "lat_r", "lon_r"]).mean().reset_index()
+        #Merge 2 dataframes
+        print(f"{Fore.CYAN} Merging ERA5 & Grace dataframes {Fore.RESET}")
+        merged = pd.merge(
+            dataset_CSR,
+            df_ERA2,
+            on=["year", "month", "lat_r", "lon_r"],
+            how="inner",
+            suffixes=("_grace", "_era")
+        )
+
+        # Remove rows with year 2025 and above. Training is going to be done up to 2024. 
+        # 2025 and on is going to be used for testing
+        merged= merged[merged['year'] <= 2024]
+        print(f"Most recent year in training dataset: {merged['year'].max()}")
+
+        data_out = ['time','lat_r','lat_era','lon_r','lon_era']
+        merged = merged.drop(columns = data_out, errors='ignore')
+        merged.rename(columns={"lon_grace": "lon", "lat_grace": "lat"}, inplace=True)
+        
+        return merged
 
 #dataset_CSR = df_CSR, dataset_ERA = df_ERA 
 def CSR_interp(dataset_CSR, dataset_ERA):
