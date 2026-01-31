@@ -132,7 +132,8 @@ def CSR_plot2(model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA
         #data_predicted2 is the dataframe that i am gonna use for the lwe_diff
     data_predicted2 = input_ERA_data.copy()
 
-    ds_pred = input_ERA_data.groupby(["lat", "lon"])[["lwe_pred"]].mean().to_xarray()
+    #ds_pred = input_ERA_data.groupby(["lat", "lon"])[["lwe_pred"]].mean().to_xarray()
+    ds_pred = input_ERA_data.set_index(["lat", "lon"])[["lwe_pred"]].to_xarray()
     data_predicted = ds_pred["lwe_pred"]
 
     t_index = pd.DatetimeIndex(dataset_CSR.time.values)

@@ -254,3 +254,38 @@ def prediction(dataset, model, year, month):
         input_ERA_data["lwe_pred"] = model.predict(X_pred)
         return input_ERA_data
 
+#year_1 = start_year, year_2 = end_year
+def cont_prediction(dataset, model, year_1, year_2):
+    years = range(year_1, year_2)
+    months = range(1, 13)
+# I will save the results in the predictions df
+    predictions = []
+    
+    for year in years:
+        for month in months:
+            try:
+                df_pred = prediction(dataset, model, year, month)
+
+                df_pred["time"] = pd.to_datetime(f"{year}-{month:02d}-01")
+
+                #Saving 12 dfs for every year 
+                predictions.append(df_pred)
+
+            except Exception as e:
+                print(f"{Fore.RED}Error! on {month}/{year}: {e}{Fore.RESET}")
+    # If prediction contains something 
+    if predictions:
+        # 
+        final_df = pd.concat(predictions, ignore_index=True)
+        print(f"{Fore.GREEN} Prediction dataframe created! {Fore.RESET}")
+        return final_df
+    #If predictions empty
+    else:
+        print("No predictions were generated.")
+        return None
+
+
+
+
+
+    
