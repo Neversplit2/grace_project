@@ -256,6 +256,7 @@ def prediction(dataset, model, year, month):
 
 #year_1 = start_year, year_2 = end_year
 def cont_prediction(dataset, model, year_1, year_2):
+    model = joblib.load(model)
     years = range(year_1, year_2)
     months = range(1, 13)
 # I will save the results in the predictions df
