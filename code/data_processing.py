@@ -266,7 +266,8 @@ def cont_prediction(dataset, model, year_1, year_2):
             try:
                 df_pred = prediction(dataset, model, year, month)
 
-                df_pred["time"] = pd.to_datetime(f"{year}-{month:02d}-01")
+                df_pred["year"] = year
+                df_pred["month"] = month
 
                 #Saving 12 dfs for every year 
                 predictions.append(df_pred)
@@ -284,7 +285,16 @@ def cont_prediction(dataset, model, year_1, year_2):
         print("No predictions were generated.")
         return None
 
-
+#dataset = df_pred_4_stats, lat = target_lat, lon = target_lon
+def cleaner_4_stats(dataframe, lat, lon):
+    #Check users input
+    lat_match = np.isclose(dataframe["lat"], lat, atol=0.01)
+    lon_match = np.isclose(dataframe["lon"], lon, atol=0.01)
+    # Clean dataframe we want to mach the correct lat with lon. we only need the raw with the target  users lat/lon
+    clean_df = dataframe[lat_match & lon_match].copy()
+    
+    clean_df = clean_df.sort_values(by = ["year", "month"])
+    return clean_df
 
 
 

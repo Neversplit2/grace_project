@@ -119,7 +119,7 @@ def ERA_plot(dataset, year, month, var_to_plot, basin_name, output):
 #model= full_model_path, #year= map_year, month=map_month
 #dataset_CSR = ds_CSR_sliced, #dataset_ERA = df_ERA, dataset_diff = pros to parwn to ftiaxnw mesa argotera isws to prosthesw alliws 
 #output = output_CSR, dataset_CSR2 = CSR_on_ERA_grid
-def CSR_plot2(model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA, var_to_plot, basin_name):
+def CSR_plot(model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA, var_to_plot, basin_name):
     model = joblib.load(model)
     target_ym = f"{year}-{month:02d}"
    
@@ -262,3 +262,29 @@ def CSR_plot2(model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA
         plt.savefig(output, dpi=300, bbox_inches="tight")
         print(f" Map saved to: {output}")
         plt.show()
+
+
+#statistical analysis
+#dataframe = df_pred_4_stats_cl
+def model_eval_plot(dataframe, output):
+    # yaxis= lwe_thickness/lwe_pred and x_axis= time (year-month)
+    #i need to create the time variable
+    plot_dates = pd.to_datetime(dataframe[['year', 'month']].assign(DAY=1))
+    
+    plt.figure(figsize=(10, 8))
+    #lwe_thickness
+    plt.scatter(plot_dates, dataframe["lwe_thickness"], c = 'blue', linestyle='--', linewidths= 2, label = "CSR", alpha=0.7, marker='o')
+
+    #lwe_pred
+    plt.scatter(plot_dates, dataframe["lwe_pred"], c = 'green', linestyle='-', linewidths= 2, label = "predicted CSR", alpha=0.7, marker='x')
+
+    plt.title(f"Actual vs Predicted LWE for Lat: {dataframe['lat'].iloc[0]:.2f}, Lon: {dataframe['lon'].iloc[0]:.2f}")
+    plt.xlabel("Time")
+    plt.ylabel("LWE (cm)")
+    plt.legend()
+    plt.grid(True, linestyle='--', alpha=0.5)
+
+    plt.savefig(output, dpi=300, bbox_inches="tight")
+    print(f" Raster plot saved as: {output}")
+    print("Map")
+    plt.show()
