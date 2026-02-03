@@ -152,34 +152,36 @@ if __name__ == "__main__":
     df_CSR_on_ERA_grid = dpr.CSR_interp(df_CSR, df_ERA)
    
     vis.CSR_plot(full_model_path, map_year, map_month, output_CSR, ds_CSR_sliced, df_CSR_on_ERA_grid, df_ERA, var_to_plot, basin_name)
-
+    
+    choice3 = input(f"{Fore.CYAN}Would you like to create comparison grace raw/predicted statistical analysis plot? Write YES/NO {Fore.RESET}").strip().upper()
+    if choice3 == "YES":
 #stats real vs predicted lwe
-    print(f"{Fore.CYAN}Creating Comparison grace raw/predicted statistical analysis plot{Fore.RESET}")
+        print(f"{Fore.CYAN}Creating Comparison grace raw/predicted statistical analysis plot{Fore.RESET}")
 
-    try:
-        start_year = int(input("Enter starting year: "))
-        end_year = int(input("Enter ending year: "))
-    except ValueError:
-        print(Fore.RED + " Invalid input! Terminating programm.")
-        sys.exit()
-    df_pred_4_stats = dpr.cont_prediction(df_ERA,full_model_path, start_year, end_year)
-    # merging 2 dfs
-    merged_ev_stats = pd.merge(df_CSR_on_ERA_grid, df_pred_4_stats,on=["year", "month", "lat", "lon"],
-    how="inner",)
+        try:
+            start_year = int(input("Enter starting year: "))
+            end_year = int(input("Enter ending year: "))
+        except ValueError:
+            print(Fore.RED + " Invalid input! Terminating programm.")
+            sys.exit()
+        df_pred_4_stats = dpr.cont_prediction(df_ERA,full_model_path, start_year, end_year)
+        # merging 2 dfs
+        merged_ev_stats = pd.merge(df_CSR_on_ERA_grid, df_pred_4_stats,on=["year", "month", "lat", "lon"],
+        how="inner",)
 
-    print(f"{Fore.CYAN}Choose lat, lon for plot{Fore.RESET}")
-    try:
-        target_lat = float(input("Enter latitude: "))
-        target_lon = float(input("Enter longtitude: "))
-    except ValueError:
-        print(Fore.RED + " Invalid input! Terminating programm.")
-        sys.exit()
-    merged_ev_stats_cl = dpr.cleaner_4_stats(merged_ev_stats, target_lat, target_lon)
-    print(merged_ev_stats_cl.head(10))
+        print(f"{Fore.CYAN}Choose lat, lon for plot{Fore.RESET}")
+        try:
+            target_lat = float(input("Enter latitude: "))
+            target_lon = float(input("Enter longtitude: "))
+        except ValueError:
+            print(Fore.RED + " Invalid input! Terminating programm.")
+            sys.exit()
+        merged_ev_stats_cl = dpr.cleaner_4_stats(merged_ev_stats, target_lat, target_lon)
+        print(merged_ev_stats_cl.head(10))
 
-    folder_name_stats = str(input(f"{Fore.CYAN}Insert folder name you want to save the plot {Fore.RESET}"))
-    title_stats = str(input(f"{Fore.CYAN}Insert map title  {Fore.RESET}"))
-    extension_stats = str(input(f"{Fore.CYAN}Insert .extension (eg. .jpg) {Fore.RESET}"))
-   
-    output_stats = vis.dynamic_t(folder_name_stats, title_stats, extension_stats)
-    vis.model_eval_plot2(merged_ev_stats_cl, output_stats)
+        folder_name_stats = str(input(f"{Fore.CYAN}Insert folder name you want to save the plot {Fore.RESET}"))
+        title_stats = str(input(f"{Fore.CYAN}Insert map title  {Fore.RESET}"))
+        extension_stats = str(input(f"{Fore.CYAN}Insert .extension (eg. .jpg) {Fore.RESET}"))
+    
+        output_stats = vis.dynamic_t(folder_name_stats, title_stats, extension_stats)
+        vis.model_eval_plot3(merged_ev_stats_cl, output_stats)

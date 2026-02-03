@@ -9,7 +9,8 @@ import configuration_settings as cs
 from colorama import Fore
 from scipy.interpolate import griddata
 import os, joblib, sys
-
+from scipy.stats import pearsonr
+from sklearn.metrics import mean_squared_error
 #ERA5 data 
 def ERA5_data_downloader():
     file_ERA_path = cs.DATA_DIR / cs.ERA5_FILE
@@ -297,6 +298,35 @@ def cleaner_4_stats(dataframe, lat, lon):
     clean_df = clean_df.sort_values(by = ["year", "month"])
     return clean_df
 
+def corr_pearson(dataframe):
+    r_score, p_value = pearsonr(dataframe['lwe_thickness'],dataframe['lwe_pred'])
+    print(f"Pearson r: {r_score:.4f}")
+    print(f"p-value: {p_value:.4f}")
 
+    if p_value > 0.05:
+        print(f"{Fore.RED}Warning: Result is not statistically significant (p > 0.05){Fore.RESET}")
+     
+    else:
+        print(f"{Fore.GREEN}Result is statistically significant.{Fore.RESET}")
+
+    if r_score<= 0:
+        direction = "Negative"
+    elif r_score >=0:
+        direction = "Positive"
+
+    abs_r_score = abs(r_score)
+
+    if 0.90 <= abs_r_score <= 1.00:
+        print (f"{Fore.GREEN}Very high {direction} correlation {Fore.RESET}")   
+    elif 0.70 <= abs_r_score <= 0.90:
+        print (f"{Fore.GREEN}High {direction} correlation {Fore.RESET}")
+    elif 0.50 <= abs_r_score <= 0.70:
+        print (f"{Fore.BLUE}Moderate {direction} correlation {Fore.RESET}")
+    elif 0.30 <= abs_r_score <= 0.50:
+        print (f"{Fore.RED}Low {direction} correlation {Fore.RESET}")
+    elif 0.0 <= abs_r_score <= 0.30:
+        print (f"{Fore.RED}Negligible correlation {Fore.RESET}")
+
+    return r_score, p_value
 
     

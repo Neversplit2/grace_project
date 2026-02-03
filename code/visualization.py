@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import numpy as np
+import seaborn as sns
 
 
 #So i want to create a function for the dynamic approach
@@ -293,7 +294,7 @@ def model_eval_plot2(dataframe, output):
     # yaxis= lwe_thickness/lwe_pred and x_axis= time (year-month)
     #i need to create the time variable
     plot_dates = pd.to_datetime(dataframe[['year', 'month']].assign(DAY=1))
-    
+
     plt.figure(figsize=(10, 8))
     #lwe_thickness
     plt.plot(plot_dates, dataframe["lwe_thickness"], color='blue', linestyle='--', linewidth=2, label="CSR", alpha=0.7, 
@@ -308,6 +309,52 @@ def model_eval_plot2(dataframe, output):
     plt.ylabel("LWE (cm)")
     plt.legend()
     plt.grid(True, linestyle='--', alpha=0.5)
+
+    plt.savefig(output, dpi=300, bbox_inches="tight")
+    print(f" Raster plot saved as: {output}")
+    print("Map")
+    plt.show()
+
+def model_eval_plot3(dataframe, output):
+    # yaxis= lwe_thickness/lwe_pred and x_axis= time (year-month)
+    #i need to create the time variable
+    plot_dates = pd.to_datetime(dataframe[['year', 'month']].assign(DAY=1))
+
+    r_score, p_value = dpr.corr_pearson(dataframe)
+    
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 8),)
+ 
+    #Map 1
+    #lwe_thickness
+    ax1.plot(plot_dates, dataframe["lwe_thickness"], color='blue', linestyle='--', linewidth=2, label="CSR", alpha=0.7, 
+             marker='o')
+
+    # Predicted -> Green Solid Line
+    ax1.plot(plot_dates, dataframe["lwe_pred"], color='green', linestyle='-', linewidth=2, label="Predicted CSR", alpha=0.7, 
+             marker='x')
+
+    ax1.set_title(f"Actual vs Predicted LWE for \n Lat: {dataframe['lat'].iloc[0]:.2f}, Lon: {dataframe['lon'].iloc[0]:.2f} R: {r_score:.4f} ", fontsize=12, fontweight='bold')
+    ax1.set_xlabel("Time")
+    ax1.set_ylabel("LWE (cm)")
+    ax1.legend()
+    ax1.grid(True, linestyle='--', alpha=0.5)
+
+    # Map 2
+    ax2.scatter(dataframe["lwe_thickness"], dataframe["lwe_pred"], color='purple', alpha=0.6, label='Data Points', s=50)
+
+    # best fit line
+    a, b = np.polyfit(dataframe["lwe_thickness"], dataframe["lwe_pred"], 1)
+    # line equation
+    regression_line = a * dataframe["lwe_thickness"] + b
+    
+    ax2.plot(dataframe["lwe_thickness"], regression_line, color='red', linewidth=2, label=f'Trend Line (R={r_score:.2f})')
+    
+    
+    ax2.set_title(f"Correlation Analysis\nScatter Plot & Trend Line", fontsize=12, fontweight='bold')
+    ax2.set_xlabel("Actual CSR Values (cm)")
+    ax2.set_ylabel("Predicted Values (cm)")
+    ax2.legend()
+    ax2.grid(True, linestyle=':', alpha=0.5)
 
     plt.savefig(output, dpi=300, bbox_inches="tight")
     print(f" Raster plot saved as: {output}")
