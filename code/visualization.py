@@ -267,55 +267,8 @@ def CSR_plot(model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA,
 
 #statistical analysis
 #dataframe = df_pred_4_stats_cl
+
 def model_eval_plot(dataframe, output):
-    # yaxis= lwe_thickness/lwe_pred and x_axis= time (year-month)
-    #i need to create the time variable
-    plot_dates = pd.to_datetime(dataframe[['year', 'month']].assign(DAY=1))
-    
-    plt.figure(figsize=(10, 8))
-    #lwe_thickness
-    plt.scatter(plot_dates, dataframe["lwe_thickness"], c = 'blue', linestyle='--', linewidths= 2, label = "CSR", alpha=0.7, marker='o')
-
-    #lwe_pred
-    plt.scatter(plot_dates, dataframe["lwe_pred"], c = 'green', linestyle='-', linewidths= 2, label = "predicted CSR", alpha=0.7, marker='x')
-
-    plt.title(f"Actual vs Predicted LWE for Lat: {dataframe['lat'].iloc[0]:.2f}, Lon: {dataframe['lon'].iloc[0]:.2f}")
-    plt.xlabel("Time")
-    plt.ylabel("LWE (cm)")
-    plt.legend()
-    plt.grid(True, linestyle='--', alpha=0.5)
-
-    plt.savefig(output, dpi=300, bbox_inches="tight")
-    print(f" Raster plot saved as: {output}")
-    print("Map")
-    plt.show()
-
-def model_eval_plot2(dataframe, output):
-    # yaxis= lwe_thickness/lwe_pred and x_axis= time (year-month)
-    #i need to create the time variable
-    plot_dates = pd.to_datetime(dataframe[['year', 'month']].assign(DAY=1))
-
-    plt.figure(figsize=(10, 8))
-    #lwe_thickness
-    plt.plot(plot_dates, dataframe["lwe_thickness"], color='blue', linestyle='--', linewidth=2, label="CSR", alpha=0.7, 
-             marker='o')
-
-    # Predicted -> Green Solid Line
-    plt.plot(plot_dates, dataframe["lwe_pred"], color='green', linestyle='-', linewidth=2, label="Predicted CSR", alpha=0.7, 
-             marker='x')
-
-    plt.title(f"Actual vs Predicted LWE for Lat: {dataframe['lat'].iloc[0]:.2f}, Lon: {dataframe['lon'].iloc[0]:.2f}")
-    plt.xlabel("Time")
-    plt.ylabel("LWE (cm)")
-    plt.legend()
-    plt.grid(True, linestyle='--', alpha=0.5)
-
-    plt.savefig(output, dpi=300, bbox_inches="tight")
-    print(f" Raster plot saved as: {output}")
-    print("Map")
-    plt.show()
-
-def model_eval_plot3(dataframe, output):
     # yaxis= lwe_thickness/lwe_pred and x_axis= time (year-month)
     #i need to create the time variable
     plot_dates = pd.to_datetime(dataframe[['year', 'month']].assign(DAY=1))

@@ -184,4 +184,4 @@ if __name__ == "__main__":
         extension_stats = str(input(f"{Fore.CYAN}Insert .extension (eg. .jpg) {Fore.RESET}"))
     
         output_stats = vis.dynamic_t(folder_name_stats, title_stats, extension_stats)
-        vis.model_eval_plot3(merged_ev_stats_cl, output_stats)
+        vis.model_eval_plot(merged_ev_stats_cl, output_stats)
