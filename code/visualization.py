@@ -264,7 +264,6 @@ def CSR_plot(model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA,
         print(f" Map saved to: {output}")
         plt.show()
 
-
 #statistical analysis
 #dataframe = df_pred_4_stats_cl
 

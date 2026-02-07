@@ -6,7 +6,7 @@ import visualization as vis
 import training as tr
 import numpy as np
 import pandas as pd
-import sys, os 
+import sys, os, joblib 
 
 if __name__ == "__main__":
     dpr.ERA5_data_downloader()
@@ -46,7 +46,7 @@ if __name__ == "__main__":
             print("Invalid input!")
             sys.exit()
 
-        rfe, selected_features, x = tr.rfe(merged,model_RFE,n_features_to_select)
+        rfe, selected_features, x = tr.rfe(merged, model_RFE, n_features_to_select)
     
         print(f"{Fore.CYAN}Creating rfe feature ranking plot{Fore.RESET}")
     
@@ -58,8 +58,23 @@ if __name__ == "__main__":
 
         vis.rfe_plot(rfe, x, output_rfe)
     
-    choice2 = input(f"{Fore.CYAN}Would you like to create ERA5 feature map? Write YES/NO {Fore.RESET}").strip().upper()
-    if choice2 == "YES":
+    # ta ebgala exw apo to if gia na min ta janaypologizw kai gia ta training curves 
+        X_train, X_test, y_train, y_test = tr.data_4_train(selected_features, x, merged)
+        choice = input(f"{Fore.CYAN}Would you like to train a model? Write YES/NO {Fore.RESET}").strip().upper()
+        if choice == "YES":
+            if model_RFE == "XGBoost":
+                best_model = tr.XGBoost_train(X_train, y_train)
+            elif model_RFE == "RF":
+                best_model = tr.RF_train(X_train, y_train)
+            
+            folder_name = str(input(f"{Fore.CYAN}Insert folder name you want to save the trained model {Fore.RESET}"))
+            title = str(input(f"{Fore.CYAN}Insert title  {Fore.RESET}"))
+            
+            output_train = vis.dynamic_t(folder_name, title, extension=".pkl")
+            joblib.dump(best_model, output_train)
+
+    choice = input(f"{Fore.CYAN}Would you like to create ERA5 feature map? Write YES/NO {Fore.RESET}").strip().upper()
+    if choice == "YES":
     #ERA5 Map
         print(f"{Fore.CYAN}Creating ERA5 feature map{Fore.RESET}")
         feature_list = list(ds_ERA_sliced.data_vars)
@@ -153,8 +168,8 @@ if __name__ == "__main__":
    
     vis.CSR_plot(full_model_path, map_year, map_month, output_CSR, ds_CSR_sliced, df_CSR_on_ERA_grid, df_ERA, var_to_plot, basin_name)
     
-    choice3 = input(f"{Fore.CYAN}Would you like to create comparison grace raw/predicted statistical analysis plot? Write YES/NO {Fore.RESET}").strip().upper()
-    if choice3 == "YES":
+    choice = input(f"{Fore.CYAN}Would you like to create comparison grace raw/predicted statistical analysis plot? Write YES/NO {Fore.RESET}").strip().upper()
+    if choice == "YES":
 #stats real vs predicted lwe
         print(f"{Fore.CYAN}Creating Comparison grace raw/predicted statistical analysis plot{Fore.RESET}")
 

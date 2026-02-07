@@ -57,3 +57,101 @@ def rfe(dataset, model, n_features_to_select):
     print(f"{Fore.GREEN} The {n_features_to_select} Best Features are: {Fore.RESET}")
     print(f"{Fore.GREEN}{selected_features}{Fore.RESET}")
     return rfe, selected_features, x
+
+# selected_features = selected_features, x = x, dataset = merged
+def data_4_train(selected_features, x, dataset):
+    x_final = x[selected_features]
+    print(f"Training will use: \n {x_final.head(1)}")
+    target = "lwe_thickness"
+    extra_features = ["year", "month", "lon", "lat"]
+    base_features = list(x_final.columns)
+    # Final feature list
+    features = base_features + extra_features
+    features = [col for col in features if col != target]
+    # Define X and y
+    X = dataset[features]
+    y = dataset[target]
+
+    # Split into training and validation datasets (80/20)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y,
+        test_size=0.2,
+        random_state=42
+    )
+    return X_train, X_test, y_train, y_test
+
+def XGBoost_train(X_train, y_train):
+    print("  XGBoost Tuning...")
+    param_grid = {
+    'n_estimators': [200, 500],
+    'max_depth': [6,10],
+    'learning_rate': [0.05, 0.1],
+    'subsample': [0.8],
+    'colsample_bytree': [0.8],
+    'reg_alpha': [0, 0.1],
+    'reg_lambda': [0.5, 1.0]
+    }
+
+    final_model = xgb.XGBRegressor(objective='reg:squarederror', random_state=42, n_jobs=-1)
+
+    kf = KFold(n_splits=5, shuffle=True, random_state=42)
+
+    tuner = RandomizedSearchCV(
+        final_model,
+        param_distributions=param_grid,
+        n_iter=12,                     
+        cv=kf,
+        scoring="neg_mean_absolute_error",
+        n_jobs=-1,                      
+        verbose=2,
+        random_state=42
+    )
+
+    tuner.fit(X_train, y_train)
+    best_params = tuner.best_params_
+    print(" Best XGBoost Parameters:", best_params)
+
+    best_model = xgb.XGBRegressor(
+        **best_params,
+        objective='reg:squarederror',
+        random_state=42,
+        n_jobs=-1
+    )
+    best_model.fit(X_train, y_train)
+    
+    return best_model
+
+def RF_train(X_train, y_train):
+    param_grid = {
+        'n_estimators': [200, 300],        
+        'max_depth': [10, 20],
+        'min_samples_split': [2, 5],
+        'min_samples_leaf': [1, 2],
+        'max_features': ['sqrt']
+    }
+
+    final_model = RandomForestRegressor(random_state=42, n_jobs=-1)
+    kf = KFold(n_splits=3, shuffle=True, random_state=42)  # 3-FOLD → faster
+    tuner = RandomizedSearchCV(
+        final_model,
+        param_distributions=param_grid,
+        n_iter=8,                     
+        cv=kf,
+        scoring="neg_mean_absolute_error",
+        n_jobs=-1,
+        verbose=2,
+        random_state=42
+    )
+
+    # Fit tuner
+    tuner.fit(X_train, y_train)
+    best_params = tuner.best_params_
+    print("Best Parameters:", best_params)
+
+    # Train final model with best params
+    best_model = RandomForestRegressor(
+        **best_params,
+        random_state=42,
+        n_jobs=-1
+    )
+    best_model.fit(X_train, y_train)
