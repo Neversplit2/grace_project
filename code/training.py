@@ -58,6 +58,7 @@ def rfe(dataset, model, n_features_to_select):
     print(f"{Fore.GREEN}{selected_features}{Fore.RESET}")
     return rfe, selected_features, x
 
+#training
 # selected_features = selected_features, x = x, dataset = merged
 def data_4_train(selected_features, x, dataset):
     x_final = x[selected_features]
@@ -80,14 +81,14 @@ def data_4_train(selected_features, x, dataset):
     )
     return X_train, X_test, y_train, y_test
 
-def XGBoost_train(X_train, y_train):
+def XGBoost_tuner(X_train, y_train):
     print("  XGBoost Tuning...")
     param_grid = {
-    'n_estimators': [200, 500],
-    'max_depth': [6,10],
+    'n_estimators': [200, 400],
+    'max_depth': [6, 10, 15],
     'learning_rate': [0.05, 0.1],
-    'subsample': [0.8],
-    'colsample_bytree': [0.8],
+    'subsample': [0.6, 0.8, 1],
+    'colsample_bytree': [0.6, 0.8, 1],
     'reg_alpha': [0, 0.1],
     'reg_lambda': [0.5, 1.0]
     }
@@ -110,7 +111,9 @@ def XGBoost_train(X_train, y_train):
     tuner.fit(X_train, y_train)
     best_params = tuner.best_params_
     print(" Best XGBoost Parameters:", best_params)
-
+    return best_params
+def XGBoost_train(X_train, y_train):
+    best_params = XGBoost_tuner(X_train, y_train)
     best_model = xgb.XGBRegressor(
         **best_params,
         objective='reg:squarederror',
@@ -121,10 +124,10 @@ def XGBoost_train(X_train, y_train):
     
     return best_model
 
-def RF_train(X_train, y_train):
+def RF_tuner(X_train, y_train):
     param_grid = {
-        'n_estimators': [200, 300],        
-        'max_depth': [10, 20],
+        'n_estimators': [50, 100],        
+        'max_depth': [6, 8],
         'min_samples_split': [2, 5],
         'min_samples_leaf': [1, 2],
         'max_features': ['sqrt']
@@ -147,11 +150,30 @@ def RF_train(X_train, y_train):
     tuner.fit(X_train, y_train)
     best_params = tuner.best_params_
     print("Best Parameters:", best_params)
-
-    # Train final model with best params
+    return best_params
+def RF_train(X_train,y_train):
+    best_params = RF_tuner(X_train,y_train)
     best_model = RandomForestRegressor(
         **best_params,
         random_state=42,
         n_jobs=-1
     )
     best_model.fit(X_train, y_train)
+    return best_model
+
+#learning curves
+#X_train, X_test, y_train, y_test ta exw ypologisei sto main
+def data_4_curves(X_train, X_test, y_train, y_test):
+    
+    max_tuning_samples = 100000 #adjust as needed eg 50000
+
+    if len(X_train) > max_tuning_samples:
+        X_tune = X_train.sample(n=max_tuning_samples, random_state=42)
+        y_tune = y_train.loc[X_tune.index]
+    else:
+        X_tune = X_train
+        y_tune = y_train
+
+    X_train_sub, X_val, y_train_sub, y_val = train_test_split(
+        X_tune, y_tune, test_size=0.2, random_state=42
+    )
