@@ -115,10 +115,13 @@ def conv_2_df(ds,name):
     return df
 
 # In this function I call slice_nc and conv_2_df 
-def Load_slice_conv_dataset(lat_min, lat_max, lon_min, lon_max):
-    
+def Load_slice_conv_dataset(dataset_name, lat_min, lat_max, lon_min, lon_max):
+   
     file_ERA_path = cs.DATA_DIR / cs.ERA5_FILE
-    file_CSR_path = cs.DATA_DIR / cs.GRACE_CSR_FILE
+    if dataset_name == "CSR": 
+        file_CSR_path = cs.DATA_DIR / cs.GRACE_CSR_FILE
+    elif dataset_name == "JPL":
+        file_CSR_path = cs.DATA_DIR / cs.GRACE_JPL_FILE
 
     if not file_ERA_path.exists():
         print(f"{Fore.RED} ERROR! ERA5 data not found \n Run downloader first")
@@ -127,17 +130,17 @@ def Load_slice_conv_dataset(lat_min, lat_max, lon_min, lon_max):
         print(f"{Fore.RED} ERROR! GRACE CSR data not found!")
         return None
     try:
-        ds1 = xr.open_dataset(file_ERA_path) #Maybe i can create a small function that opens nc files (super easy)
+        ds1 = xr.open_dataset(file_ERA_path) 
         ds_ERA_sliced = slice_nc(ds1, "ERA5 data", lat_min, lat_max, lon_min, lon_max)
         ds1.close() # Close original file to free memory
 
         ds2 = xr.open_dataset(file_CSR_path)
         ds_CSR_sliced = slice_nc(ds2, "GRACE CSR data", lat_min, lat_max, lon_min, lon_max)
-
-        #Fixing time Grace
-        ds_CSR_sliced["time"] = pd.to_datetime(
-            ds_CSR_sliced.time.values, origin="2002-01-01", unit="D"
-        )
+        if dataset_name == "CSR": 
+            #Fixing time Grace
+            ds_CSR_sliced["time"] = pd.to_datetime(
+                ds_CSR_sliced.time.values, origin="2002-01-01", unit="D"
+            )
         # Drop time_bounds column, if it exists
         ds_CSR_sliced = ds_CSR_sliced.drop_vars("time_bounds", errors="ignore")
         ds2.close()

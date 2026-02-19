@@ -8,6 +8,7 @@ MAPS_DIR = Path("../maps")
 
 ERA5_FILE = "ERA5_data.nc"
 GRACE_CSR_FILE = "CSR_Mascon_Grace.nc"
+GRACE_JPL_FILE = "JPL_MASCON_GRACE.nc"
 # Ensure that user has the wanted folder structure
 # If not create it
 # Creating a loop to check 

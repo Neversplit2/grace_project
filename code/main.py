@@ -22,8 +22,9 @@ if __name__ == "__main__":
     except ValueError:
         print(f"{Fore.RED} Wrong input! Please insert a number!{Fore.RESET}")
         print(f"\nArea of Interest: Lat[{lat_min}, {lat_max}], Lon[{lon_min}, {lon_max}]")
+    GRACE_data = input(f"{Fore.CYAN}Would you like to run the programm using CSR or JPL Grace dataset? Write CSR/JPL {Fore.RESET}").strip().upper()
 
-    df_ERA, df_CSR, ds_ERA_sliced, ds_CSR_sliced = dpr.Load_slice_conv_dataset(lat_min, lat_max, lon_min, lon_max)
+    df_ERA, df_CSR, ds_ERA_sliced, ds_CSR_sliced = dpr.Load_slice_conv_dataset(GRACE_data, lat_min, lat_max, lon_min, lon_max,)
 
 # Regrid ERA5 and merge
     if  df_ERA is not None and df_CSR is not None:
