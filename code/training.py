@@ -4,6 +4,7 @@ import data_processing as dpr
 from colorama import Fore
 import xgboost as xgb
 import joblib, sys
+import numpy as np
 from sklearn.feature_selection import RFE
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split, RandomizedSearchCV, KFold
@@ -112,6 +113,7 @@ def XGBoost_tuner(X_train, y_train):
     best_params = tuner.best_params_
     print(" Best XGBoost Parameters:", best_params)
     return best_params
+
 def XGBoost_train(X_train, y_train):
     best_params = XGBoost_tuner(X_train, y_train)
     best_model = xgb.XGBRegressor(
@@ -177,3 +179,52 @@ def data_4_curves(X_train, X_test, y_train, y_test):
     X_train_sub, X_val, y_train_sub, y_val = train_test_split(
         X_tune, y_tune, test_size=0.2, random_state=42
     )
+    return X_train_sub, X_val, y_train_sub, y_val
+
+def XGBoost_curves(X_train, X_test, y_train, y_test):
+
+    X_train_sub, X_val, y_train_sub, y_val = data_4_curves(X_train, X_test, y_train, y_test)
+
+    best_params = XGBoost_tuner(X_train_sub, y_train_sub)
+    max_trees = best_params['n_estimators']
+    curve_steps = np.unique(
+        np.linspace(10, max_trees, num=min(max_trees // 10, 20), dtype=int)
+    )
+    # Lists for storing results
+    train_mae_list = []
+    val_mae_list = []
+
+    print(f"\nCalculating learning curves for XGBoost (for {max_trees} trees)")
+
+    for n_trees in curve_steps:
+        
+        # Create a temporary model for this step
+        # We use the best_params except n_estimators (which we set manually here)
+        # Filter parameters to remove 'n_estimators'
+        params_without_n = {k: v for k, v in best_params.items() if k != 'n_estimators'}
+        
+        xgb_curves = xgb.XGBRegressor(
+            objective='reg:squarederror',
+            random_state=42,
+            n_jobs=-1,             
+            n_estimators=int(n_trees), 
+            **params_without_n     
+        )
+        
+        # Train on the subset (sub)
+        xgb_curves.fit(X_train_sub, y_train_sub)
+
+        # Predictions
+        y_train_pred = xgb_curves.predict(X_train_sub)
+        y_val_pred = xgb_curves.predict(X_val)
+
+        # Calculating errors
+        train_mae = mean_absolute_error(y_train_sub, y_train_pred)
+        val_mae = mean_absolute_error(y_val, y_val_pred)
+
+        train_mae_list.append(train_mae)
+        val_mae_list.append(val_mae)
+
+        print(f"Trees: {n_trees:4d} | Train MAE: {train_mae:.4f} | Val MAE: {val_mae:.4f}")
+        
+        return curve_steps, train_mae_list, val_mae_list
