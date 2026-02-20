@@ -186,6 +186,7 @@ def XGBoost_curves(X_train, X_test, y_train, y_test):
     X_train_sub, X_val, y_train_sub, y_val = data_4_curves(X_train, X_test, y_train, y_test)
 
     best_params = XGBoost_tuner(X_train_sub, y_train_sub)
+    
     max_trees = best_params['n_estimators']
     curve_steps = np.unique(
         np.linspace(10, max_trees, num=min(max_trees // 10, 20), dtype=int)
@@ -227,4 +228,4 @@ def XGBoost_curves(X_train, X_test, y_train, y_test):
 
         print(f"Trees: {n_trees:4d} | Train MAE: {train_mae:.4f} | Val MAE: {val_mae:.4f}")
         
-        return curve_steps, train_mae_list, val_mae_list
+    return curve_steps, train_mae_list, val_mae_list

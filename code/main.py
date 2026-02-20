@@ -32,6 +32,7 @@ if __name__ == "__main__":
         merged = dpr.Era_2_Csr(df_CSR, df_ERA)
 # We are ready for ML
     choice = input(f"{Fore.CYAN}Would you like to run the rfe? Write YES/NO {Fore.RESET}").strip().upper()
+
     if choice == "YES":
 #RFE
         print(f"{Fore.CYAN}Starting Random Feature Selection (RFE){Fore.RESET}")
@@ -73,6 +74,15 @@ if __name__ == "__main__":
             
             output_train = vis.dynamic_t(folder_name, title, extension=".pkl")
             joblib.dump(best_model, output_train)
+    
+        choice = input(f"{Fore.CYAN}Would you like to plot model's learning curve? Write YES/NO {Fore.RESET}").strip().upper()
+        if choice == "YES":
+            folder_name = str(input(f"{Fore.CYAN}Insert folder name you want to save the plot {Fore.RESET}"))
+            title = str(input(f"{Fore.CYAN}Insert title  {Fore.RESET}"))
+            extension = str(input(f"{Fore.CYAN}Insert .extension (eg. .jpg) {Fore.RESET}"))
+            output = vis.dynamic_t(folder_name, title, extension)
+            if model_RFE == "XGBoost":
+              vis.XGB_learn_curve(X_train, X_test, y_train, y_test, output)
 
     choice = input(f"{Fore.CYAN}Would you like to create ERA5 feature map? Write YES/NO {Fore.RESET}").strip().upper()
     if choice == "YES":
