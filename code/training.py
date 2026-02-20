@@ -127,6 +127,7 @@ def XGBoost_train(X_train, y_train):
     return best_model
 
 def RF_tuner(X_train, y_train):
+    
     param_grid = {
         'n_estimators': [50, 100],        
         'max_depth': [6, 8],
@@ -136,7 +137,9 @@ def RF_tuner(X_train, y_train):
     }
 
     final_model = RandomForestRegressor(random_state=42, n_jobs=-1)
+    
     kf = KFold(n_splits=3, shuffle=True, random_state=42)  # 3-FOLD → faster
+    
     tuner = RandomizedSearchCV(
         final_model,
         param_distributions=param_grid,
@@ -153,6 +156,7 @@ def RF_tuner(X_train, y_train):
     best_params = tuner.best_params_
     print("Best Parameters:", best_params)
     return best_params
+
 def RF_train(X_train,y_train):
     best_params = RF_tuner(X_train,y_train)
     best_model = RandomForestRegressor(
@@ -228,4 +232,47 @@ def XGBoost_curves(X_train, X_test, y_train, y_test):
 
         print(f"Trees: {n_trees:4d} | Train MAE: {train_mae:.4f} | Val MAE: {val_mae:.4f}")
         
+    return curve_steps, train_mae_list, val_mae_list
+
+def RF_curves(X_train, X_test, y_train, y_test):
+    X_train_sub, X_val, y_train_sub, y_val = data_4_curves(X_train, X_test, y_train, y_test)
+
+    best_params = RF_tuner(X_train_sub, y_train_sub)
+   
+    max_trees = best_params['n_estimators']
+    curve_steps = np.unique(
+        np.linspace(10, max_trees, num=min(max_trees // 10, 20), dtype=int)
+    )
+
+    rf_curves = RandomForestRegressor(
+        random_state=42,
+        max_depth=best_params['max_depth'],
+        min_samples_split=best_params['min_samples_split'],
+        min_samples_leaf=best_params['min_samples_leaf'],
+        max_features=best_params['max_features'],
+        n_estimators=1,
+        warm_start=True,
+        n_jobs=-1
+    )
+
+    train_mae_list = []
+    val_mae_list = []
+    current_trees = 0
+
+    print("\nComputing learning curves...")
+    for n_trees in curve_steps:
+        rf_curves.n_estimators = int(n_trees)
+        rf_curves.fit(X_train_sub, y_train_sub)
+
+        y_train_pred = rf_curves.predict(X_train_sub)
+        y_val_pred = rf_curves.predict(X_val)
+
+        train_mae = mean_absolute_error(y_train_sub, y_train_pred)
+        val_mae = mean_absolute_error(y_val, y_val_pred)
+
+        train_mae_list.append(train_mae)
+        val_mae_list.append(val_mae)
+
+        print(f"Trees: {n_trees:4d} | Train MAE: {train_mae:.4f} | Val MAE: {val_mae:.4f}")
+
     return curve_steps, train_mae_list, val_mae_list

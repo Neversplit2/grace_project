@@ -331,3 +331,21 @@ def XGB_learn_curve(X_train, X_test, y_train, y_test, output):
     plt.savefig(output, dpi=200)
     plt.show()
     print(f" Training curve saved to : {output}")
+
+def RF_learn_curve(X_train, X_test, y_train, y_test, output):
+    curve_steps, train_mae_list, val_mae_list= tr.RF_curves(X_train, X_test, y_train, y_test)
+
+    plt.figure(figsize=(10, 6), dpi=200)
+    plt.plot(curve_steps, train_mae_list, label='Train MAE', linewidth=2)
+    plt.plot(curve_steps, val_mae_list, label='Validation MAE', linewidth=2)
+    plt.xlabel('Number of Trees', fontsize=14)
+    plt.ylabel('MAE', fontsize=14)
+    plt.title('Random Forest Training Curve', fontsize=16)
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.legend(fontsize=12)
+    plt.grid(True, linewidth=0.5)
+
+    plt.savefig(output, dpi=200)
+    plt.show()
+    print(f" Training curve saved to : {output}")

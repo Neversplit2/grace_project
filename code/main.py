@@ -32,6 +32,9 @@ if __name__ == "__main__":
         merged = dpr.Era_2_Csr(df_CSR, df_ERA)
 # We are ready for ML
     choice = input(f"{Fore.CYAN}Would you like to run the rfe? Write YES/NO {Fore.RESET}").strip().upper()
+    if choice not in ["YES", "NO"]:
+        print(f"{Fore.RED}Error: Invalid input '{choice}'. Please type exactly 'YES' or 'NO'. Exiting...{Fore.RESET}")
+        sys.exit()
 
     if choice == "YES":
 #RFE
@@ -63,6 +66,10 @@ if __name__ == "__main__":
     # ta ebgala exw apo to if gia na min ta janaypologizw kai gia ta training curves 
         X_train, X_test, y_train, y_test = tr.data_4_train(selected_features, x, merged)
         choice = input(f"{Fore.CYAN}Would you like to train a model? Write YES/NO {Fore.RESET}").strip().upper()
+        if choice not in ["YES", "NO"]:
+            print(f"{Fore.RED}Error: Invalid input '{choice}'. Please type exactly 'YES' or 'NO'. Exiting...{Fore.RESET}")
+            sys.exit()
+
         if choice == "YES":
             if model_RFE == "XGBoost":
                 best_model = tr.XGBoost_train(X_train, y_train)
@@ -76,15 +83,25 @@ if __name__ == "__main__":
             joblib.dump(best_model, output_train)
     
         choice = input(f"{Fore.CYAN}Would you like to plot model's learning curve? Write YES/NO {Fore.RESET}").strip().upper()
+        if choice not in ["YES", "NO"]:
+            print(f"{Fore.RED}Error: Invalid input '{choice}'. Please type exactly 'YES' or 'NO'. Exiting...{Fore.RESET}")
+            sys.exit()
+
         if choice == "YES":
             folder_name = str(input(f"{Fore.CYAN}Insert folder name you want to save the plot {Fore.RESET}"))
             title = str(input(f"{Fore.CYAN}Insert title  {Fore.RESET}"))
             extension = str(input(f"{Fore.CYAN}Insert .extension (eg. .jpg) {Fore.RESET}"))
             output = vis.dynamic_t(folder_name, title, extension)
             if model_RFE == "XGBoost":
-              vis.XGB_learn_curve(X_train, X_test, y_train, y_test, output)
+                vis.XGB_learn_curve(X_train, X_test, y_train, y_test, output)
+            elif model_RFE == "RF":
+                vis.RF_learn_curve(X_train, X_test, y_train, y_test, output)
 
     choice = input(f"{Fore.CYAN}Would you like to create ERA5 feature map? Write YES/NO {Fore.RESET}").strip().upper()
+    if choice not in ["YES", "NO"]:
+        print(f"{Fore.RED}Error: Invalid input '{choice}'. Please type exactly 'YES' or 'NO'. Exiting...{Fore.RESET}")
+        sys.exit()
+
     if choice == "YES":
     #ERA5 Map
         print(f"{Fore.CYAN}Creating ERA5 feature map{Fore.RESET}")
@@ -180,6 +197,10 @@ if __name__ == "__main__":
     vis.CSR_plot(full_model_path, map_year, map_month, output_CSR, ds_CSR_sliced, df_CSR_on_ERA_grid, df_ERA, var_to_plot, basin_name)
     
     choice = input(f"{Fore.CYAN}Would you like to create comparison grace raw/predicted statistical analysis plot? Write YES/NO {Fore.RESET}").strip().upper()
+    if choice not in ["YES", "NO"]:
+        print(f"{Fore.RED}Error: Invalid input '{choice}'. Please type exactly 'YES' or 'NO'. Exiting...{Fore.RESET}")
+        sys.exit()
+        
     if choice == "YES":
 #stats real vs predicted lwe
         print(f"{Fore.CYAN}Creating Comparison grace raw/predicted statistical analysis plot{Fore.RESET}")
