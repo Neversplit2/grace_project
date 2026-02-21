@@ -276,3 +276,4 @@ def RF_curves(X_train, X_test, y_train, y_test):
         print(f"Trees: {n_trees:4d} | Train MAE: {train_mae:.4f} | Val MAE: {val_mae:.4f}")
 
     return curve_steps, train_mae_list, val_mae_list
+

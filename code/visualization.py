@@ -349,3 +349,22 @@ def RF_learn_curve(X_train, X_test, y_train, y_test, output):
     plt.savefig(output, dpi=200)
     plt.show()
     print(f" Training curve saved to : {output}")
+
+def RF_feature_importance(model, X_train):
+    model = joblib.load(model)
+
+    importances = model.feature_importances_
+    feature_names = X_train.columns
+    importance_df = pd.DataFrame({
+        'Feature': feature_names,
+        'Importance': importances
+    })
+
+    importance_df = importance_df.sort_values(by='Importance', ascending=False)
+    print(importance_df)
+
+    
+    importance_df.plot(kind='bar', x='Feature', y='Importance', color='teal', legend=False)
+    plt.title('Feature Importance')
+    plt.ylabel('Importance (0-1)')
+    plt.show()
