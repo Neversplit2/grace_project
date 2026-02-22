@@ -15,8 +15,10 @@ def pipe_data_prp(GRACE_data, lat_min, lat_max, lon_min, lon_max):
     merged = None
     if  df_ERA is not None and df_CSR is not None:
         merged = dpr.Era_2_Csr(df_CSR, df_ERA)
-    
-    return df_ERA, df_CSR, ds_ERA_sliced, ds_CSR_sliced, merged
+    #df_CSR_on_ERA_grid is needed for the GRace comparison map
+    df_CSR_on_ERA_grid =  dpr.CSR_interp(df_CSR, df_ERA)
+
+    return df_ERA, df_CSR, ds_ERA_sliced, ds_CSR_sliced, merged, df_CSR_on_ERA_grid
 
 #Pipeline number 2: Feature Selection (RFE)
 def pipe_RFE(merged, model_type, n_features_to_select ):
