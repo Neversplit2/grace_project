@@ -1,0 +1,15 @@
+[theme]
+# The main background color (a sleek, dark slate instead of blinding white)
+backgroundColor = "#0E1117"
+
+# The sidebar and widget background color (slightly lighter to create contrast)
+secondaryBackgroundColor = "#262730"
+
+# The main text color (crisp off-white for readability)
+textColor = "#FAFAFA"
+
+# The accent color for buttons, sliders, and loading spinners (a professional tech blue)
+primaryColor = "#0068C9"
+
+# The font family (sans serif looks much more modern than the default)
+font = "sans serif"

@@ -1,18 +1,50 @@
 import streamlit as st
 import main_4_app as m4p
 import vis_4_app as v4p
+import plotly.graph_objects as go
+
+st.set_page_config(
+    page_title="GRACE LWE Predictor", 
+    page_icon="🛰️", 
+    layout="wide", # This makes it a full-screen dashboard!
+    initial_sidebar_state="expanded"
+)
 
 st.title("Grace LWE project")
 
-st.write("Welcome to the GRACE LWE Prediction interface!")
+# --- ADD THIS WELCOME SECTION ---
+st.markdown("### 🌍 Welcome to the Spatial Prediction Engine")
+st.info("👈 **Start by configuring your parameters in the sidebar, then run the pipeline.**")
+
+# Create 3 professional metric cards to fill the empty space
+col1, col2, col3 = st.columns(3)
+col1.metric(label="Target Variable", value="LWE Thickness", delta="GRACE Satellite")
+col2.metric(label="Climate Predictors", value="ERA5 Reanalysis", delta="12+ Features")
+col3.metric(label="Analytics Engine", value="Standby", delta="Awaiting Input", delta_color="off")
+
+st.divider()
+# --------------------------------
 
 # --- SIDEBAR INPUTS ---
 with st.sidebar:
-    st.header("1. Area of Interest")
-    lat_min = st.number_input("Latitude Min", value=-17.0) # Used dummy defaults for speed
-    lat_max = st.number_input("Latitude Max", value=5.0)
-    lon_min = st.number_input("Longitude Min", value=-80.0)
-    lon_max = st.number_input("Longitude Max", value=-50.0)
+    st.title("⚙️Control Panel")
+
+    with st.expander("📍 1. Area of Interest", expanded=False):
+        basin_name = st.text_input("Basin/Region Name", value="Test Region", help="This name will appear on your map titles.")
+        
+        st.markdown("<small>**Latitude Bounds**</small>", unsafe_allow_html=True)
+        col_lat1, col_lat2 = st.columns(2)
+        with col_lat1:
+            lat_min = st.number_input("Min", value=-17.0, step=0.5, format="%.1f", key="lat_min")
+        with col_lat2:
+            lat_max = st.number_input("Max", value=5.0, step=0.5, format="%.1f", key="lat_max")
+            
+        st.markdown("<small>**Longitude Bounds**</small>", unsafe_allow_html=True)
+        col_lon1, col_lon2 = st.columns(2)
+        with col_lon1:
+            lon_min = st.number_input("Min", value=-80.0, step=0.5, format="%.1f", key="lon_min")
+        with col_lon2:
+            lon_max = st.number_input("Max", value=-50.0, step=0.5, format="%.1f", key="lon_max")
 
     st.header("2. Dataset")
     grace_data = st.selectbox("GRACE Dataset", ["CSR", "JPL"])
@@ -34,6 +66,46 @@ with st.sidebar:
 
 
 # --- MAIN EXECUTION ---
+# --- INTERACTIVE 3D GLOBE ---
+st.markdown("### 🌐 Area of Interest Overview")
+
+# 1. Coordinates for the red box
+lons = [lon_min, lon_min, lon_max, lon_max, lon_min]
+lats = [lat_min, lat_max, lat_max, lat_min, lat_min]
+
+center_lon = (lon_min + lon_max) / 2
+center_lat = (lat_min + lat_max) / 2
+
+# 2. Build the Plotly Figure
+fig = go.Figure(go.Scattergeo(
+    lon=lons,
+    lat=lats,
+    mode='lines+markers',
+    line=dict(width=4, color='red'),   # Standard red line
+    marker=dict(size=8, color='red')   # Standard red dots
+))
+
+# 3. Style the globe
+fig.update_geos(
+    projection_type="orthographic",
+    showcoastlines=True, coastlinecolor="#FAFAFA",
+    showland=True, landcolor="#262730",
+    showocean=True, oceancolor="#0E1117",
+    projection_rotation=dict(lon=center_lon, lat=center_lat, roll=0)
+)
+
+# 4. Layout (REMOVED transparent backgrounds to prevent collapsing)
+fig.update_layout(
+    height=500,
+    margin={"r":0,"t":0,"l":0,"b":0},
+    paper_bgcolor="#0E1117", # Paints the background the exact same dark color
+    plot_bgcolor="#0E1117"
+)
+
+# 5. Display
+st.plotly_chart(fig, use_container_width=True)
+st.divider()
+
 # When the user clicks this button, the magic happens
 if st.button("🚀 Run Data Prep & RFE", type="primary"):
     

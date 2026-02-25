@@ -11,6 +11,9 @@ from scipy.interpolate import griddata
 import os, joblib, sys
 from scipy.stats import pearsonr
 from sklearn.metrics import mean_squared_error
+import plotly.graph_objects as go
+import math
+import requests
 #ERA5 data 
 def ERA5_data_downloader():
     file_ERA_path = cs.DATA_DIR / cs.ERA5_FILE
@@ -332,4 +335,39 @@ def corr_pearson(dataframe):
 
     return r_score, p_value
 
-    
+#APP 
+# Globe
+
+def get_xyz(lon, lat, radius=1.0):
+            lon_r = math.radians(lon)
+            lat_r = math.radians(lat)
+            x = radius * math.cos(lat_r) * math.cos(lon_r)
+            y = radius * math.cos(lat_r) * math.sin(lon_r)
+            z = radius * math.sin(lat_r)
+            return x, y, z
+
+def get_3d_coastlines():
+    url = "https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json"
+    try:
+        data = requests.get(url).json()
+    except:
+        return [], [], [] # Safe fallback if offline
+
+    xs, ys, zs = [], [], []
+    def add_line(coords):
+        for lon, lat in coords:
+            x, y, z = get_xyz(lon, lat, radius=1.01) # Radius 1.01 hovers just above the surface
+            xs.append(x); ys.append(y); zs.append(z) 
+            xs.append(None); ys.append(None); zs.append(None) # Breaks the line between continents
+        #data = ALL WORLD COOORDS
+        #So inside the data there is a folder named features, which contains the geometry of each country
+        # We read this feature for each country and create an if statment 
+        for feature in data.get('features', []): 
+            geom = feature.get('geometry')
+            if not geom: continue
+            if geom['type'] == 'Polygon':
+                for poly in geom['coordinates']: add_line(poly)
+            elif geom['type'] == 'MultiPolygon':
+                for multipoly in geom['coordinates']:
+                    for poly in multipoly: add_line(poly)
+    return xs, ys, zs
