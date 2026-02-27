@@ -6,16 +6,49 @@ import math
 import numpy as np
 import requests
 import data_processing as dpr
+
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
     page_title="GRACE Spatial Engine", 
     page_icon="🛰️", 
     layout="wide", 
 )
-#buttons
+
+# --- SCI-FI MAIN PAGE HEADER ---
+#In order to change the default streamlit's fonts and dispay i am using st.markdown 
+# unsafe_allow_html = True: Allows streamlit to trust HTML code 
+#h1 refers to Heading 1, all the changes are made inside the style = '...'
+#p refers to paragraph 
+#hr draws a line across the screen (Horizontal Rule)
+st.markdown("""
+    <h1 style='text-align: center; color: #00E5FF; font-family: monospace; letter-spacing: 2px;'> 
+         GRACE LWE SPATIAL ENGINE
+    </h1>
+    <p style='text-align: center; color: #8892B0; font-size: 1.1rem; font-family: monospace;'>
+        SYSTEM DIRECTIVE: NEVERSPLIT | SECURE LINK: ANASTRIA-LAB
+    </p>
+    <hr style='border: 1px solid rgba(0, 229, 255, 0.3); margin-top: 10px; margin-bottom: 25px;'>
+""", unsafe_allow_html = True)
+
 # --- CUSTOM CSS: SCI-FI BUTTONS ---
 st.markdown("""
     <style>
+/* MAIN PAGE */
+       
+             /* col1, col2 */
+    /* Target the small label text (Primary Target & Climate Predictors) */
+    [data-testid="stMetricLabel"] * {
+        color: #A0AEC0 !important; /* The Muted Blue-Grey color */
+        text-shadow: 0 0 10px rgba(160, 174, 192, 0.5) !important; /* Matching soft ghost glow */
+        font-size: 15px !important; /* 20px might be too huge for a label, try 16px first! */
+    }
+    
+    /* Target the main value text (LWE Thickness & ERA5 Reanalysis) */
+    [data-testid="stMetricValue"] {
+        font-family: "Courier New", Courier, monospace !important; /* The Terminal/Tech look */
+        font-weight: 600 !important; /* Makes it bold */
+        letter-spacing: 1px !important; /* Spreads the letters out slightly for a cleaner look */
+    }       
     /* Target the text inside the Tab buttons */
     button[data-baseweb="tab"] p {
         font-size: 20px !important;
@@ -30,6 +63,15 @@ st.markdown("""
         text-shadow: 0 0 10px rgba(0, 229, 255, 0.5) !important;
     }
             
+  /* Change the animated underline color for the active tab */
+    div[data-baseweb="tab_highlight"] {
+        background-color: #00E5FF !important; /* Your Neon Cyan */
+        /* Optional: Add a subtle glow to the line itself */
+        box-shadow: 0 0 10px rgba(0, 229, 255, 0.5) !important; 
+    }
+
+/* BUTTONS */
+            /* TAB2 */
     /* 1. Primary Button Styling (The "Data Prep" Button) */
     button[kind="primary"] {
         background-color: transparent !important;
@@ -50,7 +92,7 @@ st.markdown("""
         box-shadow: 0 0 20px rgba(0, 229, 255, 0.8) !important;
         transform: scale(1.02) !important;
     }
-
+  
     /* 2. Secondary Button Styling (The "RFE" Button) */
     button[kind="secondary"] {
         background-color: transparent !important;
@@ -67,51 +109,33 @@ st.markdown("""
         color: #00E5FF !important;
         box-shadow: 0 0 10px rgba(0, 229, 255, 0.2) !important;
     }
+            
     </style>
 """, unsafe_allow_html=True)
 
-
-# --- SCI-FI MAIN PAGE HEADER ---
-#In order to change the default streamlit's fonts and dispay i am using st.markdown 
-# unsafe_allow_html = True: Allows streamlit to trust HTML code 
-#h1 refers to Heading 1, all the changes are made inside the style = '...'
-#p refers to paragraph 
-#hr draws a line across the screen (Horizontal Rule)
-st.markdown("""
-    <h1 style='text-align: center; color: #00E5FF; font-family: monospace; letter-spacing: 2px;'> 
-         GRACE LWE SPATIAL ENGINE
-    </h1>
-    <p style='text-align: center; color: #8892B0; font-size: 1.1rem; font-family: monospace;'>
-        SYSTEM DIRECTIVE: NEVERSPLIT | SECURE LINK: ANASTRIA-LAB
-    </p>
-    <hr style='border: 1px solid rgba(0, 229, 255, 0.3); margin-top: 10px; margin-bottom: 25px;'>
-""", unsafe_allow_html = True)
-
 # --- SYSTEM STATUS METRICS ---
 col1, col2, col3 = st.columns(3)
-# col1.metric("Primary Target", "LWE Thickness", "GRACE Satellite Downlink")
-# col2.metric("Climate Predictors", "ERA5 Reanalysis", "Active Feature Extraction")
-# col3.metric("Engine Status", "STANDBY", "Awaiting Coordinate Lock...", delta_color="off")
 
 with col1:
     # 1. We just display the metric without the Streamlit delta
     st.metric("Primary Target", "LWE Thickness")
     
     # 2. We inject a custom clickable pill that mimics the Streamlit delta style perfectly
+    #border-radius: 8px; thats how we change how sharp is the corners of the rectangle button 
     st.markdown("""
         <a href="https://grace.jpl.nasa.gov/data/get-data/jpl_global_mascons/" target="_blank" style="
             text-decoration: none;
             color: rgb(61, 213, 109); 
             background-color: rgba(61, 213, 109, 0.2); 
             padding: 2px 8px;
-            border-radius: 4px;
+            border-radius: 0px 10px 0px 10px;
             font-size: 14px;
             font-weight: 500;
             display: inline-block;
-            margin-top: -15px; /* Pulls it tightly up under the text like a real metric */
+            margin-top: -35px; /* Pulls it tightly up under the text like a real metric */
             transition: opacity 0.2s ease-in-out;
         " onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
-            JPL GRACE Satellite Downlink
+            📡JPL GRACE Satellite Downlink
         </a>
     """, unsafe_allow_html=True)
     st.markdown("""
@@ -120,18 +144,19 @@ with col1:
             color: rgb(61, 213, 109); 
             background-color: rgba(61, 213, 109, 0.2); 
             padding: 2px 8px;
-            border-radius: 4px;
+            border-radius: 10px 0px 10px 0px;
             font-size: 14px;
             font-weight: 500;
             display: inline-block;
             margin-top: -15px; /* Pulls it tightly up under the text like a real metric */
             transition: opacity 0.2s ease-in-out;
         " onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
-            CSR GRACE Satellite Downlink
+            📡CSR GRACE Satellite Downlink
         </a>
     """, unsafe_allow_html=True)
+
 with col2:
-    st.metric("Climate Predictors", "ERA5 Reanalysis")#, "Active Feature Extraction")
+    st.metric("Climate Predictors", "ERA5 Reanalysis")
 
     st.markdown("""
         <a href="https://cds.climate.copernicus.eu/datasets/reanalysis-era5-land-monthly-means?tab=download" target="_blank" style="
@@ -139,14 +164,14 @@ with col2:
            color: rgb(61, 213, 109); 
             background-color: rgba(61, 213, 109, 0.2); 
             padding: 2px 8px;
-            border-radius: 4px;
+            border-radius: 10px 0px 10px 0px;
             font-size: 14px;
             font-weight: 500;
             display: inline-block;
-            margin-top: -15px; /* Pulls it tightly up under the text like a real metric */
+            margin-top: -45px; /* Pulls it tightly up under the text like a real metric */
             transition: opacity 0.2s ease-in-out;
         " onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
-            ERA5-Land Downlink
+            ☁️ERA5-Land Downlink
         </a>
     """, unsafe_allow_html=True)
 
