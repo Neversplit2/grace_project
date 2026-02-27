@@ -16,6 +16,20 @@ st.set_page_config(
 # --- CUSTOM CSS: SCI-FI BUTTONS ---
 st.markdown("""
     <style>
+    /* Target the text inside the Tab buttons */
+    button[data-baseweb="tab"] p {
+        font-size: 20px !important;
+        font-weight: bold !important;
+        font-family: 'Courier New', monospace !important;
+        transition: all 0.3s ease !important;
+    }
+
+    /* Optional: Make the active tab glow cyan to match your buttons */
+    button[aria-selected="true"] p {
+        color: #00E5FF !important;
+        text-shadow: 0 0 10px rgba(0, 229, 255, 0.5) !important;
+    }
+            
     /* 1. Primary Button Styling (The "Data Prep" Button) */
     button[kind="primary"] {
         background-color: transparent !important;
@@ -75,19 +89,77 @@ st.markdown("""
 
 # --- SYSTEM STATUS METRICS ---
 col1, col2, col3 = st.columns(3)
-col1.metric("Primary Target", "LWE Thickness", "GRACE Satellite Downlink")
-col2.metric("Climate Predictors", "ERA5 Reanalysis", "Active Feature Extraction")
-col3.metric("Engine Status", "STANDBY", "Awaiting Coordinate Lock...", delta_color="off")
+# col1.metric("Primary Target", "LWE Thickness", "GRACE Satellite Downlink")
+# col2.metric("Climate Predictors", "ERA5 Reanalysis", "Active Feature Extraction")
+# col3.metric("Engine Status", "STANDBY", "Awaiting Coordinate Lock...", delta_color="off")
+
+with col1:
+    # 1. We just display the metric without the Streamlit delta
+    st.metric("Primary Target", "LWE Thickness")
+    
+    # 2. We inject a custom clickable pill that mimics the Streamlit delta style perfectly
+    st.markdown("""
+        <a href="https://grace.jpl.nasa.gov/data/get-data/jpl_global_mascons/" target="_blank" style="
+            text-decoration: none;
+            color: rgb(61, 213, 109); 
+            background-color: rgba(61, 213, 109, 0.2); 
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-block;
+            margin-top: -15px; /* Pulls it tightly up under the text like a real metric */
+            transition: opacity 0.2s ease-in-out;
+        " onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
+            JPL GRACE Satellite Downlink
+        </a>
+    """, unsafe_allow_html=True)
+    st.markdown("""
+        <a href="https://grace.jpl.nasa.gov/data/get-data/jpl_global_mascons/" target="_blank" style="
+            text-decoration: none;
+            color: rgb(61, 213, 109); 
+            background-color: rgba(61, 213, 109, 0.2); 
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-block;
+            margin-top: -15px; /* Pulls it tightly up under the text like a real metric */
+            transition: opacity 0.2s ease-in-out;
+        " onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
+            CSR GRACE Satellite Downlink
+        </a>
+    """, unsafe_allow_html=True)
+with col2:
+    st.metric("Climate Predictors", "ERA5 Reanalysis")#, "Active Feature Extraction")
+
+    st.markdown("""
+        <a href="https://cds.climate.copernicus.eu/datasets/reanalysis-era5-land-monthly-means?tab=download" target="_blank" style="
+            text-decoration: none;
+           color: rgb(61, 213, 109); 
+            background-color: rgba(61, 213, 109, 0.2); 
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-block;
+            margin-top: -15px; /* Pulls it tightly up under the text like a real metric */
+            transition: opacity 0.2s ease-in-out;
+        " onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
+            ERA5-Land Downlink
+        </a>
+    """, unsafe_allow_html=True)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
 # ==========================================
 # --- CREATE THE TABS ---
 # ==========================================
-tab1, tab2, tab3 = st.tabs([
-    "⚙️ 1. Setup & Coordinates", 
-    "🧠 2. Feature Engineering", 
-    "🗺️ 3. Prediction Maps"
+tab1, tab2, tab3, tab4 = st.tabs([
+    "⚙️ 1. Setup & Area of interest", 
+    "🧠 2. Data Processing", 
+    "🦾 3. Model Training",
+    "🗺️ 4. Results - Maps"
 ])
 
 # ==========================================
@@ -220,7 +292,7 @@ with tab1:
             paper_bgcolor="#0E1117", showlegend=False,
             scene=dict(
                 xaxis=dict(visible=False), yaxis=dict(visible=False), zaxis=dict(visible=False),
-                camera=dict(eye=dict(x=sx*1.2, y=sy*1.2, z=sz*1.2)) # Camera tracks the target
+                camera=dict(eye=dict(x=sx*0.8, y=sy*0.8, z=sz*0.8)) # Camera tracks the target
             )
         )
         st.plotly_chart(fig, use_container_width=True)
@@ -275,7 +347,7 @@ with tab2:
 # ==========================================
 # TAB 3: PREDICTION MAPS
 # ==========================================
-with tab3:
+with tab4:
     st.header("Generate Spatial Predictions")
     st.write("Upload a pre-trained model and configure the temporal settings for the final map outputs.")
     
