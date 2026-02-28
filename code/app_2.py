@@ -2,7 +2,6 @@ import streamlit as st
 import main_4_app as m4p
 import vis_4_app as v4p
 import plotly.graph_objects as go
-import math
 import numpy as np
 import requests
 import data_processing as dpr
@@ -16,24 +15,88 @@ st.set_page_config(
 
 # --- SCI-FI MAIN PAGE HEADER ---
 #In order to change the default streamlit's fonts and dispay i am using st.markdown 
-# unsafe_allow_html = True: Allows streamlit to trust HTML code 
-#h1 refers to Heading 1, all the changes are made inside the style = '...'
-#p refers to paragraph 
-#hr draws a line across the screen (Horizontal Rule)
+
 st.markdown("""
     <h1 style='text-align: center; color: #00E5FF; font-family: monospace; letter-spacing: 2px;'> 
          GRACE LWE SPATIAL ENGINE
     </h1>
-    <p style='text-align: center; color: #8892B0; font-size: 1.1rem; font-family: monospace;'>
-        SYSTEM DIRECTIVE: NEVERSPLIT | SECURE LINK: ANASTRIA-LAB
-    </p>
-    <hr style='border: 1px solid rgba(0, 229, 255, 0.3); margin-top: 10px; margin-bottom: 25px;'>
-""", unsafe_allow_html = True)
+    <div style="text-align: center; color: #626A7F; font-family: monospace; font-size: 14px; letter-spacing: 1px; margin-bottom: 30px;">
+        SYSTEM DIRECTIVE: 
+        <div class="cyber-tooltip">
+            NEVERSPLIT
+            <span class="tooltip-text">
+                <span style="color:#00E5FF; font-weight:bold;">[CREDENTIAL: NEVERSPLIT]</span><br>
+                Lead ML Engineering & Data Science.<br>
+                <i>Type your personal bio, role, or contact info here!</i>
+            </span>
+        </div> 
+        &nbsp;|&nbsp; SECURE LINK: 
+        <div class="cyber-tooltip">
+            ANASTRIA-LAB
+            <span class="tooltip-text">
+                <span style="color:#00E5FF; font-weight:bold;">[FACILITY: ANASTRIA-LAB]</span><br>
+                Advanced Research Hub.<br>
+                <i>Type your project details or lab information here!</i>
+            </span>
+        </div>
+    </div>
+""", unsafe_allow_html=True)
 
 # --- CUSTOM CSS: SCI-FI BUTTONS ---
 st.markdown("""
     <style>
 /* MAIN PAGE */
+            
+            /* Header */
+    /* =========================================
+       3. HOVER TOOLTIP STYLING
+       ========================================= */
+       
+    /* The clickable text itself (The trigger) */
+    .cyber-tooltip {
+        position: relative;
+        display: inline-block;
+        color: #A0AEC0; /* Matches your muted sub-header text */
+        cursor: crosshair; /* Cool targeting computer mouse pointer! */
+        border-bottom: 1px dotted #00E5FF; /* Subtle cyan dotted line */
+        transition: color 0.2s ease-in-out;
+    }
+    
+    /* Text lights up cyan when the mouse hits it */
+    .cyber-tooltip:hover {
+        color: #00E5FF;
+    }
+
+    /* The Hidden Pop-Up Box (The payload) */
+    .cyber-tooltip .tooltip-text {
+        visibility: hidden;
+        width: 260px;
+        background-color: #0E1117; /* Streamlit Dark background */
+        color: #A0AEC0;
+        text-align: left;
+        border: 1px solid #00E5FF;
+        border-radius: 0px 10px 0px 10px;
+        padding: 12px;
+        position: absolute;
+        z-index: 999;
+        top: 150%; /* Pops up BELOW the text */
+        left: 50%;
+        margin-left: -130px; /* Centers the box perfectly */
+        box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+        opacity: 0;
+        transition: opacity 0.3s, transform 0.3s;
+        transform: translateY(10px); /* Starts lower for a slide-up animation */
+        font-family: monospace;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    /* Show the Pop-Up on Hover */
+    .cyber-tooltip:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+        transform: translateY(0px); /* Slides smoothly into place */
+    }
        
              /* col1, col2 */
     /* Target the small label text (Primary Target & Climate Predictors) */
@@ -370,7 +433,7 @@ with tab2:
             st.error(f"An error occurred: {e}")
 
 # ==========================================
-# TAB 3: PREDICTION MAPS
+# TAB 4: PREDICTION MAPS
 # ==========================================
 with tab4:
     st.header("Generate Spatial Predictions")
