@@ -172,7 +172,41 @@ st.markdown("""
         color: #00E5FF !important;
         box-shadow: 0 0 10px rgba(0, 229, 255, 0.2) !important;
     }
-            
+
+/* TAB 3 (TRAINING) */
+        /* col_1 */
+    /* HELP */
+/* The outer container of the tooltip */
+    div[data-baseweb="tooltip"] {
+        background-color: #0E1117 !important; /* Streamlit dark mode */
+        border: 1px solid #00E5FF !important; /* Neon cyan border */
+        border-radius: 0px 20px 0px 20px !important;
+
+        box-shadow: 0 0 15px rgba(0, 229, 255, 0.2) !important; /* Subtle cyan glow */
+        margin-left: 600px !important; /* Move box horizontal */
+    }
+    
+    /* Remove Streamlit's default inner background color */
+    div[data-baseweb="tooltip"] > div {
+        background-color: transparent !important;
+    }
+    
+    /* The text inside the tooltip */
+    div[data-baseweb="tooltip"] .stMarkdown p, 
+    div[data-baseweb="tooltip"] .stMarkdown li {
+        color: #A0AEC0 !important; /* Muted blue-grey */
+        font-family: monospace !important; /* Terminal font */
+        font-size: 12px !important; /* Matches Neversplit exactly */
+        line-height: 1.5 !important;
+    }
+    
+    /* Make the bold text act like your [CREDENTIAL] tags */
+    div[data-baseweb="tooltip"] .stMarkdown strong {
+        color: #00E5FF !important; 
+        font-weight: bold !important;
+        
+    }
+              
     </style>
 """, unsafe_allow_html=True)
 
@@ -254,7 +288,9 @@ tab1, tab2, tab3, tab4 = st.tabs([
 # TAB 1: SETUP & COORDINATES
 # ==========================================
 with tab1:
-    st.header("Define Area of Interest")
+    st.markdown("<h3 style = 'color: #00E5FF; font-family: monospace; font-weight: 400 !important; letter-spacing: 2px;'>"
+    " Define Area Of Interest"
+    "</h3>", unsafe_allow_html=True)
 
     # We create two columns: Left for inputs, Right for the Globe!
     col_input, col_globe = st.columns([1, 1.5]) 
@@ -389,7 +425,9 @@ with tab1:
 # TAB 2: FEATURE ENGINEERING
 # ==========================================
 with tab2:
-    st.header("Recursive Feature Elimination (RFE)")
+    st.markdown("<h3 style = 'color: #00E5FF; font-family: monospace; letter-spacing: 2px;'>"
+        " Recursive Feature Elimination (RFE) "
+        "</h3>", unsafe_allow_html=True)
     st.write("Run the data preparation pipeline to rank the best ERA5 features.")
 
     if st.button("Data Prep", type="primary"):
@@ -432,6 +470,43 @@ with tab2:
         except Exception as e:
             st.error(f"An error occurred: {e}")
 
+with tab3:
+    st.markdown("<h3 style = 'color: #00E5FF; font-family: monospace;  letter-spacing: 2px;'>"
+        " Model Training Facility"
+        "</h3>", unsafe_allow_html=True)
+    
+    col_1, col_2 = st.columns([1, 1.5])
+    with col_1:
+        st.markdown("<p style='color: #A0AEC0; font-family: monospace;'>ALGORITHM SELECTION</p>", unsafe_allow_html=True)
+        
+        model = st.selectbox("Select Model for training", ["XGBoost", "Random Forest"])
+        
+        if model == "XGBoost":
+            variant_options = ["XGBoost Light", "XGBoost Heavy"]
+            help_text = """
+            | **XGBoost Light** (⚡ Fast) | **XGBoost Heavy** (💥 Deep) |
+            | :--- | :--- |
+            | n_estimators: 100 | n_estimators: 1000 |
+            | max_depth: 3 | max_depth: 8 |
+            | learning_rate: 0.1 | learning_rate: 0.01 |
+            """
+        elif model == "Random Forest":
+            variant_options = ["Random Forest Light", "Random Forest Heavy"]
+            help_text = """
+            **Random Forest Light** (⚡ Fast iteration)
+            * n_estimators: 100
+            * min_samples_split: 5
+
+            **Random Forest Heavy** (💥 Deep training)
+            * n_estimators: 500
+            * min_samples_split: 2
+            """
+        
+        selected_model = st.selectbox(
+        "Select Engine Variant", 
+        variant_options,
+        help=help_text)
+ 
 # ==========================================
 # TAB 4: PREDICTION MAPS
 # ==========================================
