@@ -72,9 +72,11 @@ if __name__ == "__main__":
 
         if choice == "YES":
             if model_RFE == "XGBoost":
-                best_model = tr.XGBoost_train(X_train, y_train)
+                train_type = input((f"{Fore.CYAN}Would you like to train a model? Write Light/Heavy {Fore.RESET}"))
+                best_model = tr.XGBoost_train(X_train, y_train, train_type)
             elif model_RFE == "RF":
-                best_model = tr.RF_train(X_train, y_train)
+                train_type = input((f"{Fore.CYAN}Would you like to train a model? Write Light/Heavy {Fore.RESET}"))
+                best_model = tr.RF_train(X_train, y_train, train_type)
             
             folder_name = str(input(f"{Fore.CYAN}Insert folder name you want to save the trained model {Fore.RESET}"))
             title = str(input(f"{Fore.CYAN}Insert title  {Fore.RESET}"))
