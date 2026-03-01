@@ -24,7 +24,7 @@ if __name__ == "__main__":
         print(f"\nArea of Interest: Lat[{lat_min}, {lat_max}], Lon[{lon_min}, {lon_max}]")
     GRACE_data = input(f"{Fore.CYAN}Would you like to run the programm using CSR or JPL Grace dataset? Write CSR/JPL {Fore.RESET}").strip().upper()
 
-    df_ERA, df_CSR, ds_ERA_sliced, ds_CSR_sliced = dpr.Load_slice_conv_dataset(GRACE_data, lat_min, lat_max, lon_min, lon_max,)
+    df_ERA, df_CSR, ds_ERA_sliced, ds_CSR_sliced = dpr.Load_slice_conv_dataset(GRACE_data, lat_min, lat_max, lon_min, lon_max)
 
 # Regrid ERA5 and merge
     if  df_ERA is not None and df_CSR is not None:
@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
         vis.rfe_plot(rfe, x, output_rfe)
     
-    
+    # ta ebgala exw apo to if gia na min ta janaypologizw kai gia ta training curves 
         X_train, X_test, y_train, y_test = tr.data_4_train(selected_features, x, merged)
         choice = input(f"{Fore.CYAN}Would you like to train a model? Write YES/NO {Fore.RESET}").strip().upper()
         if choice not in ["YES", "NO"]:
@@ -72,9 +72,11 @@ if __name__ == "__main__":
 
         if choice == "YES":
             if model_RFE == "XGBoost":
-                best_model = tr.XGBoost_train(X_train, y_train)
+                train_type = input((f"{Fore.CYAN}Would you like to train a model? Write Light/Heavy {Fore.RESET}"))
+                best_model = tr.XGBoost_train(X_train, y_train, train_type)
             elif model_RFE == "RF":
-                best_model = tr.RF_train(X_train, y_train)
+                train_type = input((f"{Fore.CYAN}Would you like to train a model? Write Light/Heavy {Fore.RESET}"))
+                best_model = tr.RF_train(X_train, y_train, train_type)
             
             folder_name = str(input(f"{Fore.CYAN}Insert folder name you want to save the trained model {Fore.RESET}"))
             title = str(input(f"{Fore.CYAN}Insert title  {Fore.RESET}"))
@@ -196,6 +198,12 @@ if __name__ == "__main__":
    
     vis.CSR_plot(full_model_path, map_year, map_month, output_CSR, ds_CSR_sliced, df_CSR_on_ERA_grid, df_ERA, var_to_plot, basin_name)
     
+    choice = input(f"{Fore.CYAN}Would you like to plot RF_feature importance? Write YES/NO {Fore.RESET}").strip().upper()
+    if choice not in ["YES", "NO"]:
+        print(f"{Fore.RED}Error: Invalid input '{choice}'. Please type exactly 'YES' or 'NO'. Exiting...{Fore.RESET}")
+        sys.exit() 
+    vis.RF_feature_importance(full_model_path, X_train)   
+
     choice = input(f"{Fore.CYAN}Would you like to create comparison grace raw/predicted statistical analysis plot? Write YES/NO {Fore.RESET}").strip().upper()
     if choice not in ["YES", "NO"]:
         print(f"{Fore.RED}Error: Invalid input '{choice}'. Please type exactly 'YES' or 'NO'. Exiting...{Fore.RESET}")
