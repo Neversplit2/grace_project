@@ -27,16 +27,16 @@ def pipe_RFE(merged, model_type, n_features_to_select ):
     return rfe, selected_features, x 
 
 #Pipeline number 3: Model training
-def pipe_model_train(selected_features, x, merged, model_type):
+def pipe_model_train(selected_features, x, merged, model, model_type):
     X_train, X_test, y_train, y_test = tr.data_4_train(selected_features, x, merged)
 
-    if model_type == "XGBoost":
-        best_model = tr.XGBoost_train(X_train, y_train)
-    elif model_type == "RF":
-        best_model = tr.RF_train(X_train, y_train)
+    if model == "XGBoost":
+        best_model = tr.XGBoost_train(X_train, y_train, model_type)
+    elif model == "RF":
+        best_model = tr.RF_train(X_train, y_train, model_type)
     else:
         best_model = None
-    
+
     return X_train, X_test, y_train, y_test, best_model
 
 #Pipeline number 4: Statistical Analysis

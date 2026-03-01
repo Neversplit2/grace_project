@@ -82,17 +82,28 @@ def data_4_train(selected_features, x, dataset):
     )
     return X_train, X_test, y_train, y_test
 
-def XGBoost_tuner(X_train, y_train):
+def XGBoost_tuner(X_train, y_train, train_type):
     print("  XGBoost Tuning...")
-    param_grid = {
-    'n_estimators': [200, 400],
-    'max_depth': [6, 10, 15],
-    'learning_rate': [0.05, 0.1],
-    'subsample': [0.6, 0.8, 1],
-    'colsample_bytree': [0.6, 0.8, 1],
-    'reg_alpha': [0, 0.1],
-    'reg_lambda': [0.5, 1.0]
-    }
+    if train_type == "Light":
+        param_grid = {
+            'n_estimators': [200, 500],
+            'max_depth': [6,10],
+            'learning_rate': [0.05, 0.1],
+            'subsample': [0.8],
+            'colsample_bytree': [0.8],
+            'reg_alpha': [0, 0.1],
+            'reg_lambda': [0.5, 1.0]
+            }
+    elif train_type =="Heavy":
+        param_grid = {
+            'n_estimators': [100, 200, 500],
+            'max_depth': [10, 20, 6],
+            'learning_rate': [0.01, 0.05, 0.1],
+            'subsample': [0.7, 0.8, 0.9],
+            'colsample_bytree': [0.7, 0.8, 1.0],
+            'reg_alpha': [0, 0.1, 0.5],
+            'reg_lambda': [0.1, 0.5, 1.0]
+            }
 
     final_model = xgb.XGBRegressor(objective='reg:squarederror', random_state=42, n_jobs=-1)
 
@@ -114,8 +125,8 @@ def XGBoost_tuner(X_train, y_train):
     print(" Best XGBoost Parameters:", best_params)
     return best_params
 
-def XGBoost_train(X_train, y_train):
-    best_params = XGBoost_tuner(X_train, y_train)
+def XGBoost_train(X_train, y_train, train_type):
+    best_params = XGBoost_tuner(X_train, y_train, train_type)
     best_model = xgb.XGBRegressor(
         **best_params,
         objective='reg:squarederror',
@@ -126,15 +137,23 @@ def XGBoost_train(X_train, y_train):
     
     return best_model
 
-def RF_tuner(X_train, y_train):
-    
-    param_grid = {
-        'n_estimators': [50, 100],        
-        'max_depth': [6, 8],
-        'min_samples_split': [2, 5],
-        'min_samples_leaf': [1, 2],
-        'max_features': ['sqrt']
-    }
+def RF_tuner(X_train, y_train, train_type):
+    if train_type == "Light":
+        param_grid = {
+            'n_estimators': [200, 300],
+            'max_depth': [10, 20],
+            'min_samples_split': [2, 5],
+            'min_samples_leaf': [1, 2],
+            'max_features': ['sqrt']
+        }
+    elif train_type =="Heavy":
+        param_grid = {
+            'n_estimators': [200, 300],
+            'max_depth': [10, 20],
+            'min_samples_split': [2, 5],
+            'min_samples_leaf': [1, 2],
+            'max_features': ['sqrt', 'log2']
+        }  
 
     final_model = RandomForestRegressor(random_state=42, n_jobs=-1)
     
