@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
         vis.rfe_plot(rfe, x, output_rfe)
     
-    # ta ebgala exw apo to if gia na min ta janaypologizw kai gia ta training curves 
+    
         X_train, X_test, y_train, y_test = tr.data_4_train(selected_features, x, merged)
         choice = input(f"{Fore.CYAN}Would you like to train a model? Write YES/NO {Fore.RESET}").strip().upper()
         if choice not in ["YES", "NO"]:
