@@ -67,7 +67,7 @@ def rfe_plot(rfe, x, output):
     plt.show()
 
 #ERA5 map
-#Jekinaei i sinartisi
+
 def ERA_plot(dataset, year, month, var_to_plot, basin_name, output):
     data_slice = dataset[var_to_plot].sel(valid_time=f'{year}-{month}-01 23:00', method='nearest')
     time_str = data_slice.valid_time.dt.strftime("%m-%Y").item()

@@ -180,7 +180,7 @@ st.markdown("""
     div[data-baseweb="tooltip"] {
         background-color: #0E1117 !important; /* Streamlit dark mode */
         border: 1px solid #00E5FF !important; /* Neon cyan border */
-        border-radius: 0px 20px 0px 20px !important;
+        border-radius: 20px 0px 20px 0px !important;
         box-shadow: 0 0 15px rgba(0, 229, 255, 0.2) !important; /* Subtle cyan glow */
         margin-left: 610px !important; /* Move box horizontal */
     }
@@ -429,9 +429,43 @@ with tab2:
         "</h3>", unsafe_allow_html=True)
     st.write("Run the data preparation pipeline to rank the best ERA5 features.")
 
-    if st.button("Data Prep", type="primary"):
-        try:
-            with st.spinner("Preparing Data... (Downloading and merging)"):
+    col_1, col_2 = st.columns([1, 1.5])
+
+    display_screen = col_2.empty()
+    with col_1:
+        if st.button("Data Prep", type="primary"):
+
+            # Instantly show the terminal on the right before doing any heavy lifting
+            terminal_ui = """
+            <style>
+                /* CSS to make lines appear one by one */
+                .term-line { opacity: 0; margin: 0; animation: fadeIn 0.1s forwards; }
+                .delay-1 { animation-delay: 1s; color: #a3adc2; }
+                .delay-2 { animation-delay: 3.2s; }
+                .delay-3 { animation-delay: 7.2s; }
+                .delay-4 { animation-delay: 10.0s; }
+                
+                @keyframes fadeIn { to { opacity: 1; } }
+                
+                /* Blinking cursor effect */
+                .cursor-blink { animation: blinker 0.9s infinite; }
+                @keyframes blinker { 50% { opacity: 0; } }
+            </style>
+
+            <div style="background-color: #0b0f19; padding: 20px; border-radius: 8px; 
+                        border: 1px solid #1e293b; font-family: 'Courier New', monospace; 
+                        color: #00E5FF; height: 250px; box-shadow: inset 0 0 10px #000000;">
+                <p class="term-line delay-1">> system start data_prep pipeline</p>
+                <p class="term-line delay-2">> Initializing ERA5 Data Pipeline...</p>
+                <p class="term-line delay-3">> Downloading and merging spatial grids...</p>
+                <p class="term-line delay-4">> Computing parameters... <span class="cursor-blink">█</span></p>
+            </div>
+            """
+            #Whatever i throw at display_screen goes at col2 as i wanted
+            display_screen.markdown(terminal_ui, unsafe_allow_html=True)
+
+            try:
+                
                 df_ERA, df_CSR, ds_ERA_sliced, ds_CSR_sliced, merged, df_CSR_on_ERA_grid = m4p.pipe_data_prp(
                     grace_data, lat_min, lat_max, lon_min, lon_max
                 )
@@ -440,12 +474,34 @@ with tab2:
                 st.session_state['merged'] = merged
                 st.session_state['df_ERA'] = df_ERA
                 st.session_state['df_CSR_on_ERA_grid'] = df_CSR_on_ERA_grid
-                st.success("Data Prepared Successfully!")
-        except Exception as e:
-                    st.error(f"An error occurred: {e}")
 
-    col_input1, col_input2 = st.columns([1, 1.5])
-    with col_input1:
+                # --- THE SUCCESS TERMINAL ---
+                # Shows up instantly (no delays) with the final green success message
+                success_terminal = """
+                <style>
+                    .term-line { opacity: 0; margin: 0; animation: fadeIn 0.1s forwards; }
+                    .delay-1 { animation-delay: 3.5s; }
+                    @keyframes fadeIn { to { opacity: 1; } }
+
+                </style>
+                <div style="background-color: #0b0f19; padding: 20px; border-radius: 8px; 
+                            border: 1px solid #1e293b; font-family: 'Courier New', monospace; 
+                            color: #00E5FF; height: 250px; box-shadow: inset 0 0 10px #000000;">
+                    <p style="margin: 0; color: #a3adc2;">> systemctl start data_prep.service</p>
+                    <p style="margin: 0;">> Initializing ERA5 Data Pipeline...</p>
+                    <p style="margin: 0;">> Downloading and merging spatial grids...</p>
+                    <p style="margin: 0;">> Computing parameters... <span style="color: #00FF00;">Done.</span></p>
+                    <p style="margin: 0; color: #00FF00;">> Data Prepared Successfully!</p>
+                    <p class="term-line delay-1" style="margin: 0; color: #FF00FF;">> Ready for Feature Ranking. </p>
+                </div>
+                """
+                
+                # Overwrite the loading animation with the final success screen
+                display_screen.markdown(success_terminal, unsafe_allow_html=True)
+
+            except Exception as e:
+                        st.error(f"An error occurred: {e}")
+
         col_rfe1, col_rfe2 = st.columns(2)
 
         with col_rfe1:
@@ -456,21 +512,35 @@ with tab2:
 
     if st.button("RFE", type="primary"):
         try:
+            
+                if st.session_state['merged'] is not None:
+                    with col_1:
+                        with st.spinner(f"Running RFE with {model_RFE}..."):
+                            rfe, selected_features, x = m4p.pipe_RFE(st.session_state['merged'], model_RFE, int(n_features))
+                            
+                            st.success(f"RFE Complete! Found {len(selected_features)} best features.")
+                                
+                            # Saving variables
+                            st.session_state['rfe'] = rfe
+                            st.session_state['selected_features'] = selected_features
+                            st.session_state['x'] = x
 
-            if st.session_state['merged'] is not None:
-                with st.spinner(f"Running RFE with {model_RFE}..."):
-                    rfe, selected_features, x = m4p.pipe_RFE(st.session_state['merged'], model_RFE, int(n_features))
+                    with col_2:
+                        display_screen.empty()
+                        
+                        left_bumper, plot_col, right_bumper = st.columns([0.75, 3, 0.75])
                     
-                    st.success(f"RFE Complete! Found {len(selected_features)} best features.")
-                    st.subheader("Feature Ranking Results")
-                    fig_rfe = v4p.rfe_plot(rfe, x)
-                    st.pyplot(fig_rfe)
-
-                    st.session_state['rfe'] = rfe
-                    st.session_state['selected_features'] = selected_features
-                    st.session_state['x'] = x
-            else:
-                st.error("Merge failed. Data is empty.")
+                        with plot_col:
+                            
+                            st.markdown("<h4 style = 'color: #00E5FF; font-family: monospace; letter-spacing: 2px; margin-top: -100px;'>"
+                            " RFE Plot "
+                            "</h4>", unsafe_allow_html=True)
+                            
+                            fig_rfe = v4p.rfe_plot(rfe, x)
+                            
+                            st.pyplot(fig_rfe, use_container_width=False)
+                else:
+                    st.error("Merge failed. Data is empty.")
         except Exception as e:
             st.error(f"An error occurred: {e}")
 
@@ -555,7 +625,7 @@ with tab4:
     
     col_map1, col_map2, col_map3 = st.columns(3)
     with col_map1:
-        map_year = st.number_input("Year for Map", min_value=2000, max_value=2023, value=2010)
+        map_year = st.number_input("Year for Map", min_value=2002, max_value=2024, value=2010)
     with col_map2:
         map_month = st.number_input("Month for Map", min_value=1, max_value=12, value=5)
     with col_map3:

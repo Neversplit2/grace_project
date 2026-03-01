@@ -22,7 +22,7 @@ def rfe_plot(rfe, x):
     df_ranking = df_ranking.sort_values(by=['Rank'], ascending=True)
 
     # 1. Create the figure AND the axes explicitly
-    fig, ax = plt.subplots(figsize=(6, 7), dpi=200) 
+    fig, ax = plt.subplots(figsize=(2.5, 2.5), dpi=200) 
     
     # 2. Draw the barplot ON our specific axes (notice ax=ax at the end)
     sns.barplot(data=df_ranking, x="Rank", y="Feature", hue="Rank", palette="coolwarm", legend=False, ax=ax)
