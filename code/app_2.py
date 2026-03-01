@@ -3,7 +3,7 @@ import main_4_app as m4p
 import vis_4_app as v4p
 import plotly.graph_objects as go
 import numpy as np
-import requests
+import requests, joblib
 import data_processing as dpr
 
 # --- PAGE CONFIGURATION ---
@@ -181,9 +181,8 @@ st.markdown("""
         background-color: #0E1117 !important; /* Streamlit dark mode */
         border: 1px solid #00E5FF !important; /* Neon cyan border */
         border-radius: 0px 20px 0px 20px !important;
-
         box-shadow: 0 0 15px rgba(0, 229, 255, 0.2) !important; /* Subtle cyan glow */
-        margin-left: 600px !important; /* Move box horizontal */
+        margin-left: 610px !important; /* Move box horizontal */
     }
     
     /* Remove Streamlit's default inner background color */
@@ -461,15 +460,21 @@ with tab2:
             if st.session_state['merged'] is not None:
                 with st.spinner(f"Running RFE with {model_RFE}..."):
                     rfe, selected_features, x = m4p.pipe_RFE(st.session_state['merged'], model_RFE, int(n_features))
+                    
                     st.success(f"RFE Complete! Found {len(selected_features)} best features.")
                     st.subheader("Feature Ranking Results")
                     fig_rfe = v4p.rfe_plot(rfe, x)
                     st.pyplot(fig_rfe)
+
+                    st.session_state['rfe'] = rfe
+                    st.session_state['selected_features'] = selected_features
+                    st.session_state['x'] = x
             else:
                 st.error("Merge failed. Data is empty.")
         except Exception as e:
             st.error(f"An error occurred: {e}")
 
+#ΤΑΒ 3: MODEL TRAINING
 with tab3:
     st.markdown("<h3 style = 'color: #00E5FF; font-family: monospace;  letter-spacing: 2px;'>"
         " Model Training Facility"
@@ -482,30 +487,64 @@ with tab3:
         model = st.selectbox("Select Model for training", ["XGBoost", "Random Forest"])
         
         if model == "XGBoost":
-            variant_options = ["XGBoost Light", "XGBoost Heavy"]
+            variant_options = ["Light", "Heavy"]
             help_text = """
-            | **XGBoost Light** (⚡ Fast) | **XGBoost Heavy** (💥 Deep) |
+            | **XGBoost Light** (⚡ Fast) | **XGBoost Heavy** (💥 Deep Training) |
             | :--- | :--- |
-            | n_estimators: 100 | n_estimators: 1000 |
-            | max_depth: 3 | max_depth: 8 |
-            | learning_rate: 0.1 | learning_rate: 0.01 |
+            | n_estimators: [200, 500] | n_estimators: [100, 200, 500] |
+            | max_depth: [6, 10] | max_depth: [10, 20, 6] |
+            | learning_rate: [0.05, 0.1] | learning_rate: [0.01, 0.05, 0.1] |
+            | subsample: [0.8] | subsample: [0.7, 0.8, 0.9] |
+            | colsample_bytree: [0.8] | colsample_bytree: [0.7, 0.8, 1.0] |
+            | reg_alpha: [0, 0.1] | reg_alpha: [0, 0.1, 0.5] |
+            | reg_lambda: [0.5, 1.0] | reg_lambda: [0.1, 0.5, 1.0] |
             """
         elif model == "Random Forest":
-            variant_options = ["Random Forest Light", "Random Forest Heavy"]
+            variant_options = ["Light", "Heavy"]
             help_text = """
-            **Random Forest Light** (⚡ Fast iteration)
-            * n_estimators: 100
-            * min_samples_split: 5
-
-            **Random Forest Heavy** (💥 Deep training)
-            * n_estimators: 500
-            * min_samples_split: 2
+            | **Random Forest Light** (⚡ Fast) | **Random Forest Heavy** (💥 Deep Training) |
+            | :--- | :--- |
+            | n_estimators: [200, 300] | n_estimators: [100, 200, 300] |
+            | max_depth: [10, 20] | max_depth: [10, 20] |
+            | min_samples_split: [2, 5] | min_samples_split: [2, 5] |
+            | min_samples_leaf: [1, 2] | min_samples_leaf: [1, 2] |
+            | max_features: ['sqrt'] | max_features: ['sqrt', 'log2'] |
             """
-        
+
         selected_model = st.selectbox(
         "Select Engine Variant", 
         variant_options,
         help=help_text)
+
+        st.markdown("<br>", unsafe_allow_html=True) # A little breathing room
+        
+        if st.button("Train Model", type="primary"):
+            try:
+                if  None not in (merged, selected_features, x):
+                    with st.spinner(f"Training {model} {selected_model} model..."):
+
+                        X_train, X_test, y_train, y_test, best_model = m4p.pipe_model_train(selected_features, x, merged, model, selected_model)
+
+                        model_filename = f"{model}_{selected_model}.pkl"
+                        joblib.dump(best_model, model_filename)
+                    
+                        # Saving
+                        st.session_state['X_train'] = X_train
+                        st.session_state['X_test'] = X_test
+                        st.session_state['y_train'] = y_train
+                        st.session_state['y_test'] = y_test
+                        st.session_state['best_model'] = best_model
+
+                else:
+                    st.error("⚠️ SYSTEM ERROR: Missing parameters!")  
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
+
+
+
+
+
+
  
 # ==========================================
 # TAB 4: PREDICTION MAPS
