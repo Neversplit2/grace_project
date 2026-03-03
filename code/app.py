@@ -34,9 +34,9 @@ st.markdown("""
         <div class="cyber-tooltip">
             ANASTRIA-LAB
             <span class="tooltip-text">
-                <span style="color:#00E5FF; font-weight:bold;">[FACILITY: ANASTRIA-LAB]</span><br>
-                Advanced Research Hub.<br>
-                <i>Type your project details or lab information here!</i>
+                <span style="color:#00E5FF; font-weight:bold;">[CREDENTIAL: ANASTRIA-LAB]</span><br>
+                titlos (supervisor oti thes bale).<br>
+                <i>personal info tapeina</i>
             </span>
         </div>
     </div>
@@ -245,9 +245,7 @@ st.markdown("""
     .stNumberInput button p {
         color: #00E5FF !important;
     }
-
-
-          
+    
     </style>
 """, unsafe_allow_html=True)
 
@@ -472,7 +470,7 @@ with tab2:
         "</h3>", unsafe_allow_html=True)
     st.write("Run the data preparation pipeline to rank the best ERA5 features.")
 
-    col_1, col_2 = st.columns([1, 1.5])
+    col_1, col_2 = st.columns(2)
 
     display_screen = col_2.empty()
     with col_1:
@@ -481,6 +479,33 @@ with tab2:
             # Instantly show the terminal on the right before doing any heavy lifting
             terminal_ui = """
             <style>
+                /* MAC traffic light look*/
+                .term-window {
+                    background-color: #121212;
+                    border-radius: 10px;
+                    border: 1px solid #333;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                    font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
+                    color: #00E5FF;
+                    overflow: hidden;
+                    height: 250px;
+                    margin-top: -55px; /* Move the window */
+                }
+                .term-header {
+                    background-color: #2b2b2b;
+                    padding: 10px;
+                    display: flex;
+                    align-items: center;
+                    border-bottom: 1px solid #111;
+                }
+                .term-button {
+                    width: 12px; height: 12px; border-radius: 50%; margin-right: 8px;
+                }
+                .close { background-color: #ff5f56; }
+                .minimize { background-color: #ffbd2e; }
+                .maximize { background-color: #27c93f; }
+                .term-body { padding: 15px; font-size: 14px; line-height: 1.5; }
+
                 /* CSS to make lines appear one by one */
                 .term-line { opacity: 0; margin: 0; animation: fadeIn 0.1s forwards; }
                 .delay-1 { animation-delay: 1s; color: #a3adc2; }
@@ -495,6 +520,12 @@ with tab2:
                 @keyframes blinker { 50% { opacity: 0; } }
             </style>
 
+            <div class="term-window">
+                <div class="term-header">
+                    <div class="term-button close"></div>
+                    <div class="term-button minimize"></div>
+                    <div class="term-button maximize"></div>
+                </div>
             <div style="background-color: #0b0f19; padding: 20px; border-radius: 8px; 
                         border: 1px solid #1e293b; font-family: 'Courier New', monospace; 
                         color: #00E5FF; height: 250px; box-shadow: inset 0 0 10px #000000;">
@@ -522,11 +553,46 @@ with tab2:
                 # Shows up instantly (no delays) with the final green success message
                 success_terminal = """
                 <style>
+
+                    /* MAC traffic light look*/
+                .term-window {
+                    background-color: #121212;
+                    border-radius: 10px;
+                    border: 1px solid #333;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                    font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
+                    color: #00E5FF;
+                    overflow: hidden;
+                    height: 250px;
+                    margin-top: -55px;
+                }
+                .term-header {
+                    background-color: #2b2b2b;
+                    padding: 10px;
+                    display: flex;
+                    align-items: center;
+                    border-bottom: 1px solid #111;
+                }
+                .term-button {
+                    width: 12px; height: 12px; border-radius: 50%; margin-right: 8px;
+                }
+                .close { background-color: #ff5f56; }
+                .minimize { background-color: #ffbd2e; }
+                .maximize { background-color: #27c93f; }
+                .term-body { padding: 15px; font-size: 14px; line-height: 1.5; }
+
                     .term-line { opacity: 0; margin: 0; animation: fadeIn 0.1s forwards; }
                     .delay-1 { animation-delay: 3.5s; }
                     @keyframes fadeIn { to { opacity: 1; } }
 
                 </style>
+                <div class="term-window">
+                <div class="term-header">
+                    <div class="term-button close"></div>
+                    <div class="term-button minimize"></div>
+                    <div class="term-button maximize"></div>
+                </div>
+
                 <div style="background-color: #0b0f19; padding: 20px; border-radius: 8px; 
                             border: 1px solid #1e293b; font-family: 'Courier New', monospace; 
                             color: #00E5FF; height: 250px; box-shadow: inset 0 0 10px #000000;">
@@ -653,7 +719,6 @@ with tab3:
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
- 
 # ==========================================
 # TAB 4: PREDICTION MAPS
 # ==========================================
