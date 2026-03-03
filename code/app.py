@@ -205,7 +205,49 @@ st.markdown("""
         font-weight: bold !important;
         
     }
-              
+    /* TAB4 */
+        /* number_input text fonts*/
+            
+    /* Target the input field text */
+    input[type="number"] {        
+        font-family: monospace !important;
+        color: #00E5FF !important; 
+        font-size: 1rem !important; 
+        letter-spacing: 2px;
+    }
+    /* Change +- color */
+        .stNumberInput button {
+            color: #00E5FF !important;
+        }
+            
+    /* Change the color when you hover over them */
+        .stNumberInput button:hover {
+            background-color: #262730 !important;
+        }
+    /* 1. Force the default state to your slate-dark color */
+        .stNumberInput button {
+            background-color: #262730 !important;
+            color: #00E5FF !important; /* Keeping your cyan icon color */
+        }
+
+    /* 2. KILL the blue box (Focus, Active, and Hover) */
+    .stNumberInput button:focus, 
+    .stNumberInput button:active, 
+    .stNumberInput button:hover,
+    .stNumberInput button:focus-visible {
+        background-color: #262730 !important; /* Stays dark */
+        color: #00E5FF !important;            /* Icon stays cyan */
+        outline: none !important;             /* Removes the focus ring */
+        box-shadow: none !important;          /* Removes any glow */
+    }
+
+    /* 3. Specifically target the internal icon color to prevent theme overrides */
+    .stNumberInput button p {
+        color: #00E5FF !important;
+    }
+
+
+          
     </style>
 """, unsafe_allow_html=True)
 
@@ -276,11 +318,12 @@ st.markdown("<br>", unsafe_allow_html=True)
 # ==========================================
 # --- CREATE THE TABS ---
 # ==========================================
-tab1, tab2, tab3, tab4 = st.tabs([
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "⚙️ 1. Setup & Area of interest", 
     "🧠 2. Data Processing", 
     "🦾 3. Model Training",
-    "🗺️ 4. Results - Maps"
+    "🗺️ 4. Maps",
+    "📊 5.Statistical Analysis"
 ])
 
 # ==========================================
@@ -610,52 +653,60 @@ with tab3:
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
-
-
-
-
-
  
 # ==========================================
 # TAB 4: PREDICTION MAPS
 # ==========================================
 with tab4:
-    st.header("Generate Spatial Predictions")
-    st.write("Upload a pre-trained model and configure the temporal settings for the final map outputs.")
+    st.markdown("<h3 style = 'color: #00E5FF; font-family: monospace;  letter-spacing: 2px;'>"
+        "Generate Spatial Predictions"
+        "</h3>", unsafe_allow_html=True)
     
-    col_map1, col_map2, col_map3 = st.columns(3)
-    with col_map1:
-        map_year = st.number_input("Year for Map", min_value=2002, max_value=2024, value=2010)
-    with col_map2:
-        map_month = st.number_input("Month for Map", min_value=1, max_value=12, value=5)
-    with col_map3:
-        era_var = st.selectbox("ERA5 Variable to Plot", ["t2m", "tp", "e","pev","ssro", "sro", "evabs","swvl1", "swvl2", "swvl3", "swvl4", "lai_hv", "lai_lv"]) 
-    
-    uploaded_model = st.file_uploader("Upload Pre-trained Model (.pkl)", type=["pkl"])
+    col1, col2 =st.columns([1, 1.5])
+    with col1:
+        col_map1, col_map2, col_map3 = st.columns(3)
+        with col_map1:
+            st.markdown("<small style = 'text-align: center; color: #8892B0; font-size: 1rem; letter-spacing: 2px;'>"
+            "**Year for Map**"
+            "</small>", unsafe_allow_html=True)
+            map_year = st.number_input("Year for Map",label_visibility="collapsed", min_value=2002, max_value=2024, value=2010)
+        with col_map2:
+            #label_visibility="collapsed": Hide the label name and vanish the spot remaining. If i had = hidden we would still see the blanc spot
+            st.markdown("<small style = 'text-align: center; color: #8892B0; font-size: 1rem; letter-spacing: 2px;'>"
+            "**Month for Map**"
+            "</small>", unsafe_allow_html=True)
+            map_month = st.number_input("Month for Map", label_visibility="collapsed", min_value=1, max_value=12, value=5)
+        with col_map3:
+            st.markdown("<small style = 'text-align: center; color: #8892B0; font-size: 1rem; letter-spacing: 2px;'>"
+            "**ERA5 Variable**"
+            "</small>", unsafe_allow_html=True)
+            era_var = st.selectbox("ERA5 Variable to Plot", ["t2m", "tp", "e","pev","ssro", "sro", "evabs","swvl1", "swvl2", "swvl3", "swvl4", "lai_hv", "lai_lv"], label_visibility="collapsed") 
+        
+        uploaded_model = st.file_uploader("Upload Pre-trained Model (.pkl)", type=["pkl"])
 
-    if st.button("🗺️ Generate Maps", type="primary"):
-        if 'ds_ERA_sliced' not in st.session_state or 'merged' not in st.session_state:
-            st.warning("⚠️ Please run 'Data Prep & RFE' in Tab 2 first to load the datasets!")
-        elif uploaded_model is None:
-            st.warning("⚠️ Please upload a .pkl model to generate prediction maps!")
-        else:
-            with st.spinner("Drawing Maps..."):
-                col_plot1, col_plot2 = st.columns([1, 2])
-                with col_plot1:
-                    st.subheader("ERA5 Data")
-                    era_fig = v4p.ERA_plot(st.session_state['ds_ERA_sliced'], map_year, map_month, era_var, basin_name)
-                    st.pyplot(era_fig)
-                
-                st.divider()
-                st.subheader("Model Predictions vs GRACE Observations")
-                csr_fig = v4p.CSR_plot(
-                    model=uploaded_model, 
-                    year=map_year, 
-                    month=map_month, 
-                    dataset_CSR=st.session_state['ds_CSR_sliced'], 
-                    dataset_CSR2=st.session_state['df_CSR_on_ERA_grid'], 
-                    dataset_ERA=st.session_state['df_ERA'], 
-                    var_to_plot='lwe_thickness', 
-                    basin_name=basin_name
-                ) 
-                st.pyplot(csr_fig)
+        if st.button("🗺️ Generate Maps", type="primary"):
+            if 'ds_ERA_sliced' not in st.session_state or 'merged' not in st.session_state:
+                st.warning("⚠️ Please run 'Data Prep & RFE' in Tab 2 first to load the datasets!")
+            elif uploaded_model is None:
+                st.warning("⚠️ Please upload a .pkl model to generate prediction maps!")
+            else:
+                with st.spinner("Drawing Maps..."):
+                    col_plot1, col_plot2 = st.columns([1, 2])
+                    with col_plot1:
+                        st.subheader("ERA5 Data")
+                        era_fig = v4p.ERA_plot(st.session_state['ds_ERA_sliced'], map_year, map_month, era_var, basin_name)
+                        st.pyplot(era_fig)
+                    
+                    st.divider()
+                    st.subheader("Model Predictions vs GRACE Observations")
+                    csr_fig = v4p.CSR_plot(
+                        model=uploaded_model, 
+                        year=map_year, 
+                        month=map_month, 
+                        dataset_CSR=st.session_state['ds_CSR_sliced'], 
+                        dataset_CSR2=st.session_state['df_CSR_on_ERA_grid'], 
+                        dataset_ERA=st.session_state['df_ERA'], 
+                        var_to_plot='lwe_thickness', 
+                        basin_name=basin_name
+                    ) 
+                    st.pyplot(csr_fig)
