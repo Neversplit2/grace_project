@@ -176,8 +176,8 @@ def RF_tuner(X_train, y_train, train_type):
     print("Best Parameters:", best_params)
     return best_params
 
-def RF_train(X_train,y_train):
-    best_params = RF_tuner(X_train,y_train)
+def RF_train(X_train,y_train, train_type):
+    best_params = RF_tuner(X_train, y_train, train_type)
     best_model = RandomForestRegressor(
         **best_params,
         random_state=42,
