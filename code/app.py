@@ -18,25 +18,25 @@ st.set_page_config(
 
 st.markdown("""
     <h1 style='text-align: center; color: #00E5FF; font-family: monospace; letter-spacing: 2px;'> 
-         GRACE LWE SPATIAL ENGINE
+         DOWNSCALING ENGINE FOR GRACE & GRACE-FO LWE DATA
     </h1>
     <div style="text-align: center; color: #626A7F; font-family: monospace; font-size: 14px; letter-spacing: 1px; margin-bottom: 30px;">
-        SYSTEM DIRECTIVE: 
+        ENGINNERED & DESIGNED BY: 
         <div class="cyber-tooltip">
             NEVERSPLIT
             <span class="tooltip-text">
                 <span style="color:#00E5FF; font-weight:bold;">[CREDENTIAL: NEVERSPLIT]</span><br>
                 Lead ML Engineering & Data Science.<br>
-                <i>Type your personal bio, role, or contact info here!</i>
+                <i>personal info</i>
             </span>
         </div> 
-        &nbsp;|&nbsp; SECURE LINK: 
+        &nbsp;| 
         <div class="cyber-tooltip">
             ANASTRIA-LAB
             <span class="tooltip-text">
                 <span style="color:#00E5FF; font-weight:bold;">[CREDENTIAL: ANASTRIA-LAB]</span><br>
                 titlos (supervisor oti thes bale).<br>
-                <i>personal info tapeina</i>
+                <i>personal info </i>
             </span>
         </div>
     </div>
@@ -297,7 +297,7 @@ with col2:
     st.markdown("""
         <a href="https://cds.climate.copernicus.eu/datasets/reanalysis-era5-land-monthly-means?tab=download" target="_blank" style="
             text-decoration: none;
-           color: rgb(61, 213, 109); 
+            color: rgb(61, 213, 109); 
             background-color: rgba(61, 213, 109, 0.2); 
             padding: 2px 8px;
             border-radius: 10px 0px 10px 0px;
@@ -309,7 +309,27 @@ with col2:
         " onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
             ☁️ERA5-Land Downlink
         </a>
+    """, unsafe_allow_html=True)\
+
+with col3:
+    st.metric("Engine resolution", "0.1° (~10km)")
+
+    st.markdown("""
+        <div style="
+            color: rgb(61, 213, 109);
+            background-color: rgba(61, 213, 109, 0.2);
+            padding: 2px 8px;
+            border-radius: 10px 0px 10px 0px;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-block;
+            margin-top: -45px;
+            transition: opacity 0.2s ease-in-out;
+        ">
+            📅 Data Range: 2002 - 2024
+        </div>
     """, unsafe_allow_html=True)
+
 
 st.markdown("<br>", unsafe_allow_html=True)
 
@@ -468,7 +488,10 @@ with tab2:
     st.markdown("<h3 style = 'color: #00E5FF; font-family: monospace; letter-spacing: 2px;'>"
         " Recursive Feature Elimination (RFE) "
         "</h3>", unsafe_allow_html=True)
-    st.write("Run the data preparation pipeline to rank the best ERA5 features.")
+    #st.write("Run the data preparation pipeline to rank the best ERA5 features.")
+    st.markdown("<small style = 'text-align: center; color: #8892B0; font-size: 1rem; letter-spacing: 2px;'>"
+        "**Run the data preparation pipeline to rank the best ERA5 features.**"
+        "</small>", unsafe_allow_html=True)
 
     col_1, col_2 = st.columns(2)
 
@@ -539,7 +562,6 @@ with tab2:
             display_screen.markdown(terminal_ui, unsafe_allow_html=True)
 
             try:
-                
                 df_ERA, df_CSR, ds_ERA_sliced, ds_CSR_sliced, merged, df_CSR_on_ERA_grid = m4p.pipe_data_prp(
                     grace_data, lat_min, lat_max, lon_min, lon_max
                 )
@@ -661,7 +683,7 @@ with tab3:
     
     col_1, col_2 = st.columns([1, 1.5])
     with col_1:
-        st.markdown("<p style='color: #A0AEC0; font-family: monospace;'>ALGORITHM SELECTION</p>", unsafe_allow_html=True)
+        st.markdown("<p style='color: #A0AEC0; font-family: monospace;'>Algorithm Selection</p>", unsafe_allow_html=True)
         
         model = st.selectbox("Select Model for training", ["XGBoost", "Random Forest"])
         
@@ -731,10 +753,10 @@ with tab4:
     with col1:
         col_map1, col_map2, col_map3 = st.columns(3)
         with col_map1:
-            st.markdown("<small style = 'text-align: center; color: #8892B0; font-size: 1rem; letter-spacing: 2px;'>"
-            "**Year for Map**"
-            "</small>", unsafe_allow_html=True)
-            map_year = st.number_input("Year for Map",label_visibility="collapsed", min_value=2002, max_value=2024, value=2010)
+            # st.markdown("<small style = 'text-align: center; color: #8892B0; font-size: 1rem; letter-spacing: 2px;'>"
+            # "**Year for Map**"
+            # "</small>", unsafe_allow_html=True)
+            map_year = st.number_input("Year for Map", min_value=2002, max_value=2024, value=2010)
         with col_map2:
             #label_visibility="collapsed": Hide the label name and vanish the spot remaining. If i had = hidden we would still see the blanc spot
             st.markdown("<small style = 'text-align: center; color: #8892B0; font-size: 1rem; letter-spacing: 2px;'>"
