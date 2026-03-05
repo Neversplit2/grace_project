@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 import numpy as np
 import requests, joblib
 import data_processing as dpr
+import time 
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
@@ -365,9 +366,7 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📊 5.Statistical Analysis"
 ])
 
-# ==========================================
-# TAB 1: SETUP & COORDINATES
-# ==========================================
+
 with tab1:
     st.markdown("<h3 style = 'color: #00E5FF; font-family: monospace; font-weight: 400 !important; letter-spacing: 2px;'>"
     " Define Area Of Interest"
@@ -502,9 +501,6 @@ with tab1:
         )
         st.plotly_chart(fig, use_container_width=True)
 
-# ==========================================
-# TAB 2: FEATURE ENGINEERING
-# ==========================================
 with tab2:
     st.markdown("<h3 style = 'color: #00E5FF; font-family: monospace; letter-spacing: 2px;'>"
         " Recursive Feature Elimination (RFE) "
@@ -661,42 +657,134 @@ with tab2:
         with col_rfe2:
             n_features = st.number_input("Number of features to select", min_value=1, value=5, step=1)
 
-
         if st.button("RFE", type="primary"):
             try:
-                
-                    if st.session_state['merged'] is not None:
-                        with col_1:
-                            with st.spinner(f"Running RFE with {model_RFE}..."):
-                                rfe, selected_features, x = m4p.pipe_RFE(st.session_state['merged'], model_RFE, int(n_features))
-                                
-                                st.success(f"RFE Complete! Found {len(selected_features)} best features.")
-                                    
-                                # Saving variables
-                                st.session_state['rfe'] = rfe
-                                st.session_state['selected_features'] = selected_features
-                                st.session_state['x'] = x
+                if st.session_state['merged'] is not None:
+                    terminal_rfe = """
+                    <style>
+                        /* MAC traffic light look*/
+                    .term-window {
+                        background-color: #121212;
+                        border-radius: 10px;
+                        border: 1px solid #333;
+                        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                        font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
+                        color: #00E5FF;
+                        overflow: hidden;
+                        height: 250px;
+                        margin-top: -55px;
+                    }
+                    .term-header {
+                        background-color: #2b2b2b;
+                        padding: 10px;
+                        display: flex;
+                        align-items: center;
+                        border-bottom: 1px solid #111;
+                    }
+                    .term-button {
+                        width: 12px; height: 12px; border-radius: 50%; margin-right: 8px;
+                    }
+                    .close { background-color: #ff5f56; }
+                    .minimize { background-color: #ffbd2e; }
+                    .maximize { background-color: #27c93f; }
+                    .term-body { padding: 15px; font-size: 14px; line-height: 1.5; }
 
-                        with col_2:
-                            display_screen.empty()
-                            
-                            left_bumper, plot_col, right_bumper = st.columns([0.75, 3, 0.75])
+                        .term-line { opacity: 0; margin: 0; animation: fadeIn 0.1s forwards; }
+                        .delay-1 { animation-delay: 0.5s; }
+                        .delay-2 { animation-delay: 1s; }
+                        @keyframes fadeIn { to { opacity: 1; } }
+
+                    </style>
+                    <div class="term-window">
+                    <div class="term-header">
+                        <div class="term-button close"></div>
+                        <div class="term-button minimize"></div>
+                        <div class="term-button maximize"></div>
+                    </div>
+
+                    <div style="background-color: #0b0f19; padding: 20px; border-radius: 8px; 
+                                border: 1px solid #1e293b; font-family: 'Courier New', monospace; 
+                                color: #00E5FF; height: 250px; box-shadow: inset 0 0 10px #000000;">
+                        <p style="margin: 0; color: #a3adc2;">> system start RFE</p>
+                        <p class="term-line delay-1" style="margin: 0; color: #FF00FF;">> Initializing RFE Ranking Algorithm...</p>
+                        <p class="term-line delay-2" style="margin: 0; color: #FF00FF;">> Processing features... <span class="cursor-blink">█</span></p>
+                    </div>
+                    """
+                    display_screen.markdown(terminal_rfe, unsafe_allow_html=True)
+                                   
+                    rfe, selected_features, x = m4p.pipe_RFE(st.session_state['merged'], model_RFE, int(n_features))
+                    
+                    terminal_rfe_done = """
+                    <style>
+                        /* MAC traffic light look*/
+                    .term-window {
+                        background-color: #121212;
+                        border-radius: 10px;
+                        border: 1px solid #333;
+                        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                        font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
+                        color: #00E5FF;
+                        overflow: hidden;
+                        height: 250px;
+                        margin-top: -55px;
+                    }
+                    .term-header {
+                        background-color: #2b2b2b;
+                        padding: 10px;
+                        display: flex;
+                        align-items: center;
+                        border-bottom: 1px solid #111;
+                    }
+                    .term-button {
+                        width: 12px; height: 12px; border-radius: 50%; margin-right: 8px;
+                    }
+                    .close { background-color: #ff5f56; }
+                    .minimize { background-color: #ffbd2e; }
+                    .maximize { background-color: #27c93f; }
+                    .term-body { padding: 15px; font-size: 14px; line-height: 1.5; }
+
+                        .term-line { opacity: 0; margin: 0; animation: fadeIn 0.1s forwards; }
+                        @keyframes fadeIn { to { opacity: 1; } }
+
+                    </style>
+                    <div class="term-window">
+                    <div class="term-header">
+                        <div class="term-button close"></div>
+                        <div class="term-button minimize"></div>
+                        <div class="term-button maximize"></div>
+                    </div>
+
+                    <div style="background-color: #0b0f19; padding: 20px; border-radius: 8px; 
+                                border: 1px solid #1e293b; font-family: 'Courier New', monospace; 
+                                color: #00E5FF; height: 250px; box-shadow: inset 0 0 10px #000000;">
+                        <p style="margin: 0; color: #a3adc2;">> system start RFE</p>
+                        <p style="margin: 0; color: #FF00FF;">> Initializing RFE Ranking Algorithm...</p>
+                        <p style="margin: 0; color: #FF00FF;">> Processing features... <span class="cursor-blink">█</span></p>
+                        <p style="margin: 0; color: #00FF00;">> RFE Complete! Found {len(selected_features)} best features. </p>
+                    </div>
+                    """
+                    display_screen.markdown(terminal_rfe_done, unsafe_allow_html=True)
+
+                    # Saving variables
+                    st.session_state['rfe'] = rfe
+                    st.session_state['selected_features'] = selected_features
+                    st.session_state['x'] = x
+
+                    time.sleep(2)
+                    display_screen.empty()
+
+                    with display_screen.container():
+                        st.markdown("<h4 style='color: #00E5FF; font-family: monospace; letter-spacing: 2px; text-align: center;'>"
+                                    " RFE_RANKING_OUTPUT </h4>", unsafe_allow_html=True)
                         
-                            with plot_col:
-                                
-                                st.markdown("<h4 style = 'color: #00E5FF; font-family: monospace; letter-spacing: 2px; margin-top: -100px;'>"
-                                " RFE Plot "
-                                "</h4>", unsafe_allow_html=True)
-                                
-                                fig_rfe = v4p.rfe_plot(rfe, x)
-                                
-                                st.pyplot(fig_rfe, use_container_width=False)
-                    else:
-                        st.error("Merge failed. Data is empty.")
+                        fig_rfe = v4p.rfe_plot(rfe, x)
+                        st.pyplot(fig_rfe, use_container_width=True)
+                    
+                else:
+                    st.error("Merge failed. Data is empty.")
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
-#ΤΑΒ 3: MODEL TRAINING
 with tab3:
     st.markdown("<h3 style = 'color: #00E5FF; font-family: monospace;  letter-spacing: 2px;'>"
         " Model Training Facility"
@@ -762,9 +850,6 @@ with tab3:
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
-# ==========================================
-# TAB 4: PREDICTION MAPS
-# ==========================================
 with tab4:
     st.markdown("<h3 style = 'color: #00E5FF; font-family: monospace;  letter-spacing: 2px;'>"
         "Generate Spatial Predictions"
