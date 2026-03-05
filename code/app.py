@@ -21,12 +21,12 @@ st.markdown("""
          DOWNSCALING ENGINE FOR GRACE & GRACE-FO LWE DATA
     </h1>
     <div style="text-align: center; color: #626A7F; font-family: monospace; font-size: 14px; letter-spacing: 1px; margin-bottom: 30px;">
-        ENGINNERED & DESIGNED BY: 
+        ENGINNEERED & DESIGNED BY: 
         <div class="cyber-tooltip">
             NEVERSPLIT
             <span class="tooltip-text">
                 <span style="color:#00E5FF; font-weight:bold;">[CREDENTIAL: NEVERSPLIT]</span><br>
-                Lead ML Engineering & Data Science.<br>
+                titlos<br>
                 <i>personal info</i>
             </span>
         </div> 
@@ -246,6 +246,27 @@ st.markdown("""
         color: #00E5FF !important;
     }
     
+    /* Selectbox text color*/ 
+   /* 1. Target the text inside the selectbox (the current selection) */
+    div[data-baseweb="select"] div {
+        font-family: monospace !important;
+        color: #00E5FF !important;
+        font-size: 1rem !important;
+        letter-spacing: 2px !important;
+    }
+
+    /* 2. Target the text of the options inside the dropdown menu */
+    div[data-baseweb="popover"] li {
+        font-family: monospace !important;
+        color: #00E5FF !important;
+        font-size: 1rem !important;
+        letter-spacing: 2px !important;
+    }
+
+    /* 3. Ensure the placeholder text (if any) matches the font but stays muted */
+    div[data-baseweb="select"] [data-testid="stWidgetLabel"] {
+        font-family: monospace !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -641,39 +662,39 @@ with tab2:
             n_features = st.number_input("Number of features to select", min_value=1, value=5, step=1)
 
 
-    if st.button("RFE", type="primary"):
-        try:
-            
-                if st.session_state['merged'] is not None:
-                    with col_1:
-                        with st.spinner(f"Running RFE with {model_RFE}..."):
-                            rfe, selected_features, x = m4p.pipe_RFE(st.session_state['merged'], model_RFE, int(n_features))
-                            
-                            st.success(f"RFE Complete! Found {len(selected_features)} best features.")
+        if st.button("RFE", type="primary"):
+            try:
+                
+                    if st.session_state['merged'] is not None:
+                        with col_1:
+                            with st.spinner(f"Running RFE with {model_RFE}..."):
+                                rfe, selected_features, x = m4p.pipe_RFE(st.session_state['merged'], model_RFE, int(n_features))
                                 
-                            # Saving variables
-                            st.session_state['rfe'] = rfe
-                            st.session_state['selected_features'] = selected_features
-                            st.session_state['x'] = x
+                                st.success(f"RFE Complete! Found {len(selected_features)} best features.")
+                                    
+                                # Saving variables
+                                st.session_state['rfe'] = rfe
+                                st.session_state['selected_features'] = selected_features
+                                st.session_state['x'] = x
 
-                    with col_2:
-                        display_screen.empty()
+                        with col_2:
+                            display_screen.empty()
+                            
+                            left_bumper, plot_col, right_bumper = st.columns([0.75, 3, 0.75])
                         
-                        left_bumper, plot_col, right_bumper = st.columns([0.75, 3, 0.75])
-                    
-                        with plot_col:
-                            
-                            st.markdown("<h4 style = 'color: #00E5FF; font-family: monospace; letter-spacing: 2px; margin-top: -100px;'>"
-                            " RFE Plot "
-                            "</h4>", unsafe_allow_html=True)
-                            
-                            fig_rfe = v4p.rfe_plot(rfe, x)
-                            
-                            st.pyplot(fig_rfe, use_container_width=False)
-                else:
-                    st.error("Merge failed. Data is empty.")
-        except Exception as e:
-            st.error(f"An error occurred: {e}")
+                            with plot_col:
+                                
+                                st.markdown("<h4 style = 'color: #00E5FF; font-family: monospace; letter-spacing: 2px; margin-top: -100px;'>"
+                                " RFE Plot "
+                                "</h4>", unsafe_allow_html=True)
+                                
+                                fig_rfe = v4p.rfe_plot(rfe, x)
+                                
+                                st.pyplot(fig_rfe, use_container_width=False)
+                    else:
+                        st.error("Merge failed. Data is empty.")
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
 
 #ΤΑΒ 3: MODEL TRAINING
 with tab3:
