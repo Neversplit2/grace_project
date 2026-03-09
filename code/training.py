@@ -176,8 +176,8 @@ def RF_tuner(X_train, y_train, train_type):
     print("Best Parameters:", best_params)
     return best_params
 
-def RF_train(X_train,y_train, train_type):
-    best_params = RF_tuner(X_train, y_train, train_type)
+def RF_train(X_train,y_train):
+    best_params = RF_tuner(X_train,y_train)
     best_model = RandomForestRegressor(
         **best_params,
         random_state=42,
@@ -204,11 +204,11 @@ def data_4_curves(X_train, X_test, y_train, y_test):
     )
     return X_train_sub, X_val, y_train_sub, y_val
 
-def XGBoost_curves(X_train, X_test, y_train, y_test):
+def XGBoost_curves(X_train, X_test, y_train, y_test, train_type):
 
     X_train_sub, X_val, y_train_sub, y_val = data_4_curves(X_train, X_test, y_train, y_test)
 
-    best_params = XGBoost_tuner(X_train_sub, y_train_sub)
+    best_params = XGBoost_tuner(X_train_sub, y_train_sub, train_type)
     
     max_trees = best_params['n_estimators']
     curve_steps = np.unique(
@@ -253,10 +253,10 @@ def XGBoost_curves(X_train, X_test, y_train, y_test):
         
     return curve_steps, train_mae_list, val_mae_list
 
-def RF_curves(X_train, X_test, y_train, y_test):
+def RF_curves(X_train, X_test, y_train, y_test, train_type):
     X_train_sub, X_val, y_train_sub, y_val = data_4_curves(X_train, X_test, y_train, y_test)
 
-    best_params = RF_tuner(X_train_sub, y_train_sub)
+    best_params = RF_tuner(X_train_sub, y_train_sub, train_type)
    
     max_trees = best_params['n_estimators']
     curve_steps = np.unique(

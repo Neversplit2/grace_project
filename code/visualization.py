@@ -55,8 +55,8 @@ def rfe_plot(rfe, x, output):
     sns.barplot(data=df_ranking, x="Rank", y="Feature", hue="Rank",palette="coolwarm", legend=False)
 
     #Formatting
-    plt.title(f"RFE Feature Ranking (Top {rfe.n_features_} Selected)", fontsize=11)
-    plt.xlabel("Rank (1 = Selected, Higher = Eliminated Early)", fontsize=8)
+    plt.title(f"RFE Feature Ranking (Top {rfe.n_features_} Selected)", fontsize=11, fontweight='bold', family= 'monospace' )
+    plt.xlabel("Rank (1 = Selected, Higher = Eliminated Early)", fontsize=8, family= 'monospace')
     plt.ylabel("Features", fontsize=8)
     plt.grid(axis="x", linestyle="--", alpha=0.6)
     #Changing feature fontsize
@@ -66,8 +66,65 @@ def rfe_plot(rfe, x, output):
     plt.savefig(output)
     plt.show()
 
+def rfe_plot2(rfe, x, output):
+    df_ranking = pd.DataFrame()
+    # Creating column "Feature" in order to save the rfe feature names participating 
+    df_ranking["Feature"] = x.columns
+    # Creating column "Rank" in order to save the rfe feature ranking
+    df_ranking["Rank"] = rfe.ranking_ 
+    # Sorting df_ranking based on column "Rank", in ascending order (True)
+    df_ranking = df_ranking.sort_values(by=['Rank'], ascending=True)
+
+    # --- MODERN STYLING SETUP ---
+    # Apply text colors that match dark mode (light grey/cyan)
+    plt.rcParams.update({
+        "text.color": "#A0AEC0",
+        "axes.labelcolor": "#A0AEC0",
+        "xtick.color": "#A0AEC0",
+        "ytick.color": "#A0AEC0",
+    })
+
+    # Creating figure (Wider: 7x5 instead of 4x5, high DPI for crispness)
+    fig, ax = plt.subplots(figsize=(7, 5), dpi=300) 
+
+    # Plotting: Using 'mako' palette for a sleek cyan/blue dark-mode vibe
+    sns.barplot(
+        data=df_ranking, 
+        x="Rank", 
+        y="Feature", 
+        hue="Rank",
+        palette="mako", 
+        legend=False,
+        ax=ax
+    )
+
+    # --- FORMATTING & TYPOGRAPHY ---
+    # Much larger, bolder title with your neon cyan color
+    plt.title(f"RFE Feature Ranking (Top {rfe.n_features_} Selected)", 
+              fontsize=16, fontweight='bold', color="#00E5FF", pad=15)
+    
+    # Larger axis labels with a bit of padding so they don't hug the text
+    plt.xlabel("Rank (1 = Selected, Higher = Eliminated Early)", fontsize=11, labelpad=10)
+    plt.ylabel("Features", fontsize=11, labelpad=10)
+    
+    # Subtler grid lines
+    plt.grid(axis="x", linestyle="--", alpha=0.2, color="#A0AEC0")
+    
+    # Clean up borders (removes the harsh box around the graph)
+    sns.despine(left=True, bottom=False)
+    
+    # Readable tick fonts (bumped from 6 to 10)
+    plt.xticks(fontsize=10)
+    plt.yticks(fontsize=10, fontweight='medium')
+
+    # Automatically adjust padding so nothing gets cut off
+    plt.tight_layout()
+
+    # Save with a transparent background so it floats perfectly on your Streamlit app!
+    plt.savefig(output, transparent=True)
+    plt.show()
 #ERA5 map
-#Jekinaei i sinartisi
+
 def ERA_plot(dataset, year, month, var_to_plot, basin_name, output):
     data_slice = dataset[var_to_plot].sel(valid_time=f'{year}-{month}-01 23:00', method='nearest')
     time_str = data_slice.valid_time.dt.strftime("%m-%Y").item()
@@ -314,8 +371,8 @@ def model_eval_plot(dataframe, output):
     plt.show()
 
 #learning curves
-def XGB_learn_curve(X_train, X_test, y_train, y_test, output):
-    curve_steps, train_mae_list, val_mae_list = tr.XGBoost_curves(X_train, X_test, y_train, y_test)
+def XGB_learn_curve(X_train, X_test, y_train, y_test, output, train_type):
+    curve_steps, train_mae_list, val_mae_list = tr.XGBoost_curves(X_train, X_test, y_train, y_test, train_type)
 
     plt.figure(figsize=(10, 6), dpi=200)
     plt.plot(curve_steps, train_mae_list, label='Train MAE', linewidth=2)
@@ -332,8 +389,8 @@ def XGB_learn_curve(X_train, X_test, y_train, y_test, output):
     plt.show()
     print(f" Training curve saved to : {output}")
 
-def RF_learn_curve(X_train, X_test, y_train, y_test, output):
-    curve_steps, train_mae_list, val_mae_list= tr.RF_curves(X_train, X_test, y_train, y_test)
+def RF_learn_curve(X_train, X_test, y_train, y_test, output, train_type):
+    curve_steps, train_mae_list, val_mae_list= tr.RF_curves(X_train, X_test, y_train, y_test, train_type)
 
     plt.figure(figsize=(10, 6), dpi=200)
     plt.plot(curve_steps, train_mae_list, label='Train MAE', linewidth=2)
