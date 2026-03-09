@@ -371,8 +371,8 @@ def model_eval_plot(dataframe, output):
     plt.show()
 
 #learning curves
-def XGB_learn_curve(X_train, X_test, y_train, y_test, output):
-    curve_steps, train_mae_list, val_mae_list = tr.XGBoost_curves(X_train, X_test, y_train, y_test)
+def XGB_learn_curve(X_train, X_test, y_train, y_test, output, train_type):
+    curve_steps, train_mae_list, val_mae_list = tr.XGBoost_curves(X_train, X_test, y_train, y_test, train_type)
 
     plt.figure(figsize=(10, 6), dpi=200)
     plt.plot(curve_steps, train_mae_list, label='Train MAE', linewidth=2)
@@ -389,8 +389,8 @@ def XGB_learn_curve(X_train, X_test, y_train, y_test, output):
     plt.show()
     print(f" Training curve saved to : {output}")
 
-def RF_learn_curve(X_train, X_test, y_train, y_test, output):
-    curve_steps, train_mae_list, val_mae_list= tr.RF_curves(X_train, X_test, y_train, y_test)
+def RF_learn_curve(X_train, X_test, y_train, y_test, output, train_type):
+    curve_steps, train_mae_list, val_mae_list= tr.RF_curves(X_train, X_test, y_train, y_test, train_type)
 
     plt.figure(figsize=(10, 6), dpi=200)
     plt.plot(curve_steps, train_mae_list, label='Train MAE', linewidth=2)

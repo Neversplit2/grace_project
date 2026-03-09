@@ -94,10 +94,13 @@ if __name__ == "__main__":
             title = str(input(f"{Fore.CYAN}Insert title  {Fore.RESET}"))
             extension = str(input(f"{Fore.CYAN}Insert .extension (eg. .jpg) {Fore.RESET}"))
             output = vis.dynamic_t(folder_name, title, extension)
+
             if model_RFE == "XGBoost":
-                vis.XGB_learn_curve(X_train, X_test, y_train, y_test, output)
+                train_type = input((f"{Fore.CYAN}Which models' parameters would you like to use? Write Light/Heavy {Fore.RESET}"))
+                vis.XGB_learn_curve(X_train, X_test, y_train, y_test, output, train_type)
             elif model_RFE == "RF":
-                vis.RF_learn_curve(X_train, X_test, y_train, y_test, output)
+                train_type = input((f"{Fore.CYAN}Which models' parameters would you like to use? Write Light/Heavy {Fore.RESET}"))
+                vis.RF_learn_curve(X_train, X_test, y_train, y_test, output, train_type)
 
     choice = input(f"{Fore.CYAN}Would you like to create ERA5 feature map? Write YES/NO {Fore.RESET}").strip().upper()
     if choice not in ["YES", "NO"]:
