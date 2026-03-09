@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 import numpy as np
 import requests, joblib
 import data_processing as dpr
-import time 
+import time, io
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
@@ -268,6 +268,7 @@ st.markdown("""
     div[data-baseweb="select"] [data-testid="stWidgetLabel"] {
         font-family: monospace !important;
     }
+
     </style>
 """, unsafe_allow_html=True)
 
@@ -836,14 +837,19 @@ with tab3:
                         X_train, X_test, y_train, y_test, best_model = m4p.pipe_model_train(selected_features, x, merged, model, selected_model)
 
                         model_filename = f"{model}_{selected_model}.pkl"
-                        joblib.dump(best_model, model_filename)
-                    
+                        buffer = io.BytesIO()
+                        joblib.dump(best_model, buffer)
+                        buffer.seek(0)
+
                         # Saving
                         st.session_state['X_train'] = X_train
                         st.session_state['X_test'] = X_test
                         st.session_state['y_train'] = y_train
                         st.session_state['y_test'] = y_test
                         st.session_state['best_model'] = best_model
+                
+                    st.download_button(label ="📥 Download model", data = buffer, file_name = model_filename, mime = "application/octet-stream",
+                    use_container_width = True, help = "Export train model")
 
                 else:
                     st.error("⚠️ SYSTEM ERROR: Missing parameters!")  
@@ -856,6 +862,9 @@ with tab4:
         "</h3>", unsafe_allow_html=True)
     
     col1, col2 =st.columns([1, 1.5])
+    with col2:
+        map_container = st.empty() # This is the placeholder for the map
+    
     with col1:
         col_map1, col_map2, col_map3 = st.columns(3)
         with col_map1:
@@ -874,32 +883,37 @@ with tab4:
             "**ERA5 Variable**"
             "</small>", unsafe_allow_html=True)
             era_var = st.selectbox("ERA5 Variable to Plot", ["t2m", "tp", "e","pev","ssro", "sro", "evabs","swvl1", "swvl2", "swvl3", "swvl4", "lai_hv", "lai_lv"], label_visibility="collapsed") 
-        
-        uploaded_model = st.file_uploader("Upload Pre-trained Model (.pkl)", type=["pkl"])
-
-        if st.button("🗺️ Generate Maps", type="primary"):
+       
+        #ERA5 feature maps
+        if st.button("ERA5 Maps",type = "primary"):
             if 'ds_ERA_sliced' not in st.session_state or 'merged' not in st.session_state:
                 st.warning("⚠️ Please run 'Data Prep & RFE' in Tab 2 first to load the datasets!")
-            elif uploaded_model is None:
-                st.warning("⚠️ Please upload a .pkl model to generate prediction maps!")
             else:
                 with st.spinner("Drawing Maps..."):
-                    col_plot1, col_plot2 = st.columns([1, 2])
-                    with col_plot1:
-                        st.subheader("ERA5 Data")
-                        era_fig = v4p.ERA_plot(st.session_state['ds_ERA_sliced'], map_year, map_month, era_var, basin_name)
-                        st.pyplot(era_fig)
-                    
-                    st.divider()
-                    st.subheader("Model Predictions vs GRACE Observations")
-                    csr_fig = v4p.CSR_plot(
-                        model=uploaded_model, 
-                        year=map_year, 
-                        month=map_month, 
-                        dataset_CSR=st.session_state['ds_CSR_sliced'], 
-                        dataset_CSR2=st.session_state['df_CSR_on_ERA_grid'], 
-                        dataset_ERA=st.session_state['df_ERA'], 
-                        var_to_plot='lwe_thickness', 
-                        basin_name=basin_name
-                    ) 
+                    era_fig = v4p.ERA_plot(st.session_state['ds_ERA_sliced'], map_year, map_month, era_var, basin_name)
+                with map_container.container():
+                    st.markdown("<p style='color: #FF00FF; font-family: monospace;'>[SIGNAL_LOCKED]: ERA5 feature map/p>", unsafe_allow_html=True)
+                    st.pyplot(era_fig)
+                
+
+        uploaded_model = st.file_uploader("Upload Pre-trained Model (.pkl)", type=["pkl"])
+
+        if st.button("GRACE Comparison Maps", type="primary"):
+            if uploaded_model is None:
+                st.warning("⚠️ Please upload a .pkl model to generate prediction maps!")
+            else:
+                #st.subheader("Model Predictions vs GRACE Observations")
+                csr_fig = v4p.CSR_plot(
+                    model=uploaded_model, 
+                    year=map_year, 
+                    month=map_month, 
+                    dataset_CSR=st.session_state['ds_CSR_sliced'], 
+                    dataset_CSR2=st.session_state['df_CSR_on_ERA_grid'], 
+                    dataset_ERA=st.session_state['df_ERA'], 
+                    var_to_plot='lwe_thickness', 
+                    basin_name=basin_name
+                ) 
+                with map_container.container():
+                    st.markdown("<p style='color: #FF00FF; font-family: monospace;'>[SIGNAL_LOCKED]: GRACE_COMPARISON_MATRIX</p>", unsafe_allow_html=True)
                     st.pyplot(csr_fig)
+              
