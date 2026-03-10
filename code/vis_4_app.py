@@ -14,29 +14,56 @@ import training as tr
 
 def rfe_plot(rfe, x):
     df_ranking = pd.DataFrame()
-    # Creating column "Feature" in order to save the rfe feature names participating 
     df_ranking["Feature"] = x.columns
-    # Creating column "Rank" in order to save the rfe feature ranking
     df_ranking["Rank"] = rfe.ranking_ 
-    # Sorting df_ranking based on column "Rank", in ascending order (True)
     df_ranking = df_ranking.sort_values(by=['Rank'], ascending=True)
 
-    # 1. Create the figure AND the axes explicitly
-    fig, ax = plt.subplots(figsize=(2.5, 2.5), dpi=200) 
-    
-    # 2. Draw the barplot ON our specific axes (notice ax=ax at the end)
-    sns.barplot(data=df_ranking, x="Rank", y="Feature", hue="Rank", palette="coolwarm", legend=False, ax=ax)
+    # 1. Set the Dark Theme Style
+    plt.style.use('dark_background') # Instantly turns the background black
+    fig, ax = plt.subplots(figsize=(6, 4), dpi=200) # Slightly wider for better text fit
+    fig.patch.set_facecolor('#0b0f19') # Matches your terminal background hex
+    ax.set_facecolor('#0b0f19')
 
-    # 3. Formatting (we use ax.set_title instead of plt.title)
-    ax.set_title(f"RFE Feature Ranking (Top {rfe.n_features_} Selected)", fontsize=12)
-    ax.set_xlabel("Rank (1 = Selected, Higher = Eliminated Early)", fontsize=10)
-    ax.set_ylabel("Features", fontsize=10)
-    ax.grid(axis="x", linestyle="--", alpha=0.6)
+    # 2. Custom Neon Palette (Cyan to Magenta)
+    # We use a custom gradient that screams "Tech"
+    neon_colors = sns.color_palette("husl", len(df_ranking))
     
-    # Changing feature fontsize using tick_params
-    ax.tick_params(axis='y', labelsize=8)
+    sns.barplot(
+        data=df_ranking, 
+        x="Rank", 
+        y="Feature", 
+        palette="cool_r", # 'cool' goes from Cyan to Purple
+        ax=ax,
+        # edgecolor="#00E5FF", # Adds a neon glow effect to the bar edges
+        linewidth=1
+    )
+
+    # 3. Formatting with Monospace Fonts
+    # Using 'monospace' makes it look like code output
+    ax.set_title(f" RFE FEATURE RANKING [TOP {rfe.n_features_}]", 
+                 fontsize=10, color='#00E5FF', fontfamily='monospace', weight='bold', pad=20)
     
-    # 4. Return the plot object instead of showing/saving it!
+    ax.set_xlabel("Ranking level (OPTIMAL=1)", fontsize=8, color="#FFFFFF", fontfamily='monospace', weight='bold')
+    ax.set_ylabel("Features", fontsize=8, color="#FFFFFF", fontfamily='monospace', weight='bold')
+    
+    # 4. Sci-Fi Grid & Spines
+    ax.grid(axis="x", linestyle=":", alpha=0.3, color='#8892B0')
+    
+    # Remove the top and right borders for a cleaner "HUD" look
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_color('#1e293b')
+    ax.spines['bottom'].set_color('#1e293b')
+    
+    # Tick formatting
+    ax.tick_params(axis='both', colors='#8892B0', labelsize=7)
+   
+    # Bold the features selected
+    for i, tick in enumerate(ax.get_yticklabels()):
+        if df_ranking.iloc[i]["Rank"] == 1:
+            tick.set_color("#FFFFFF")
+            tick.set_weight("bold")
+    plt.tight_layout()
     return fig
 
 #Learning curves

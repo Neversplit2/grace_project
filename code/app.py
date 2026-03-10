@@ -775,10 +775,17 @@ with tab2:
                     display_screen.empty()
 
                     with display_screen.container():
-                        st.markdown("<h4 style='color: #00E5FF; font-family: monospace; letter-spacing: 2px; text-align: center;'>"
-                                    " RFE_RANKING_OUTPUT </h4>", unsafe_allow_html=True)
-                        
+
                         fig_rfe = v4p.rfe_plot(rfe, x)
+                        #Move plot up
+                        st.markdown("""
+                        <style>
+                        .stPlotlyChart, .stImage, .stException {
+                            margin-top: -100px; /* Adjust this value to move it further up */
+                        }
+                        </style>
+                        """, unsafe_allow_html=True)
+                        
                         st.pyplot(fig_rfe, use_container_width=True)
                     
                 else:
