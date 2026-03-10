@@ -298,7 +298,7 @@ with col1:
         </a>
     """, unsafe_allow_html=True)
     st.markdown("""
-        <a href="https://grace.jpl.nasa.gov/data/get-data/jpl_global_mascons/" target="_blank" style="
+        <a href="https://www2.csr.utexas.edu/grace/RL06_mascons.html" target="_blank" style="
             text-decoration: none;
             color: rgb(61, 213, 109); 
             background-color: rgba(61, 213, 109, 0.2); 
@@ -364,7 +364,7 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "🧠 2. Data Processing", 
     "🦾 3. Model Training",
     "🗺️ 4. Maps",
-    "📊 5.Statistical Analysis"
+    "📊 5. Statistical Analysis"
 ])
 
 
@@ -636,7 +636,7 @@ with tab2:
                 <div style="background-color: #0b0f19; padding: 20px; border-radius: 8px; 
                             border: 1px solid #1e293b; font-family: 'Courier New', monospace; 
                             color: #00E5FF; height: 250px; box-shadow: inset 0 0 10px #000000;">
-                    <p style="margin: 0; color: #a3adc2;">> systemctl start data_prep.service</p>
+                    <p style="margin: 0; color: #a3adc2;">> system start data_prep pipeline</p>
                     <p style="margin: 0;">> Initializing ERA5 Data Pipeline...</p>
                     <p style="margin: 0;">> Downloading and merging spatial grids...</p>
                     <p style="margin: 0;">> Computing parameters... <span style="color: #00FF00;">Done.</span></p>
@@ -691,8 +691,8 @@ with tab2:
                     .term-body { padding: 15px; font-size: 14px; line-height: 1.5; }
 
                         .term-line { opacity: 0; margin: 0; animation: fadeIn 0.1s forwards; }
-                        .delay-1 { animation-delay: 0.5s; }
-                        .delay-2 { animation-delay: 1s; }
+                        .delay-1 { animation-delay: 1s; }
+                        .delay-2 { animation-delay: 2s; }
                         @keyframes fadeIn { to { opacity: 1; } }
 
                     </style>
@@ -878,7 +878,7 @@ with tab4:
             # st.markdown("<small style = 'text-align: center; color: #8892B0; font-size: 1rem; letter-spacing: 2px;'>"
             # "**Year for Map**"
             # "</small>", unsafe_allow_html=True)
-            map_year = st.number_input("Year for Map", min_value=2002, max_value=2024, value=2010)
+            map_year = st.number_input("Year for Map", min_value=2002, max_value=2024, value=2020)
         with col_map2:
             #label_visibility="collapsed": Hide the label name and vanish the spot remaining. If i had = hidden we would still see the blanc spot
             st.markdown("<small style = 'text-align: center; color: #8892B0; font-size: 1rem; letter-spacing: 2px;'>"
