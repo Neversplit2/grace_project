@@ -12,8 +12,6 @@ import numpy as np
 import seaborn as sns
 import training as tr
 
-#So i want to create a function for the dynamic approach
-
 def dynamic_t(directory, filename, extension=""):
     #I am adding the ../ in order to create the filepath
     directory = f"../{directory}"
