@@ -423,3 +423,71 @@ def RF_feature_importance(model, X_train):
     plt.title('Feature Importance')
     plt.ylabel('Importance (0-1)')
     plt.show()
+
+def feature_importance_pie(model_path, X_train):
+    # 1. Load and Prepare Data
+    model = joblib.load(model_path)
+    importances = model.feature_importances_
+    
+    num_features_in_model = len(importances)
+    
+    if len(X_train.columns) != num_features_in_model:
+        # Fallback: try to match by taking the top features from the end or 
+        # checking against the model's expected input if possible.
+        # But the best way is to ensure X_train matches before calling the function.
+        feature_names = X_train.columns[:num_features_in_model] 
+    else:
+        feature_names = X_train.columns
+
+    df = pd.DataFrame({'Feature': feature_names, 'Importance': importances})
+    df = df.sort_values(by='Importance', ascending=False)
+
+    # 2. Slice for Readability
+    # Take top 8 and group the rest to avoid "Thin Slice Syndrome"
+    top_n = 8
+    top_df = df.head(top_n).copy()
+    others_val = df['Importance'][top_n:].sum()
+    
+    if others_val > 0:
+        new_row = pd.DataFrame({'Feature': ['OTHERS'], 'Importance': [others_val]})
+        plot_df = pd.concat([top_df, new_row])
+    else:
+        plot_df = top_df
+
+    # 3. Plotting
+    plt.style.use('dark_background')
+    fig, ax = plt.subplots(figsize=(6, 6), dpi=200)
+    fig.patch.set_facecolor('#0b0f19')
+    
+    # Custom Sci-Fi Palette
+    colors = sns.color_palette("cool", len(plot_df))
+    
+    # Create the Pie
+    wedges, texts, autotexts = ax.pie(
+        plot_df['Importance'], 
+        labels=plot_df['Feature'],
+        autopct='%1.1f%%',
+        startangle=140,
+        colors=colors,
+        pctdistance=0.85,
+        textprops={'color': "#8892B0", 'fontfamily': 'monospace', 'fontsize': 8},
+        wedgeprops={'linewidth': 1, 'edgecolor': '#00E5FF'} # Neon border
+    )
+
+    # 4. Turn it into a Donut
+    centre_circle = plt.Circle((0,0), 0.70, fc='#0b0f19', edgecolor='#1e293b', linewidth=1)
+    fig.gca().add_artist(centre_circle)
+
+    # Style the percentage labels
+    for autotext in autotexts:
+        autotext.set_color('white')
+        autotext.set_weight('bold')
+        autotext.set_fontsize(7)
+
+    ax.set_title("// FEATURE_IMPORTANCE_DISTRIBUTION", 
+                 color='#00E5FF', fontfamily='monospace', weight='bold', pad=20)
+    
+    # Equal aspect ratio ensures that pie is drawn as a circle.
+    ax.axis('equal')  
+    plt.tight_layout()
+    plt.show()
