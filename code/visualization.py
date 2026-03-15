@@ -12,8 +12,6 @@ import numpy as np
 import seaborn as sns
 import training as tr
 
-#So i want to create a function for the dynamic approach
-
 def dynamic_t(directory, filename, extension=""):
     #I am adding the ../ in order to create the filepath
     directory = f"../{directory}"
@@ -407,21 +405,48 @@ def RF_learn_curve(X_train, X_test, y_train, y_test, output, train_type):
     plt.show()
     print(f" Training curve saved to : {output}")
 
-def RF_feature_importance(model, X_train):
+def feature_importance_pie(model, X_train, output):
+ 
     model = joblib.load(model)
-
     importances = model.feature_importances_
     feature_names = X_train.columns
-    importance_df = pd.DataFrame({
+    
+    # Create the DataFrame 
+    df = pd.DataFrame({
         'Feature': feature_names,
         'Importance': importances
     })
+    df = df.sort_values(by='Importance', ascending=False)
 
-    importance_df = importance_df.sort_values(by='Importance', ascending=False)
-    print(importance_df)
-
+    # --- PLOTTING ---
+    plt.style.use('dark_background') # Base dark theme
+    fig, ax = plt.subplots(figsize=(6, 6))
+    fig.patch.set_facecolor('#0b0f19') # Match your UI background
     
-    importance_df.plot(kind='bar', x='Feature', y='Importance', color='teal', legend=False)
-    plt.title('Feature Importance')
-    plt.ylabel('Importance (0-1)')
-    plt.show()
+    # Simple Pie Chart
+    #wedges = slices , texts = features, autotexts= percentage
+    wedges, texts, autotexts =ax.pie(
+        df['Importance'], 
+        labels=df['Feature'], 
+        autopct='%1.1f%%',      # Shows percentage with 1 decimal
+        startangle=90,          # Starts the first slice at the top
+        pctdistance=0.85,
+        textprops={'color': "white"}
+    )
+
+    for text in texts:
+        text.set_fontfamily('monospace') # Sci-fi style
+        text.set_fontsize(10)
+        text.set_weight('bold')          # Makes names stand out
+        text.set_color('#8892B0')        # Muted blue-gray to match your theme
+
+    for text in autotexts:
+        text.set_fontfamily('monospace') # Sci-fi style
+        text.set_fontsize(7)
+        text.set_weight('bold')          # Makes names stand out
+        text.set_color("#000000")       
+
+    ax.set_title("Feature Importance")
+    
+    fig.savefig(output)
+    fig.show()
