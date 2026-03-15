@@ -205,7 +205,12 @@ if __name__ == "__main__":
     if choice not in ["YES", "NO"]:
         print(f"{Fore.RED}Error: Invalid input '{choice}'. Please type exactly 'YES' or 'NO'. Exiting...{Fore.RESET}")
         sys.exit() 
-    vis.feature_importance_pie(full_model_path, X_train)   
+    folder_name = str(input(f"{Fore.CYAN}Insert folder name you want to save the plot {Fore.RESET}"))
+    title = str(input(f"{Fore.CYAN}Insert title  {Fore.RESET}"))
+    extension = str(input(f"{Fore.CYAN}Insert .extension (eg. .jpg) {Fore.RESET}"))
+   
+    output = vis.dynamic_t(folder_name, title, extension)
+    vis.feature_importance_pie(full_model_path, X_train, output)   
 
     choice = input(f"{Fore.CYAN}Would you like to create comparison grace raw/predicted statistical analysis plot? Write YES/NO {Fore.RESET}").strip().upper()
     if choice not in ["YES", "NO"]:

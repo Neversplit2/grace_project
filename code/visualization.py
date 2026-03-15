@@ -405,7 +405,7 @@ def RF_learn_curve(X_train, X_test, y_train, y_test, output, train_type):
     plt.show()
     print(f" Training curve saved to : {output}")
 
-def feature_importance_pie(model, X_train):
+def feature_importance_pie(model, X_train, output):
  
     model = joblib.load(model)
     importances = model.feature_importances_
@@ -447,4 +447,6 @@ def feature_importance_pie(model, X_train):
         text.set_color("#000000")       
 
     ax.set_title("Feature Importance")
+    
+    fig.savefig(output)
     fig.show()
