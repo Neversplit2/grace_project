@@ -405,89 +405,46 @@ def RF_learn_curve(X_train, X_test, y_train, y_test, output, train_type):
     plt.show()
     print(f" Training curve saved to : {output}")
 
-def RF_feature_importance(model, X_train):
+def feature_importance_pie(model, X_train):
+ 
     model = joblib.load(model)
-
     importances = model.feature_importances_
     feature_names = X_train.columns
-    importance_df = pd.DataFrame({
+    
+    # Create the DataFrame 
+    df = pd.DataFrame({
         'Feature': feature_names,
         'Importance': importances
     })
-
-    importance_df = importance_df.sort_values(by='Importance', ascending=False)
-    print(importance_df)
-
-    
-    importance_df.plot(kind='bar', x='Feature', y='Importance', color='teal', legend=False)
-    plt.title('Feature Importance')
-    plt.ylabel('Importance (0-1)')
-    plt.show()
-
-def feature_importance_pie(model_path, X_train):
-    # 1. Load and Prepare Data
-    model = joblib.load(model_path)
-    importances = model.feature_importances_
-    
-    num_features_in_model = len(importances)
-    
-    if len(X_train.columns) != num_features_in_model:
-        # Fallback: try to match by taking the top features from the end or 
-        # checking against the model's expected input if possible.
-        # But the best way is to ensure X_train matches before calling the function.
-        feature_names = X_train.columns[:num_features_in_model] 
-    else:
-        feature_names = X_train.columns
-
-    df = pd.DataFrame({'Feature': feature_names, 'Importance': importances})
     df = df.sort_values(by='Importance', ascending=False)
 
-    # 2. Slice for Readability
-    # Take top 8 and group the rest to avoid "Thin Slice Syndrome"
-    top_n = 8
-    top_df = df.head(top_n).copy()
-    others_val = df['Importance'][top_n:].sum()
+    # --- PLOTTING ---
+    plt.style.use('dark_background') # Base dark theme
+    fig, ax = plt.subplots(figsize=(6, 6))
+    fig.patch.set_facecolor('#0b0f19') # Match your UI background
     
-    if others_val > 0:
-        new_row = pd.DataFrame({'Feature': ['OTHERS'], 'Importance': [others_val]})
-        plot_df = pd.concat([top_df, new_row])
-    else:
-        plot_df = top_df
-
-    # 3. Plotting
-    plt.style.use('dark_background')
-    fig, ax = plt.subplots(figsize=(6, 6), dpi=200)
-    fig.patch.set_facecolor('#0b0f19')
-    
-    # Custom Sci-Fi Palette
-    colors = sns.color_palette("cool", len(plot_df))
-    
-    # Create the Pie
-    wedges, texts, autotexts = ax.pie(
-        plot_df['Importance'], 
-        labels=plot_df['Feature'],
-        autopct='%1.1f%%',
-        startangle=140,
-        colors=colors,
+    # Simple Pie Chart
+    #wedges = slices , texts = features, autotexts= percentage
+    wedges, texts, autotexts =ax.pie(
+        df['Importance'], 
+        labels=df['Feature'], 
+        autopct='%1.1f%%',      # Shows percentage with 1 decimal
+        startangle=90,          # Starts the first slice at the top
         pctdistance=0.85,
-        textprops={'color': "#8892B0", 'fontfamily': 'monospace', 'fontsize': 8},
-        wedgeprops={'linewidth': 1, 'edgecolor': '#00E5FF'} # Neon border
+        textprops={'color': "white"}
     )
 
-    # 4. Turn it into a Donut
-    centre_circle = plt.Circle((0,0), 0.70, fc='#0b0f19', edgecolor='#1e293b', linewidth=1)
-    fig.gca().add_artist(centre_circle)
+    for text in texts:
+        text.set_fontfamily('monospace') # Sci-fi style
+        text.set_fontsize(10)
+        text.set_weight('bold')          # Makes names stand out
+        text.set_color('#8892B0')        # Muted blue-gray to match your theme
 
-    # Style the percentage labels
-    for autotext in autotexts:
-        autotext.set_color('white')
-        autotext.set_weight('bold')
-        autotext.set_fontsize(7)
+    for text in autotexts:
+        text.set_fontfamily('monospace') # Sci-fi style
+        text.set_fontsize(7)
+        text.set_weight('bold')          # Makes names stand out
+        text.set_color("#000000")       
 
-    ax.set_title("// FEATURE_IMPORTANCE_DISTRIBUTION", 
-                 color='#00E5FF', fontfamily='monospace', weight='bold', pad=20)
-    
-    # Equal aspect ratio ensures that pie is drawn as a circle.
-    ax.axis('equal')  
-    plt.tight_layout()
-    plt.show()
+    ax.set_title("Feature Importance")
+    fig.show()
