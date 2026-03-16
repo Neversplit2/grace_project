@@ -272,6 +272,48 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+#Live intro text
+ticker_text = "[SYSTEM STATUS: ONLINE] --- WELCOME TO THE TRAINING FACILITY. TO START: UPLOAD YOUR CSV DATA IN TAB 1. RUN RFE ANALYSIS IN TAB 2. EVALUATE MODEL IMPORTANCE IN TAB 3. --- [ENCRYPTED CONNECTION STABLE]"
+
+st.markdown(f"""
+    <style>
+    .ticker-wrapper {{
+        width: 100%;
+        overflow: hidden;
+        background-color: transparent; 
+        border-top: 1px solid rgba(0, 229, 255, 0.3);
+        border-bottom: 1px solid rgba(0, 229, 255, 0.3);
+        padding: 8px 0;
+        margin-bottom: 30px; /* Space before metrics start */
+    }}
+
+    .ticker-text {{
+        display: inline-block;
+        white-space: nowrap;
+        padding-left: 100%;
+        animation: marquee 40s linear infinite; /* 30s for a smooth, readable pace */
+        font-family: 'monospace';
+        color: #00E5FF;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-shadow: 0 0 5px rgba(0, 229, 255, 0.5);
+    }}
+
+    @keyframes marquee {{
+        0%   {{ transform: translate(0, 0); }}
+        100% {{ transform: translate(-100%, 0); }}
+    }}
+    </style>
+
+    <div class="ticker-wrapper">
+        <div class="ticker-text">
+            {ticker_text}
+        </div>
+    </div>
+""", unsafe_allow_html=True)
+
+
 # --- SYSTEM STATUS METRICS ---
 col1, col2, col3 = st.columns(3)
 
