@@ -441,7 +441,7 @@ def feature_importance_pie(model, X_train, output):
         pctdistance=0.9,
         colors= colors,
         #textprops={'color': "white"}
-        wedgeprops={'linewidth': 0.5, 'edgecolor': '#0b0f19'}
+        wedgeprops={'linewidth': 0.25, 'edgecolor': '#0b0f19'}
     )
 
     for text in texts:
