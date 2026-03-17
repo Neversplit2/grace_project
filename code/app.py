@@ -273,7 +273,12 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 #Live intro text
-ticker_text = "[SYSTEM STATUS: ONLINE] --- WELCOME TO THE TRAINING FACILITY. TO START: UPLOAD YOUR CSV DATA IN TAB 1. RUN RFE ANALYSIS IN TAB 2. EVALUATE MODEL IMPORTANCE IN TAB 3. --- [ENCRYPTED CONNECTION STABLE]"
+ticker_text = "WELCOME TO THE GRACE & GRACE-FO DOWNSCALING ENGINE." \
+            " • TAB 1: DEFINE AREA - BASIN OF INTEREST AND VALIDATE BOUNDARIES WITH THE LIVE NAVIGATION GLOBE." \
+            " • TAB 2: RUN DATA PREPARATION AND RFE ANALYSIS. " \
+            "• TAB 3: TRAIN YOUR MODEL (OPTIONAL: FEEL FREE TO SKIP IF YOU ALREADY HAVE A PRE-TRAINED MODEL READY TO USE). " \
+            "• TAB 4: THIS IS WHERE MAGIC HAPPENS.. CREATE ANY MAP YOU CAN IMAGINE!" \
+            " • TAB 5: PERFORM STATISTICAL ANALYSIS AND EVALUATE YOUR MODEL’S PERFORMANCE."
 
 st.markdown(f"""
     <style>
@@ -291,7 +296,7 @@ st.markdown(f"""
         display: inline-block;
         white-space: nowrap;
         padding-left: 100%;
-        animation: marquee 40s linear infinite; /* 30s for a smooth, readable pace */
+        animation: marquee 70s linear infinite; /* 30s for a smooth, readable pace */
         font-family: 'monospace';
         color: #00E5FF;
         font-size: 13px;
