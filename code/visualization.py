@@ -1,6 +1,7 @@
 import configuration_settings as cs
 import data_processing as dpr
 from colorama import Fore
+import matplotlib.colors as mcolors
 import sys
 import os, joblib
 import cartopy.crs as ccrs 
@@ -417,9 +418,17 @@ def feature_importance_pie(model, X_train, output):
     })
     df = df.sort_values(by='Importance', ascending=False)
 
+    # --- ENHANCED COLOR LOGIC ---
+    # We use a more "vibrant" list of points for the gradient
+    # Neon Cyan -> Bright Electric Blue -> Vivid Magenta/Purple
+    n_features = len(df)
+    custom_colors = ["#00FFFF", "#0080FF", "#8000FF", "#FF00FF"]
+    cmap = mcolors.LinearSegmentedColormap.from_list("intense_sci_fi", custom_colors)
+    colors = [cmap(i) for i in np.linspace(0, 1, n_features)][::-1]
+
     # --- PLOTTING ---
     plt.style.use('dark_background') # Base dark theme
-    fig, ax = plt.subplots(figsize=(6, 6))
+    fig, ax = plt.subplots(figsize=(6, 6), dpi=150) # Higher DPI for sharper lines
     fig.patch.set_facecolor('#0b0f19') # Match your UI background
     
     # Simple Pie Chart
@@ -428,20 +437,22 @@ def feature_importance_pie(model, X_train, output):
         df['Importance'], 
         labels=df['Feature'], 
         autopct='%1.1f%%',      # Shows percentage with 1 decimal
-        startangle=90,          # Starts the first slice at the top
-        pctdistance=0.85,
-        textprops={'color': "white"}
+        startangle=140,          # Starts the first slice at the top
+        pctdistance=0.9,
+        colors= colors,
+        #textprops={'color': "white"}
+        wedgeprops={'linewidth': 0.5, 'edgecolor': '#0b0f19'}
     )
 
     for text in texts:
         text.set_fontfamily('monospace') # Sci-fi style
-        text.set_fontsize(10)
+        text.set_fontsize(7)
         text.set_weight('bold')          # Makes names stand out
         text.set_color('#8892B0')        # Muted blue-gray to match your theme
 
     for text in autotexts:
         text.set_fontfamily('monospace') # Sci-fi style
-        text.set_fontsize(7)
+        text.set_fontsize(5.5)
         text.set_weight('bold')          # Makes names stand out
         text.set_color("#000000")       
 
