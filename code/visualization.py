@@ -61,9 +61,10 @@ def rfe_plot(rfe, x, output):
     plt.yticks(fontsize=6)
     # Show the plot
     plt.tight_layout()
-    plt.show()
+
     plt.savefig(output)
-   
+    plt.show()
+
 def rfe_plot2(rfe, x, output):
     df_ranking = pd.DataFrame()
     df_ranking["Feature"] = x.columns
@@ -116,9 +117,9 @@ def rfe_plot2(rfe, x, output):
             tick.set_color("#FFFFFF")
             tick.set_weight("bold")
     plt.tight_layout()
-    plt.show()
     plt.savefig(output)
-
+    plt.show()
+    
 #ERA5 map
 
 def ERA_plot(dataset, year, month, var_to_plot, basin_name, output):
