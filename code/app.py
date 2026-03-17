@@ -296,7 +296,7 @@ st.markdown(f"""
         display: inline-block;
         white-space: nowrap;
         padding-left: 100%;
-        animation: marquee 70s linear infinite; /* 30s for a smooth, readable pace */
+        animation: marquee 70s linear infinite; /*
         font-family: 'monospace';
         color: #00E5FF;
         font-size: 13px;
