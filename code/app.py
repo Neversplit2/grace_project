@@ -22,7 +22,7 @@ st.markdown("""
          DOWNSCALING ENGINE FOR GRACE & GRACE-FO LWE DATA
     </h1>
     <div style="text-align: center; color: #626A7F; font-family: monospace; font-size: 14px; letter-spacing: 1px; margin-bottom: 30px;">
-        ENGINNEERED & DESIGNED BY: 
+        ENGINEERED & DESIGNED BY: 
         <div class="cyber-tooltip">
             NEVERSPLIT
             <span class="tooltip-text">
@@ -296,7 +296,7 @@ st.markdown(f"""
         display: inline-block;
         white-space: nowrap;
         padding-left: 100%;
-        animation: marquee 70s linear infinite; /*
+        animation: marquee 70s linear infinite; 
         font-family: 'monospace';
         color: #00E5FF;
         font-size: 13px;
