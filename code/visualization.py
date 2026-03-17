@@ -59,68 +59,65 @@ def rfe_plot(rfe, x, output):
     plt.grid(axis="x", linestyle="--", alpha=0.6)
     #Changing feature fontsize
     plt.yticks(fontsize=6)
+
     # Show the plot
 
     plt.savefig(output)
-    plt.show()
-
-def rfe_plot2(rfe, x, output):
+   
+def rfe_plot2(rfe, x):
     df_ranking = pd.DataFrame()
-    # Creating column "Feature" in order to save the rfe feature names participating 
     df_ranking["Feature"] = x.columns
-    # Creating column "Rank" in order to save the rfe feature ranking
     df_ranking["Rank"] = rfe.ranking_ 
-    # Sorting df_ranking based on column "Rank", in ascending order (True)
     df_ranking = df_ranking.sort_values(by=['Rank'], ascending=True)
 
-    # --- MODERN STYLING SETUP ---
-    # Apply text colors that match dark mode (light grey/cyan)
-    plt.rcParams.update({
-        "text.color": "#A0AEC0",
-        "axes.labelcolor": "#A0AEC0",
-        "xtick.color": "#A0AEC0",
-        "ytick.color": "#A0AEC0",
-    })
+    # 1. Set the Dark Theme Style
+    plt.style.use('dark_background') # Instantly turns the background black
+    fig, ax = plt.subplots(figsize=(6, 4), dpi=200) # Slightly wider for better text fit
+    fig.patch.set_facecolor('#0b0f19') # Matches your terminal background hex
+    ax.set_facecolor('#0b0f19')
 
-    # Creating figure (Wider: 7x5 instead of 4x5, high DPI for crispness)
-    fig, ax = plt.subplots(figsize=(7, 5), dpi=300) 
-
-    # Plotting: Using 'mako' palette for a sleek cyan/blue dark-mode vibe
+    # 2. Custom Neon Palette (Cyan to Magenta)
+    # We use a custom gradient that screams "Tech"
+    neon_colors = sns.color_palette("husl", len(df_ranking))
+    
     sns.barplot(
         data=df_ranking, 
         x="Rank", 
         y="Feature", 
-        hue="Rank",
-        palette="mako", 
-        legend=False,
-        ax=ax
+        palette="cool_r", # 'cool' goes from Cyan to Purple
+        ax=ax,
+        # edgecolor="#00E5FF", # Adds a neon glow effect to the bar edges
+        linewidth=1
     )
 
-    # --- FORMATTING & TYPOGRAPHY ---
-    # Much larger, bolder title with your neon cyan color
-    plt.title(f"RFE Feature Ranking (Top {rfe.n_features_} Selected)", 
-              fontsize=16, fontweight='bold', color="#00E5FF", pad=15)
+    # 3. Formatting with Monospace Fonts
+    # Using 'monospace' makes it look like code output
+    ax.set_title(f" RFE FEATURE RANKING [TOP {rfe.n_features_}]", 
+                 fontsize=10, color='#00E5FF', fontfamily='monospace', weight='bold', pad=20)
     
-    # Larger axis labels with a bit of padding so they don't hug the text
-    plt.xlabel("Rank (1 = Selected, Higher = Eliminated Early)", fontsize=11, labelpad=10)
-    plt.ylabel("Features", fontsize=11, labelpad=10)
+    ax.set_xlabel("Ranking level (OPTIMAL=1)", fontsize=8, color="#FFFFFF", fontfamily='monospace', weight='bold')
+    ax.set_ylabel("Features", fontsize=8, color="#FFFFFF", fontfamily='monospace', weight='bold')
     
-    # Subtler grid lines
-    plt.grid(axis="x", linestyle="--", alpha=0.2, color="#A0AEC0")
+    # 4. Sci-Fi Grid & Spines
+    ax.grid(axis="x", linestyle=":", alpha=0.3, color='#8892B0')
     
-    # Clean up borders (removes the harsh box around the graph)
-    sns.despine(left=True, bottom=False)
+    # Remove the top and right borders for a cleaner "HUD" look
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_color('#1e293b')
+    ax.spines['bottom'].set_color('#1e293b')
     
-    # Readable tick fonts (bumped from 6 to 10)
-    plt.xticks(fontsize=10)
-    plt.yticks(fontsize=10, fontweight='medium')
-
-    # Automatically adjust padding so nothing gets cut off
+    # Tick formatting
+    ax.tick_params(axis='both', colors='#8892B0', labelsize=7)
+   
+    # Bold the features selected
+    for i, tick in enumerate(ax.get_yticklabels()):
+        if df_ranking.iloc[i]["Rank"] == 1:
+            tick.set_color("#FFFFFF")
+            tick.set_weight("bold")
     plt.tight_layout()
-
-    # Save with a transparent background so it floats perfectly on your Streamlit app!
-    plt.savefig(output, transparent=True)
     plt.show()
+
 #ERA5 map
 
 def ERA_plot(dataset, year, month, var_to_plot, basin_name, output):
