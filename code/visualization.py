@@ -59,12 +59,12 @@ def rfe_plot(rfe, x, output):
     plt.grid(axis="x", linestyle="--", alpha=0.6)
     #Changing feature fontsize
     plt.yticks(fontsize=6)
-
     # Show the plot
-
+    plt.tight_layout()
+    plt.show()
     plt.savefig(output)
    
-def rfe_plot2(rfe, x):
+def rfe_plot2(rfe, x, output):
     df_ranking = pd.DataFrame()
     df_ranking["Feature"] = x.columns
     df_ranking["Rank"] = rfe.ranking_ 
@@ -72,7 +72,7 @@ def rfe_plot2(rfe, x):
 
     # 1. Set the Dark Theme Style
     plt.style.use('dark_background') # Instantly turns the background black
-    fig, ax = plt.subplots(figsize=(6, 4), dpi=200) # Slightly wider for better text fit
+    fig, ax = plt.subplots(figsize=(4, 5), dpi=200) # Slightly wider for better text fit
     fig.patch.set_facecolor('#0b0f19') # Matches your terminal background hex
     ax.set_facecolor('#0b0f19')
 
@@ -117,6 +117,7 @@ def rfe_plot2(rfe, x):
             tick.set_weight("bold")
     plt.tight_layout()
     plt.show()
+    plt.savefig(output)
 
 #ERA5 map
 
