@@ -970,4 +970,35 @@ with tab4:
                 with map_container.container():
                     st.markdown("<p style='color: #FF00FF; font-family: monospace;'>[SIGNAL_LOCKED]: GRACE_COMPARISON_MATRIX</p>", unsafe_allow_html=True)
                     st.pyplot(csr_fig)
-              
+
+with tab5:
+    st.markdown("<h3 style = 'color: #00E5FF; font-family: monospace;  letter-spacing: 2px;'>"
+        "Perform statistical Analysis"
+        "</h3>", unsafe_allow_html=True)
+    
+    # 1. Access the bounds from Tab 1 using st.session_state
+    limit_lat_min = st.session_state.get("lat_min", -17.0) # -17.0: fallback value just in case Tab 1 hasn't been touched
+    limit_lat_max = st.session_state.get("lat_max", 5.0)
+    limit_lon_min = st.session_state.get("lon_min", -80.0)
+    limit_lon_max = st.session_state.get("lon_max", -50.0)
+
+    col1, col2 = st.columns([1, 1.5]) 
+    
+    #Everything under with col_input 
+    with col1:
+        
+        st.markdown("<small style = 'text-align: center; color: #8892B0; font-size: 1rem; letter-spacing: 2px;'>"
+        "**Choose points of interest**"
+        "</small>", unsafe_allow_html=True)
+
+        # Split col_input in 2 extra columns
+        col_lat, col_lon = st.columns(2)
+        # key = "lat_min" : forces Streamlit to permanently remember whatever number the user types in here
+        with col_lat: 
+            lat = st.number_input("Latitude", min_value=float(limit_lat_min), max_value=float(limit_lat_max), 
+                value=float(limit_lat_min), step=0.25, format="%.2f", key="lat_4_stats")
+            
+        with col_lon: 
+            lon = st.number_input("Longitude", min_value=float(limit_lon_min), max_value=float(limit_lon_max), 
+                value=float(limit_lon_min), step=0.25, format="%.2f", key="lon_4_stats")
+    
