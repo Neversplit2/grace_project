@@ -282,7 +282,7 @@ def CSR_plot(model, year, month, dataset_CSR, dataset_CSR2, dataset_ERA, var_to_
 
         return fig 
     
-def model_eval_plot(dataframe, output):
+def model_eval_plot(dataframe):
     # yaxis= lwe_thickness/lwe_pred and x_axis= time (year-month)
     #i need to create the time variable
     plot_dates = pd.to_datetime(dataframe[['year', 'month']].assign(DAY=1))
