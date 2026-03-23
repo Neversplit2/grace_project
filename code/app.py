@@ -754,14 +754,14 @@ with tab2:
                                 border: 1px solid #1e293b; font-family: 'Courier New', monospace; 
                                 color: #00E5FF; height: 250px; box-shadow: inset 0 0 10px #000000;">
                         <p style="margin: 0; color: #a3adc2;">> system start RFE</p>
-                        <p class="term-line delay-1" style="margin: 0; color: #FF00FF;">> Initializing RFE Ranking Algorithm...</p>
+                        <p class="term-line delay-1" style="margin: 0; color: #FF00FF;">> Initializing RFE Ranking Algorithm...</p> 
                         <p class="term-line delay-2" style="margin: 0; color: #FF00FF;">> Processing features... <span class="cursor-blink">█</span></p>
                     </div>
                     """
                     display_screen.markdown(terminal_rfe, unsafe_allow_html=True)
                                    
                     rfe, selected_features, x = m4p.pipe_RFE(st.session_state['merged'], model_RFE, int(n_features))
-                    
+                
                     terminal_rfe_done = """
                     <style>
                         /* MAC traffic light look*/
@@ -793,7 +793,16 @@ with tab2:
 
                         .term-line { opacity: 0; margin: 0; animation: fadeIn 0.1s forwards; }
                         @keyframes fadeIn { to { opacity: 1; } }
+                    /*#NEW*/
+                    @keyframes plotFadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                    }
 
+                    .smooth-plot {
+                    animation: plotFadeIn 1.5s ease-out forwards;
+                    }
+                    /*#NEW*/
                     </style>
                     <div class="term-window">
                     <div class="term-header">
@@ -818,21 +827,36 @@ with tab2:
                     st.session_state['selected_features'] = selected_features
                     st.session_state['x'] = x
 
-                    time.sleep(2)
-                    display_screen.empty()
-
+                    time.sleep(1.5)
+                    
                     with display_screen.container():
-
-                        fig_rfe = v4p.rfe_plot(rfe, x)
-                        #Move plot up
+                        # 1. Inject CSS globally for this container
+                        # We target 'img' because st.pyplot renders as an image
                         st.markdown("""
-                        <style>
-                        .stPlotlyChart, .stImage, .stException {
-                            margin-top: -100px; /* Adjust this value to move it further up */
-                        }
-                        </style>
+                            <style>
+                                @keyframes blurSharpen {
+                                    0% { filter: blur(25px); opacity: 0; }
+                                    100% { filter: blur(0px); opacity: 1; }
+                                }
+                                
+                                /* Target the specific Streamlit image container */
+                                [data-testid="stImage"] img, .stPlotlyChart {
+                                    animation: blurSharpen 1.5s ease-out forwards !important; /* if we want it slower we change the 1s*/
+                                }
+
+                                /* Your working move-up logic */
+                                .stPlotlyChart, [data-testid="stImage"], .stException {
+                                    margin-top: -100px !important;
+                                }
+                            </style>
                         """, unsafe_allow_html=True)
+
+                        # 2. Generate the plot
+                        fig_rfe = v4p.rfe_plot(rfe, x)
                         
+                        # Matching background prevents a "white flash"
+                        fig_rfe.patch.set_facecolor('#0b0f19') 
+                        # 3. Show the plot
                         st.pyplot(fig_rfe, use_container_width=True)
                     
                 else:
