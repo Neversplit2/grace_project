@@ -969,12 +969,41 @@ with tab4:
             if 'ds_ERA_sliced' not in st.session_state or 'merged' not in st.session_state:
                 st.warning("⚠️ Please run 'Data Prep & RFE' in Tab 2 first to load the datasets!")
             else:
-                with st.spinner("Drawing Maps..."):
-                    era_fig = v4p.ERA_plot(st.session_state['ds_ERA_sliced'], map_year, map_month, era_var, basin_name)
-                with map_container.container():
-                    st.markdown("<p style='color: #FF00FF; font-family: monospace;'>[SIGNAL_LOCKED]: ERA5 feature map/p>", unsafe_allow_html=True)
-                    st.pyplot(era_fig)
                 
+                with map_container.container():
+                    # 1. Generate the plot
+                    era_fig = v4p.ERA_plot(st.session_state['ds_ERA_sliced'], map_year, map_month, era_var, basin_name)
+                    era_fig.patch.set_facecolor('#0b0f19')
+                    
+                    # 2. Convert the Matplotlib plot to a base64 image string
+                    buf1 = io.BytesIO()
+                    era_fig.savefig(buf1, format="png", facecolor='#0b0f19', bbox_inches='tight')
+                    buf1.seek(0)
+                    img_base64_era = base64.b64encode(buf1.read()).decode("utf-8")
+
+                    st.markdown(f"""
+                        <style>
+                            @keyframes blurSharpenEra {{
+                                0% {{ filter: blur(25px); opacity: 0; }}
+                                100% {{ filter: blur(0px); opacity: 1; }}
+                            }}
+                            
+                            /* UNIQUE CLASS for the ERA Plot */
+                            .my-isolated-era-plot {{
+                                animation: blurSharpenEra 2.5s ease-out forwards;
+                                width: 75%; /* This acts like use_container_width=True */
+                                /* Add these two lines to keep it centered after shrinking */
+                                display: block;
+                                margin: 0 auto;
+                                margin-top: -30px; /* NOTE: Adjust this if it pushes the map too high up! */
+                                border-radius: 8px; 
+                            }}
+                        </style>
+                        
+                        <img class="my-isolated-era-plot" src="data:image/png;base64,{img_base64_era}" alt="ERA Plot">
+                    """, unsafe_allow_html=True)
+                
+    
 
         uploaded_model = st.file_uploader("Upload Pre-trained Model (.pkl)", type=["pkl"])
 
