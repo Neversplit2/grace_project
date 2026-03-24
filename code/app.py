@@ -772,8 +772,16 @@ with tab2:
 
                         .term-line { opacity: 0; margin: 0; animation: fadeIn 0.1s forwards; }
                         .delay-1 { animation-delay: 1s; }
-                        .delay-2 { animation-delay: 2s; }
+                        .delay-2 { animation-delay: 2.5s; }
                         @keyframes fadeIn { to { opacity: 1; } }
+
+                        @keyframes blinkCursor {
+                        0%, 100% { opacity: 1; }
+                        50% { opacity: 0; }
+                    }
+                    .cursor-blink {
+                        animation: blinkCursor 1s step-end infinite;
+                    }
 
                     </style>
                     <div class="term-window">
@@ -792,13 +800,14 @@ with tab2:
                     </div>
                     """
                     display_screen.markdown(terminal_rfe, unsafe_allow_html=True)
-                                   
+                    time.sleep(8) 
+
                     rfe, selected_features, x = m4p.pipe_RFE(st.session_state['merged'], model_RFE, int(n_features))
-                
-                    terminal_rfe_done = """
+                    
+                    terminal_rfe_done = f"""
                     <style>
                         /* MAC traffic light look*/
-                    .term-window {
+                    .term-window {{
                         background-color: #121212;
                         border-radius: 10px;
                         border: 1px solid #333;
@@ -808,33 +817,36 @@ with tab2:
                         overflow: hidden;
                         height: 250px;
                         margin-top: -55px;
-                    }
-                    .term-header {
+                    }}
+                    .term-header {{
                         background-color: #2b2b2b;
                         padding: 10px;
                         display: flex;
                         align-items: center;
                         border-bottom: 1px solid #111;
-                    }
-                    .term-button {
+                    }}
+                    .term-button {{
                         width: 12px; height: 12px; border-radius: 50%; margin-right: 8px;
-                    }
-                    .close { background-color: #ff5f56; }
-                    .minimize { background-color: #ffbd2e; }
-                    .maximize { background-color: #27c93f; }
-                    .term-body { padding: 15px; font-size: 14px; line-height: 1.5; }
+                    }}
+                    .close {{ background-color: #ff5f56; }}
+                    .minimize {{ background-color: #ffbd2e; }}
+                    .maximize {{ background-color: #27c93f; }}
+                    .term-body {{ padding: 15px; font-size: 14px; line-height: 1.5; }}
 
-                        .term-line { opacity: 0; margin: 0; animation: fadeIn 0.1s forwards; }
-                        @keyframes fadeIn { to { opacity: 1; } }
+                        .term-line {{ opacity: 0; margin: 0; animation: fadeIn 0.1s forwards; }}
+                        .delay-1 {{ animation-delay: 1.5s; }}
+                        @keyframes fadeIn {{ to {{ opacity: 1; }} }}
+            
+                  
                     /*#NEW*/
-                    @keyframes plotFadeIn {
-                    from { opacity: 0; transform: translateY(10px); }
-                    to { opacity: 1; transform: translateY(0); }
-                    }
+                    @keyframes plotFadeIn {{
+                    from {{ opacity: 0; transform: translateY(10px); }}
+                    to {{ opacity: 1; transform: translateY(0); }}
+                    }}
 
-                    .smooth-plot {
+                    .smooth-plot {{
                     animation: plotFadeIn 1.5s ease-out forwards;
-                    }
+                    }}
                     /*#NEW*/
                     </style>
                     <div class="term-window">
@@ -849,8 +861,9 @@ with tab2:
                                 color: #00E5FF; height: 250px; box-shadow: inset 0 0 10px #000000;">
                         <p style="margin: 0; color: #a3adc2;">> system start RFE</p>
                         <p style="margin: 0; color: #FF00FF;">> Initializing RFE Ranking Algorithm...</p>
-                        <p style="margin: 0; color: #FF00FF;">> Processing features... <span class="cursor-blink">█</span></p>
+                        <p style="margin: 0; color: #FF00FF;">> Processing features... </p>
                         <p style="margin: 0; color: #00FF00;">> RFE Complete! Found {len(selected_features)} best features. </p>
+                        <p class="term-line delay-1" style="margin: 0; color: #00FF00;">>  {selected_features} </p>
                     </div>
                     """
                     display_screen.markdown(terminal_rfe_done, unsafe_allow_html=True)
@@ -860,7 +873,7 @@ with tab2:
                     st.session_state['selected_features'] = selected_features
                     st.session_state['x'] = x
 
-                    time.sleep(1.5)
+                    time.sleep(5.5)
                     #NEW
                     with display_screen.container():
                         # 1. Generate the plot
@@ -872,14 +885,15 @@ with tab2:
                         fig_rfe.savefig(buf, format="png", facecolor='#0b0f19', bbox_inches='tight')
                         buf.seek(0)
                         img_base64 = base64.b64encode(buf.read()).decode("utf-8")
-                        
-                        # 3. Inject CSS and the Image together with the Paint Wipe!
+
+                        #3. Inject CSS and the Image together with the Paint Wipe!
                         st.markdown(f"""
                             <style>
                                 @keyframes paintRollerRfe {{
                                     0% {{
+
                                         /* Start hidden, wiped up from the bottom */
-                                        -webkit-clip-path: inset(0 0 100% 0);
+                                        -webkit-clip-path: inset(0 0 100% 0); /*inset(top, right, bottom, left) cut off 100% of ... */
                                         clip-path: inset(0 0 100% 0);
                                         transform: scaleY(0.99); 
                                         opacity: 0.8;
@@ -906,38 +920,6 @@ with tab2:
                             
                             <img class="my-isolated-rfe-plot" src="data:image/png;base64,{img_base64}" alt="RFE Plot">
                         """, unsafe_allow_html=True)
-                    #NEW
-                    # with display_screen.container():
-                    #     # 1. Generate the plot
-                    #     fig_rfe = v4p.rfe_plot(rfe, x)
-                    #     fig_rfe.patch.set_facecolor('#0b0f19') 
-                        
-                    #     # 2. Convert the Matplotlib plot to a base64 image string
-                    #     buf = io.BytesIO()
-                    #     fig_rfe.savefig(buf, format="png", facecolor='#0b0f19', bbox_inches='tight')
-                    #     buf.seek(0)
-                    #     img_base64 = base64.b64encode(buf.read()).decode("utf-8")
-                        
-                    #     # 3. Inject CSS and the Image together using a totally unique class!
-                    #     st.markdown(f"""
-                    #         <style>
-                    #             @keyframes blurSharpen {{
-                    #                 0% {{ filter: blur(25px); opacity: 0; }}
-                    #                 100% {{ filter: blur(0px); opacity: 1; }}
-                    #             }}
-                                
-                    #             /* Target ONLY our custom class, leave Streamlit alone! */
-                    #             .my-isolated-rfe-plot {{
-                    #                 animation: blurSharpen 1.5s ease-out forwards;
-                    #                 width: 100%; /* This acts like use_container_width=True */
-                    #                 margin-top: -100px;
-                    #                 border-radius: 8px; /* Optional: smooth edges */
-                    #             }}
-                    #         </style>
-                            
-                    #         <img class="my-isolated-rfe-plot" src="data:image/png;base64,{img_base64}" alt="RFE Plot">
-                    #     """, unsafe_allow_html=True)
-                    
                     
                 else:
                     st.error("Merge failed. Data is empty.")
