@@ -268,7 +268,32 @@ st.markdown("""
     div[data-baseweb="select"] [data-testid="stWidgetLabel"] {
         font-family: monospace !important;
     }
+    
+    /* 4. Target the SVG down-arrow icon inside the selectbox */
+    div[data-baseweb="select"] svg,
+    div[data-baseweb="select"] svg path {
+        fill: #00E5FF !important;
+        color: #00E5FF !important; /* Just in case it inherits currentColor */
+    }
 
+    /* --- GLOBAL WIDGET LABEL STYLING --- */
+    /* This styles the native labels for inputs, selectboxes, sliders, etc. */
+    [data-testid="stWidgetLabel"] p {
+        color: #8892B0 !important;
+        font-size: 1rem !important;
+        letter-spacing: 2px !important;
+        font-weight: 600 !important; /* Matches your markdown **bold** */
+        font-family: monospace !important;
+    }
+    
+    /* --- TEXT INPUT STYLING --- */
+    /* Target the typed text inside the text input box */
+    div[data-baseweb="input"] input {
+        color: #00E5FF !important; 
+        font-family: monospace !important;
+        font-size: 1rem !important;
+        letter-spacing: 2px !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -426,7 +451,7 @@ with tab1:
     #Everything under with col_input 
     with col_input:
         
-        st.markdown("<small style = 'text-align: center; color: #8892B0; font-size: 1rem; letter-spacing: 2px;'>"
+        st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1.05rem; letter-spacing: 2px;'>"
         "**Latitude Bounds**"
         "</small>", unsafe_allow_html=True)
 
@@ -436,7 +461,7 @@ with tab1:
         with col_lat1: lat_min = st.number_input("Min", value=-17.0, step=0.25, format="%.2f", key="lat_min")
         with col_lat2: lat_max = st.number_input("Max", value=5.0, step=0.25, format="%.2f", key="lat_max")
             
-        st.markdown("<small style = 'text-align: center; color: #8892B0; font-size: 1rem; letter-spacing: 2px;'>"
+        st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1.05rem; letter-spacing: 2px;'>"
         "**Longitude Bounds**"
         "</small>", unsafe_allow_html=True)
 
@@ -444,7 +469,15 @@ with tab1:
         with col_lon1: lon_min = st.number_input("Min", value=-80.0, step=0.25, format="%.2f", key="lon_min")
         with col_lon2: lon_max = st.number_input("Max", value=-50.0, step=0.25, format="%.2f", key="lon_max")
 
-        basin_name = st.text_input("Basin/Region Name", value="Test Region", help="Region/Basin name will appear on your map titles.")
+
+        st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1.05rem; letter-spacing: 2px;'>"
+        ""
+        "</small>", unsafe_allow_html=True)
+        st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1.05rem; letter-spacing: 2px;'>"
+        "**Target Region & Data Source Selection**"
+        "</small>", unsafe_allow_html=True)
+
+        basin_name = st.text_input("Basin/Region Name", value="Amazon", help="Region/Basin name will appear on your map titles.")
         grace_data = st.selectbox("GRACE Dataset", ["CSR", "JPL"], help="Chosen dataset will be used for training" )
 
     with col_globe:
@@ -554,7 +587,7 @@ with tab2:
         " Recursive Feature Elimination (RFE) "
         "</h3>", unsafe_allow_html=True)
     #st.write("Run the data preparation pipeline to rank the best ERA5 features.")
-    st.markdown("<small style = 'text-align: center; color: #8892B0; font-size: 1rem; letter-spacing: 2px;'>"
+    st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1.05rem; letter-spacing: 2px;'>"
         "**Run the data preparation pipeline to rank the best ERA5 features.**"
         "</small>", unsafe_allow_html=True)
 
@@ -918,7 +951,7 @@ with tab3:
     
     col_1, col_2 = st.columns([1, 1.5])
     with col_1:
-        st.markdown("<p style='color: #A0AEC0; font-family: monospace;'>Algorithm Selection</p>", unsafe_allow_html=True)
+        st.markdown("<p style='color: #FF00FF; font-size: 1.05rem; font-family: monospace;'>Algorithm Selection</p>", unsafe_allow_html=True)
         
         model = st.selectbox("Select Model for training", ["XGBoost", "Random Forest"])
         
@@ -993,21 +1026,15 @@ with tab4:
     with col1:
         col_map1, col_map2, col_map3 = st.columns(3)
         with col_map1:
-            # st.markdown("<small style = 'text-align: center; color: #8892B0; font-size: 1rem; letter-spacing: 2px;'>"
-            # "**Year for Map**"
-            # "</small>", unsafe_allow_html=True)
+
             map_year = st.number_input("Year for Map", min_value=2002, max_value=2024, value=2020)
         with col_map2:
-            #label_visibility="collapsed": Hide the label name and vanish the spot remaining. If i had = hidden we would still see the blanc spot
-            st.markdown("<small style = 'text-align: center; color: #8892B0; font-size: 1rem; letter-spacing: 2px;'>"
-            "**Month for Map**"
-            "</small>", unsafe_allow_html=True)
-            map_month = st.number_input("Month for Map", label_visibility="collapsed", min_value=1, max_value=12, value=5)
+
+            map_month = st.number_input("Month for Map", min_value=1, max_value=12, value=5)
         with col_map3:
-            st.markdown("<small style = 'text-align: center; color: #8892B0; font-size: 1rem; letter-spacing: 2px;'>"
-            "**ERA5 Variable**"
-            "</small>", unsafe_allow_html=True)
-            era_var = st.selectbox("ERA5 Variable to Plot", ["t2m", "tp", "e","pev","ssro", "sro", "evabs","swvl1", "swvl2", "swvl3", "swvl4", "lai_hv", "lai_lv"], label_visibility="collapsed") 
+           
+            era_var = st.selectbox("ERA5 Variable", ["t2m", "tp", "e","pev","ssro", "sro", "evabs","swvl1", "swvl2", "swvl3", "swvl4", "lai_hv", "lai_lv"],
+                                   help="Choose the hydrologic variable to plot.") 
        
         #ERA5 feature maps
         if st.button("ERA5 Maps",type = "primary"):
