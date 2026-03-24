@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 import numpy as np
 import requests, joblib
 import data_processing as dpr
-import time, io
+import time, io, base64 
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
@@ -828,36 +828,38 @@ with tab2:
                     st.session_state['x'] = x
 
                     time.sleep(1.5)
-                    
+                    #NEW
                     with display_screen.container():
-                        # 1. Inject CSS globally for this container
-                        # We target 'img' because st.pyplot renders as an image
-                        st.markdown("""
-                            <style>
-                                @keyframes blurSharpen {
-                                    0% { filter: blur(25px); opacity: 0; }
-                                    100% { filter: blur(0px); opacity: 1; }
-                                }
-                                
-                                /* Target the specific Streamlit image container */
-                                [data-testid="stImage"] img, .stPlotlyChart {
-                                    animation: blurSharpen 1.5s ease-out forwards !important; /* if we want it slower we change the 1s*/
-                                }
-
-                                /* Your working move-up logic */
-                                .stPlotlyChart, [data-testid="stImage"], .stException {
-                                    margin-top: -100px !important;
-                                }
-                            </style>
-                        """, unsafe_allow_html=True)
-
-                        # 2. Generate the plot
+                        # 1. Generate the plot
                         fig_rfe = v4p.rfe_plot(rfe, x)
-                        
-                        # Matching background prevents a "white flash"
                         fig_rfe.patch.set_facecolor('#0b0f19') 
-                        # 3. Show the plot
-                        st.pyplot(fig_rfe, use_container_width=True)
+                        
+                        # 2. Convert the Matplotlib plot to a base64 image string
+                        buf = io.BytesIO()
+                        fig_rfe.savefig(buf, format="png", facecolor='#0b0f19', bbox_inches='tight')
+                        buf.seek(0)
+                        img_base64 = base64.b64encode(buf.read()).decode("utf-8")
+                        
+                        # 3. Inject CSS and the Image together using a totally unique class!
+                        st.markdown(f"""
+                            <style>
+                                @keyframes blurSharpen {{
+                                    0% {{ filter: blur(25px); opacity: 0; }}
+                                    100% {{ filter: blur(0px); opacity: 1; }}
+                                }}
+                                
+                                /* Target ONLY our custom class, leave Streamlit alone! */
+                                .my-isolated-rfe-plot {{
+                                    animation: blurSharpen 1.5s ease-out forwards;
+                                    width: 100%; /* This acts like use_container_width=True */
+                                    margin-top: -100px;
+                                    border-radius: 8px; /* Optional: smooth edges */
+                                }}
+                            </style>
+                            
+                            <img class="my-isolated-rfe-plot" src="data:image/png;base64,{img_base64}" alt="RFE Plot">
+                        """, unsafe_allow_html=True)
+                    
                     
                 else:
                     st.error("Merge failed. Data is empty.")
