@@ -840,25 +840,70 @@ with tab2:
                         buf.seek(0)
                         img_base64 = base64.b64encode(buf.read()).decode("utf-8")
                         
-                        # 3. Inject CSS and the Image together using a totally unique class!
+                        # 3. Inject CSS and the Image together with the Paint Wipe!
                         st.markdown(f"""
                             <style>
-                                @keyframes blurSharpen {{
-                                    0% {{ filter: blur(25px); opacity: 0; }}
-                                    100% {{ filter: blur(0px); opacity: 1; }}
+                                @keyframes paintRollerRfe {{
+                                    0% {{
+                                        /* Start hidden, wiped up from the bottom */
+                                        -webkit-clip-path: inset(0 0 100% 0);
+                                        clip-path: inset(0 0 100% 0);
+                                        transform: scaleY(0.99); 
+                                        opacity: 0.8;
+                                    }}
+                                    100% {{
+                                        /* End fully revealed */
+                                        -webkit-clip-path: inset(0 0 0 0);
+                                        clip-path: inset(0 0 0 0);
+                                        transform: scaleY(1);
+                                        opacity: 1;
+                                    }}
                                 }}
                                 
-                                /* Target ONLY our custom class, leave Streamlit alone! */
                                 .my-isolated-rfe-plot {{
-                                    animation: blurSharpen 1.5s ease-out forwards;
-                                    width: 100%; /* This acts like use_container_width=True */
-                                    margin-top: -100px;
-                                    border-radius: 8px; /* Optional: smooth edges */
+                                    /* 2.5s duration with a smooth ease-in-out curve */
+                                    animation: paintRollerRfe 2.5s linear forwards;
+                                    
+                                    width: 100%; 
+                                    margin-top: -100px; /* Kept your layout fix! */
+                                    border-radius: 8px; 
+                                    transform-origin: top; /* Ensures the wipe pulls downward natively */
                                 }}
                             </style>
                             
                             <img class="my-isolated-rfe-plot" src="data:image/png;base64,{img_base64}" alt="RFE Plot">
                         """, unsafe_allow_html=True)
+                    #NEW
+                    # with display_screen.container():
+                    #     # 1. Generate the plot
+                    #     fig_rfe = v4p.rfe_plot(rfe, x)
+                    #     fig_rfe.patch.set_facecolor('#0b0f19') 
+                        
+                    #     # 2. Convert the Matplotlib plot to a base64 image string
+                    #     buf = io.BytesIO()
+                    #     fig_rfe.savefig(buf, format="png", facecolor='#0b0f19', bbox_inches='tight')
+                    #     buf.seek(0)
+                    #     img_base64 = base64.b64encode(buf.read()).decode("utf-8")
+                        
+                    #     # 3. Inject CSS and the Image together using a totally unique class!
+                    #     st.markdown(f"""
+                    #         <style>
+                    #             @keyframes blurSharpen {{
+                    #                 0% {{ filter: blur(25px); opacity: 0; }}
+                    #                 100% {{ filter: blur(0px); opacity: 1; }}
+                    #             }}
+                                
+                    #             /* Target ONLY our custom class, leave Streamlit alone! */
+                    #             .my-isolated-rfe-plot {{
+                    #                 animation: blurSharpen 1.5s ease-out forwards;
+                    #                 width: 100%; /* This acts like use_container_width=True */
+                    #                 margin-top: -100px;
+                    #                 border-radius: 8px; /* Optional: smooth edges */
+                    #             }}
+                    #         </style>
+                            
+                    #         <img class="my-isolated-rfe-plot" src="data:image/png;base64,{img_base64}" alt="RFE Plot">
+                    #     """, unsafe_allow_html=True)
                     
                     
                 else:
@@ -984,13 +1029,13 @@ with tab4:
                     st.markdown(f"""
                         <style>
                             @keyframes blurSharpenEra {{
-                                0% {{ filter: blur(25px); opacity: 0; }}
-                                100% {{ filter: blur(0px); opacity: 1; }}
+                                0% {{ filter: blur(20px); opacity: 0.5; transform: scale(0.5);}}
+                                100% {{ filter: blur(0px); opacity: 1; transform: scale(1);}}
                             }}
                             
                             /* UNIQUE CLASS for the ERA Plot */
                             .my-isolated-era-plot {{
-                                animation: blurSharpenEra 2.5s ease-out forwards;
+                                animation: blurSharpenEra 1.5s ease-out forwards;
                                 width: 75%; /* This acts like use_container_width=True */
                                 /* Add these two lines to keep it centered after shrinking */
                                 display: block;
@@ -1003,28 +1048,104 @@ with tab4:
                         <img class="my-isolated-era-plot" src="data:image/png;base64,{img_base64_era}" alt="ERA Plot">
                     """, unsafe_allow_html=True)
                 
-    
-
         uploaded_model = st.file_uploader("Upload Pre-trained Model (.pkl)", type=["pkl"])
 
         if st.button("GRACE Comparison Maps", type="primary"):
             if uploaded_model is None:
                 st.warning("⚠️ Please upload a .pkl model to generate prediction maps!")
             else:
-                #st.subheader("Model Predictions vs GRACE Observations")
-                csr_fig = v4p.CSR_plot(
-                    model=uploaded_model, 
-                    year=map_year, 
-                    month=map_month, 
-                    dataset_CSR=st.session_state['ds_CSR_sliced'], 
-                    dataset_CSR2=st.session_state['df_CSR_on_ERA_grid'], 
-                    dataset_ERA=st.session_state['df_ERA'], 
-                    var_to_plot='lwe_thickness', 
-                    basin_name=basin_name
-                ) 
+                #NEW
                 with map_container.container():
-                    st.markdown("<p style='color: #FF00FF; font-family: monospace;'>[SIGNAL_LOCKED]: GRACE_COMPARISON_MATRIX</p>", unsafe_allow_html=True)
-                    st.pyplot(csr_fig)
+                            st.markdown("<p style='color: #FF00FF; font-family: monospace;'>[SIGNAL_LOCKED]: GRACE_COMPARISON_MATRIX</p>", unsafe_allow_html=True)
+                            
+                            # # 1. Create the "Picture Frame"
+                            plot_placeholder = st.empty()
+                            
+                            # # 2. Update Skeleton for "Wet Paint" vibe (Pulsing Cyan)
+                            # skeleton_html = """
+                            # <style>
+                            #     @keyframes wetPaintPulse {
+                            #         0% { background-color: rgba(0, 229, 255, 0.05); }
+                            #         50% { background-color: rgba(0, 229, 255, 0.15); }
+                            #         100% { background-color: rgba(0, 229, 255, 0.05); }
+                            #     }
+                            #     .grace-skeleton-loader {
+                            #         width: 100%;
+                            #         height: 300px; /* Adjusted height for map comparison */
+                            #         display: block;
+                            #         margin: 0 auto;
+                            #         background-color: #121212;
+                            #         border: 1px dashed #333;
+                            #         border-radius: 8px;
+                            #         display: flex;
+                            #         align-items: center;
+                            #         justify-content: center;
+                            #         color: rgba(0, 229, 255, 0.5);
+                            #         font-family: monospace;
+                            #         /* Added Cyan pulse for high-tech wet paint feel */
+                            #         animation: wetPaintPulse 2s infinite ease-in-out; 
+                            #     }
+                            #     .grace-skeleton-loader::after {
+                            #         content: "CALCULATING COMPARISON_MATRIX...";
+                            #     }
+                            # </style>
+                            # <div class="grace-skeleton-loader"></div>
+                            # """
+                            # plot_placeholder.markdown(skeleton_html, unsafe_allow_html=True)
+                            
+                            # 3. Run heavy computation (same logic)
+                            csr_fig = v4p.CSR_plot(
+                                model=uploaded_model, year=map_year, month=map_month, 
+                                dataset_CSR=st.session_state['ds_CSR_sliced'], dataset_CSR2=st.session_state['df_CSR_on_ERA_grid'], 
+                                dataset_ERA=st.session_state['df_ERA'], var_to_plot='lwe_thickness', basin_name=basin_name
+                            ) 
+                            csr_fig.patch.set_facecolor('#0b0f19')
+                            
+                            # 4. Convert to Base64 (same logic)
+                          
+                            buf = io.BytesIO()
+                            csr_fig.savefig(buf, format="png", facecolor='#0b0f19', bbox_inches='tight')
+                            buf.seek(0)
+                            img_base64_csr = base64.b64encode(buf.read()).decode("utf-8")
+                            
+                            # 5. Build the "Paint Roller" Reveal Animation!
+                            # Notice all the double curly braces {{ }} in the CSS!
+                            final_painted_plot_html = f"""
+                            <style>
+                                @keyframes paintRoller {{
+                                    0% {{
+                                        /* Start fully clipped from the bottom (hidden) */
+                                        -webkit-clip-path: inset(0 100% 0 0); /* inset(top, right, bottom, left) cut off 100% of ... */
+                                        clip-path: inset(0 100% 0 0);
+                                        
+                                        /* Tiny bit of scale to add weight */
+                                        transform: scaleX(0.99); 
+                                        opacity: 0.8; /* Solid, not a fade */
+                                    }}
+                                    100% {{
+                                        /* End fully revealed */
+                                        -webkit-clip-path: inset(0 0 0 0);
+                                        clip-path: inset(0 0 0 0);
+                                        
+                                        transform: scaleY(1);
+                                        opacity: 1;
+                                    }}
+                                }}
+
+                                .my-isolated-painted-plot {{
+                                    animation: paintRoller 2.5s linear forwards;
+                                    width: 100%;
+                                    border-radius: 8px;
+                                    transform-origin: top; 
+                                }}
+                            </style>
+                            
+                            <img class="my-isolated-painted-plot" src="data:image/png;base64,{img_base64_csr}" alt="Painted GRACE Comparison Plot">
+                            """
+                            
+                            # 6. Swap!
+                            plot_placeholder.markdown(final_painted_plot_html, unsafe_allow_html=True)
+                            
 
 with tab5:
     st.markdown("<h3 style = 'color: #00E5FF; font-family: monospace;  letter-spacing: 2px;'>"
