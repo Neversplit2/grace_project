@@ -362,27 +362,29 @@ with col1:
             border-radius: 0px 10px 0px 10px;
             font-size: 14px;
             font-weight: 500;
+            font-family: monospace;
             display: inline-block;
             margin-top: -35px; /* Pulls it tightly up under the text like a real metric */
             transition: opacity 0.2s ease-in-out;
         " onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
-            📡JPL GRACE Satellite Downlink
+            📡JPL GRACE Satellite Download-link
         </a>
     """, unsafe_allow_html=True)
     st.markdown("""
         <a href="https://www2.csr.utexas.edu/grace/RL06_mascons.html" target="_blank" style="
             text-decoration: none;
-            color: rgb(61, 213, 109); 
+            color: #ffffff; /* rgb(61, 213, 109); */ 
             background-color: rgba(61, 213, 109, 0.2); 
             padding: 2px 8px;
             border-radius: 10px 0px 10px 0px;
             font-size: 14px;
             font-weight: 500;
+            font-family: monospace;
             display: inline-block;
             margin-top: -15px; /* Pulls it tightly up under the text like a real metric */
             transition: opacity 0.2s ease-in-out;
         " onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
-            📡CSR GRACE Satellite Downlink
+            📡CSR GRACE Satellite Download-link
         </a>
     """, unsafe_allow_html=True)
 
@@ -391,20 +393,22 @@ with col2:
 
     st.markdown("""
         <a href="https://cds.climate.copernicus.eu/datasets/reanalysis-era5-land-monthly-means?tab=download" target="_blank" style="
+            cursor: crosshair;
             text-decoration: none;
-            color: rgb(61, 213, 109); 
+            color: #00E5FF; /*rgb(61, 213, 109);*/ 
             background-color: rgba(61, 213, 109, 0.2); 
             padding: 2px 8px;
             border-radius: 10px 0px 10px 0px;
             font-size: 14px;
             font-weight: 500;
+            font-family: monospace;
             display: inline-block;
             margin-top: -45px; /* Pulls it tightly up under the text like a real metric */
             transition: opacity 0.2s ease-in-out;
         " onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
-            ☁️ERA5-Land Downlink
+            ☁️ERA5-Land Download-link
         </a>
-    """, unsafe_allow_html=True)\
+    """, unsafe_allow_html=True)
 
 with col3:
     st.metric("Engine resolution", "0.1° (~10km)")
