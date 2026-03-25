@@ -152,9 +152,9 @@ def RF_tuner(X_train, y_train, train_type):
             'max_depth': [10, 20],
             'min_samples_split': [2, 5],
             'min_samples_leaf': [1, 2],
-            'max_features': ['sqrt']
+            'max_features': ['sqrt', 'log2']
         }  
-#, 'log2'
+#
     final_model = RandomForestRegressor(random_state=42, n_jobs=-1)
     
     kf = KFold(n_splits=3, shuffle=True, random_state=42)  # 3-FOLD → faster
