@@ -428,7 +428,7 @@ def feature_importance_pie(model, X_train, output):
 
     # --- PLOTTING ---
     plt.style.use('dark_background') # Base dark theme
-    fig, ax = plt.subplots(figsize=(6, 6), dpi=150) # Higher DPI for sharper lines
+    fig, ax = plt.subplots(figsize=(10, 10), dpi=150) # Higher DPI for sharper lines
     fig.patch.set_facecolor('#0b0f19') # Match your UI background
     
     # Simple Pie Chart
@@ -440,23 +440,24 @@ def feature_importance_pie(model, X_train, output):
         startangle=140,          # Starts the first slice at the top
         pctdistance=0.9,
         colors= colors,
+        radius =1.1,
         #textprops={'color': "white"}
         wedgeprops={'linewidth': 0.25, 'edgecolor': '#0b0f19'}
     )
 
     for text in texts:
         text.set_fontfamily('monospace') # Sci-fi style
-        text.set_fontsize(7)
+        text.set_fontsize(9)
         text.set_weight('bold')          # Makes names stand out
         text.set_color('#8892B0')        # Muted blue-gray to match your theme
 
     for text in autotexts:
         text.set_fontfamily('monospace') # Sci-fi style
-        text.set_fontsize(5.5)
+        text.set_fontsize(7.5)
         text.set_weight('bold')          # Makes names stand out
         text.set_color("#000000")       
 
-    ax.set_title("Feature Importance")
+    ax.set_title("Feature Importance", color="#00E5FF", fontfamily="monospace", fontsize=14, pad=25)
     
-    fig.savefig(output)
+    fig.savefig(output, bbox_inches='tight')
     fig.show()
