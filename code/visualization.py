@@ -1,9 +1,8 @@
 import configuration_settings as cs
 import data_processing as dpr
 from colorama import Fore
-import matplotlib.colors as mcolors
-import sys
-import os, joblib
+import matplotlib.colors as mcolors 
+import os, joblib, sys
 import cartopy.crs as ccrs 
 import cartopy.feature as cfeature 
 import matplotlib.pyplot as plt
