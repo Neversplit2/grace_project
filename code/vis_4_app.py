@@ -21,7 +21,7 @@ def rfe_plot(rfe, x):
 
     # 1. Set the Dark Theme Style
     plt.style.use('dark_background') # Instantly turns the background black
-    fig, ax = plt.subplots(figsize=(6, 4), dpi=200) # Slightly wider for better text fit
+    fig, ax = plt.subplots(figsize=(5.5, 4), dpi=200) # Slightly wider for better text fit
     fig.patch.set_facecolor('#0b0f19') # Matches your terminal background hex
     ax.set_facecolor('#0b0f19')
 
@@ -111,7 +111,7 @@ def ERA_plot(dataset, year, month, var_to_plot, basin_name):
     # Find the value that is smaller than 98% of the data
     vmax = data_slice.quantile(0.98).item()
     
-    fig, ax = plt.subplots(figsize=(10, 8), subplot_kw={'projection': ccrs.PlateCarree()})
+    fig, ax = plt.subplots(figsize=(6, 6), subplot_kw={'projection': ccrs.PlateCarree()})
 
     ax = plt.axes(projection=ccrs.PlateCarree())
     plot = data_slice.plot.pcolormesh(
@@ -139,10 +139,10 @@ def ERA_plot(dataset, year, month, var_to_plot, basin_name):
     gl.ylabel_style = {'size': 10}
 
     # Title
-    ax.set_title(f"{basin_name.upper()} ERA5 {var_to_plot.lower()}  [{time_str}]", fontsize=14, fontweight='bold')
+    ax.set_title(f"{basin_name.upper()} ERA5 {var_to_plot.lower()}  [{time_str}]", fontfamily='monospace', fontsize=14, fontweight='bold')
     # Remove default xarray labels
-    ax.set_xlabel("")
-    ax.set_ylabel("")
+    ax.set_xlabel("", fontfamily='monospace')
+    ax.set_ylabel("", fontfamily='monospace')
 
     return fig
 
@@ -275,7 +275,7 @@ def CSR_plot(model, year, month, dataset_CSR, dataset_CSR2, dataset_ERA, var_to_
             cbar_kwargs={"orientation": "horizontal", "fraction": 0.03,"pad": 0.05, "label": "LWE difference (cm)"}
             )
 
-        ax3.set_title(f"Difference between predicted and raw {basin_name}'s data {time_str}", fontsize=14, fontweight='bold')
+        ax3.set_title(f"Difference between predicted and raw {basin_name}'s \n data {time_str}", fontsize=14, fontweight='bold')
         ax3.coastlines(resolution="10m", color="black", linewidth=1)
         ax3.add_feature(cfeature.BORDERS, linestyle=":", edgecolor='gray')
         ax3.add_feature(cfeature.RIVERS, color='lightblue', linewidth=0.8)

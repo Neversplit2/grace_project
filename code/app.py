@@ -878,7 +878,7 @@ with tab2:
                     st.session_state['x'] = x
 
                     time.sleep(5.5)
-                    #NEW
+                
                     with display_screen.container():
                         # 1. Generate the plot
                         fig_rfe = v4p.rfe_plot(rfe, x)
@@ -916,6 +916,8 @@ with tab2:
                                     animation: paintRollerRfe 2.5s linear forwards;
                                     
                                     width: 100%; 
+                                    display: block;
+                                    margin: 0 auto;
                                     margin-top: -100px; /* Kept your layout fix! */
                                     border-radius: 8px; 
                                     transform-origin: top; /* Ensures the wipe pulls downward natively */
@@ -1029,6 +1031,7 @@ with tab4:
             else:
                 
                 with map_container.container():
+                    plot_placeholder = st.empty()
                     # 1. Generate the plot
                     era_fig = v4p.ERA_plot(st.session_state['ds_ERA_sliced'], map_year, map_month, era_var, basin_name)
                     era_fig.patch.set_facecolor('#0b0f19')
@@ -1039,27 +1042,46 @@ with tab4:
                     buf1.seek(0)
                     img_base64_era = base64.b64encode(buf1.read()).decode("utf-8")
 
-                    st.markdown(f"""
-                        <style>
-                            @keyframes blurSharpenEra {{
-                                0% {{ filter: blur(20px); opacity: 0.5; transform: scale(0.5);}}
-                                100% {{ filter: blur(0px); opacity: 1; transform: scale(1);}}
+                    # 5. Build the "Paint Roller" Reveal Animation!
+                    # Notice all the double curly braces {{ }} in the CSS!
+                    final_painted_era_html = f"""
+                    <style>
+                        @keyframes paintRoller {{
+                            0% {{
+                                /* Start fully clipped from the bottom (hidden) */
+                                -webkit-clip-path: inset(100% 0 0 0); /* inset(top, right, bottom, left) cut off 100% of ... */
+                                clip-path: inset(100% 0 0 0);
+                                
+                                /* Tiny bit of scale to add weight */
+                                transform: scaleX(0.99); 
+                                opacity: 0.8; /* Solid, not a fade */
                             }}
-                            
-                            /* UNIQUE CLASS for the ERA Plot */
-                            .my-isolated-era-plot {{
-                                animation: blurSharpenEra 1.5s ease-out forwards;
-                                width: 75%; /* This acts like use_container_width=True */
-                                /* Add these two lines to keep it centered after shrinking */
-                                display: block;
-                                margin: 0 auto;
-                                margin-top: -30px; /* NOTE: Adjust this if it pushes the map too high up! */
-                                border-radius: 8px; 
+                            100% {{
+                                /* End fully revealed */
+                                -webkit-clip-path: inset(0 0 0 0);
+                                clip-path: inset(0 0 0 0);
+                                
+                                transform: scaleY(1);
+                                opacity: 1;
                             }}
-                        </style>
-                        
-                        <img class="my-isolated-era-plot" src="data:image/png;base64,{img_base64_era}" alt="ERA Plot">
-                    """, unsafe_allow_html=True)
+                        }}
+
+                        .my-isolated-painted-plot {{
+                            animation: paintRoller 2.5s linear forwards;
+                            width: 100%;
+                            /* Add these two lines to keep it centered after shrinking */
+                            display: block;
+                            margin: 0 auto;
+                            margin-top: -100px;
+                            border-radius: 8px;
+                            transform-origin: top; 
+                        }}
+                    </style>
+                    
+                    <img class="my-isolated-painted-plot" src="data:image/png;base64,{img_base64_era}" alt="Painted ERA5 feature Plot">
+                    """
+                    # 6. Swap!
+                    plot_placeholder.markdown(final_painted_era_html, unsafe_allow_html=True)
                 
         uploaded_model = st.file_uploader("Upload Pre-trained Model (.pkl)", type=["pkl"])
 
@@ -1069,42 +1091,74 @@ with tab4:
             else:
                 st.session_state["global_model"] = uploaded_model
                 with map_container.container():
-                            st.markdown("<p style='color: #FF00FF; font-family: monospace;'>[SIGNAL_LOCKED]: GRACE_COMPARISON_MATRIX</p>", unsafe_allow_html=True)
+                            #st.markdown("<p style='color: #FF00FF; font-family: monospace;'>[SIGNAL_LOCKED]: GRACE_COMPARISON_MATRIX</p>", unsafe_allow_html=True)
                             
                             # # 1. Create the "Picture Frame"
                             plot_placeholder = st.empty()
+                      
+                            skeleton_html = """
+                            <style>
+                                /* 1. Neon Breathing Glow */
+                                @keyframes wetPaintPulse {
+                                    0% { background-color: rgba(0, 229, 255, 0.02); box-shadow: 0 0 5px rgba(0, 229, 255, 0.1); }
+                                    50% { background-color: rgba(0, 229, 255, 0.08); box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); }
+                                    100% { background-color: rgba(0, 229, 255, 0.02); box-shadow: 0 0 5px rgba(0, 229, 255, 0.1); }
+                                }
+                                
+                                /* 2. Holographic Scanner Line Movement */
+                                @keyframes scanline {
+                                    0% { transform: translateY(-150px); opacity: 0; }
+                                    10% { opacity: 1; }
+                                    90% { opacity: 1; }
+                                    100% { transform: translateY(150px); opacity: 0; } 
+                                }
+
+                                /* 3. Terminal Blinking Cursor */
+                                @keyframes blink {
+                                    0%, 100% { opacity: 1; }
+                                    50% { opacity: 0; }
+                                }
+
+                                .grace-skeleton-loader {
+                                    position: relative; /* Required to keep the scanner line inside */
+                                    width: 100%;
+                                    height: 250px; 
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    margin: 0 auto;
+                                    background-color: #0b0f19; /* Matched to your Streamlit theme */
+                                    border: 1px solid rgba(0, 229, 255, 0.4); /* Solid neon line instead of dashed */
+                                    border-radius: 8px;
+                                    color: #00E5FF;
+                                    font-family: monospace;
+                                    font-size: 15px;
+                                    letter-spacing: 2px;
+                                    overflow: hidden; /* Clips the scanner line so it doesn't bleed out */
+                                    animation: wetPaintPulse 2s infinite ease-in-out; 
+                                }
+
+                                /* The Laser Scanner Overlay */
+                                .grace-skeleton-loader::before {
+                                    content: "";
+                                    position: absolute;
+                                    width: 100%;
+                                    height: 3px;
+                                    background-color: rgba(0, 229, 255, 0.6);
+                                    box-shadow: 0 0 15px rgba(0, 229, 255, 1);
+                                    animation: scanline 4.5s linear infinite;
+                                }
+
+                                /* The Text & Cursor */
+                                .grace-skeleton-loader::after {
+                                    content: "CALCULATING GRACE COMPARISON MAP";
+                                    animation: blink 1s step-end infinite;
+                                }
+                            </style>
+                            <div class="grace-skeleton-loader"></div>
+                            """
                             
-                            # # 2. Update Skeleton for "Wet Paint" vibe (Pulsing Cyan)
-                            # skeleton_html = """
-                            # <style>
-                            #     @keyframes wetPaintPulse {
-                            #         0% { background-color: rgba(0, 229, 255, 0.05); }
-                            #         50% { background-color: rgba(0, 229, 255, 0.15); }
-                            #         100% { background-color: rgba(0, 229, 255, 0.05); }
-                            #     }
-                            #     .grace-skeleton-loader {
-                            #         width: 100%;
-                            #         height: 300px; /* Adjusted height for map comparison */
-                            #         display: block;
-                            #         margin: 0 auto;
-                            #         background-color: #121212;
-                            #         border: 1px dashed #333;
-                            #         border-radius: 8px;
-                            #         display: flex;
-                            #         align-items: center;
-                            #         justify-content: center;
-                            #         color: rgba(0, 229, 255, 0.5);
-                            #         font-family: monospace;
-                            #         /* Added Cyan pulse for high-tech wet paint feel */
-                            #         animation: wetPaintPulse 2s infinite ease-in-out; 
-                            #     }
-                            #     .grace-skeleton-loader::after {
-                            #         content: "CALCULATING COMPARISON_MATRIX...";
-                            #     }
-                            # </style>
-                            # <div class="grace-skeleton-loader"></div>
-                            # """
-                            # plot_placeholder.markdown(skeleton_html, unsafe_allow_html=True)
+                            plot_placeholder.markdown(skeleton_html, unsafe_allow_html=True)
                             
                             # 3. Run heavy computation (same logic)
                             csr_fig = v4p.CSR_plot(
