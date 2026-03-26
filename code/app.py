@@ -7,6 +7,8 @@ import requests, joblib
 import data_processing as dpr
 import time, io, base64 
 import training as tr
+
+
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
     page_title="GRACE Spatial Engine", 
@@ -581,7 +583,7 @@ with tab1:
 
         # 9. Layout & Camera Engine
         fig.update_layout(
-            height=450, margin=dict(r=0, t=0, l=0, b=0),
+            height=530, margin=dict(r=0, t=0, l=0, b=0),
             paper_bgcolor="#0E1117", showlegend=False,
             scene=dict(
                 xaxis=dict(visible=False), yaxis=dict(visible=False), zaxis=dict(visible=False),
@@ -882,7 +884,7 @@ with tab2:
                     st.session_state['x'] = x
 
                     time.sleep(5.5)
-                
+                    
                     with display_screen.container():
                         # 1. Generate the plot
                         fig_rfe = v4p.rfe_plot(rfe, x)
@@ -1227,7 +1229,6 @@ with tab4:
                             # 6. Swap!
                             plot_placeholder.markdown(final_painted_plot_html, unsafe_allow_html=True)
                             
-
 with tab5:
     st.markdown("<h3 style = 'color: #00E5FF; font-family: monospace;  letter-spacing: 2px;'>"
         "Perform statistical Analysis"
