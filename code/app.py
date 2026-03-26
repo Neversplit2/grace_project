@@ -6,7 +6,7 @@ import numpy as np
 import requests, joblib
 import data_processing as dpr
 import time, io, base64 
-
+import training as tr
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
     page_title="GRACE Spatial Engine", 
@@ -924,7 +924,7 @@ with tab2:
                             
                             <img class="my-isolated-rfe-plot" src="data:image/png;base64,{img_base64}" alt="RFE Plot">
                         """, unsafe_allow_html=True)
-                    
+                
                 else:
                     st.error("Merge failed. Data is empty.")
             except Exception as e:
@@ -1067,7 +1067,7 @@ with tab4:
             if uploaded_model is None:
                 st.warning("⚠️ Please upload a .pkl model to generate prediction maps!")
             else:
-                #NEW
+                st.session_state["global_model"] = uploaded_model
                 with map_container.container():
                             st.markdown("<p style='color: #FF00FF; font-family: monospace;'>[SIGNAL_LOCKED]: GRACE_COMPARISON_MATRIX</p>", unsafe_allow_html=True)
                             
@@ -1191,3 +1191,66 @@ with tab5:
             lon = st.number_input("Longitude", min_value=float(limit_lon_min), max_value=float(limit_lon_max), 
                 value=float(limit_lon_min), step=0.25, format="%.2f", key="lon_4_stats")
     
+        st.markdown("<br>", unsafe_allow_html=True)
+            
+            # 1. THE BUTTON
+            # 'use_container_width=True' makes it stretch cleanly across the column
+        feat_im_btn = st.button("Feature Importance Pie", type="primary", use_container_width=True)
+
+    with col2: 
+        map_container = st.empty()
+        if feat_im_btn:
+            #NA to dw me natasa
+            X_train, X_test, y_train, y_test = tr.data_4_train(selected_features= st.session_state['selected_features'] , x= st.session_state['x'],
+                                                               dataset= st.session_state['merged'])
+            with map_container.container():
+                    plot_placeholder = st.empty()
+                    # 1. Generate the plot
+                    #model, #x_train
+                    feature_pie = v4p.feature_importance_pie(model=st.session_state["global_model"], X_train= X_train)
+                    feature_pie.patch.set_facecolor('#0b0f19')
+
+                    # 2. Convert the Matplotlib plot to a base64 image string
+                    buf_fi = io.BytesIO()
+                    feature_pie.savefig(buf_fi, format="png", transparent=True, bbox_inches='tight')
+                    buf_fi.seek(0)
+                    img_base_fi = base64.b64encode(buf_fi.read()).decode("utf-8")
+
+                    # 5. Build the "Paint Roller" Reveal Animation!
+                    # Notice all the double curly braces {{ }} in the CSS!
+                    final_painted_plot_fi = f"""
+                    <style>
+                        @keyframes paintRoller {{
+                            0% {{
+                                /* Start fully clipped from the bottom (hidden) */
+                                -webkit-clip-path: inset(0 100% 0 0); /* inset(top, right, bottom, left) cut off 100% of ... */
+                                clip-path: inset(0 100% 0 0);
+                                
+                                /* Tiny bit of scale to add weight */
+                                transform: scaleX(0.99); 
+                                opacity: 0.8; /* Solid, not a fade */
+                            }}
+                            100% {{
+                                /* End fully revealed */
+                                -webkit-clip-path: inset(0 0 0 0);
+                                clip-path: inset(0 0 0 0);
+                                
+                                transform: scaleY(1);
+                                opacity: 1;
+                            }}
+                        }}
+
+                        .my-isolated-painted-plot {{
+                            animation: paintRoller 2.5s linear forwards;
+                            width: 100%;
+                            border-radius: 8px;
+                            margin-top: -100px;
+                            transform-origin: top; 
+                        }}
+                    </style>
+                    
+                    <img class="my-isolated-painted-plot" src="data:image/png;base64,{img_base_fi}" alt="Painted Feature Importance Pie">
+                    """
+                    
+                    # 6. Swap!
+                    plot_placeholder.markdown(final_painted_plot_fi, unsafe_allow_html=True)
