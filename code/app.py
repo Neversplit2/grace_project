@@ -254,6 +254,7 @@ st.markdown("""
         color: #00E5FF !important;
         font-size: 1rem !important;
         letter-spacing: 2px !important;
+        cursor: crosshair !important;
     }
 
     /* 2. Target the text of the options inside the dropdown menu */
@@ -262,6 +263,7 @@ st.markdown("""
         color: #00E5FF !important;
         font-size: 1rem !important;
         letter-spacing: 2px !important;
+        cursor: crosshair !important;
     }
 
     /* 3. Ensure the placeholder text (if any) matches the font but stays muted */
@@ -274,6 +276,7 @@ st.markdown("""
     div[data-baseweb="select"] svg path {
         fill: #00E5FF !important;
         color: #00E5FF !important; /* Just in case it inherits currentColor */
+        cursor: crosshair !important;
     }
 
     /* --- GLOBAL WIDGET LABEL STYLING --- */
@@ -293,6 +296,7 @@ st.markdown("""
         font-family: monospace !important;
         font-size: 1rem !important;
         letter-spacing: 2px !important;
+        cursor: crosshair !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -590,7 +594,7 @@ with tab2:
     st.markdown("<h3 style = 'color: #00E5FF; font-family: monospace; letter-spacing: 2px;'>"
         " Recursive Feature Elimination (RFE) "
         "</h3>", unsafe_allow_html=True)
-    #st.write("Run the data preparation pipeline to rank the best ERA5 features.")
+    
     st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1.05rem; letter-spacing: 2px;'>"
         "**Run the data preparation pipeline to rank the best ERA5 features.**"
         "</small>", unsafe_allow_html=True)
@@ -1004,14 +1008,19 @@ with tab3:
 
 with tab4:
     st.markdown("<h3 style = 'color: #00E5FF; font-family: monospace;  letter-spacing: 2px;'>"
-        "Generate Spatial Predictions"
+        "Geospatial Rendering Engine"
         "</h3>", unsafe_allow_html=True)
     
     col1, col2 =st.columns([1, 1.5])
+    
     with col2:
         map_container = st.empty() # This is the placeholder for the map
-    
+
     with col1:
+        st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1.05rem; letter-spacing: 2px;'>"
+        "**Select an ERA5 variable to render**"
+        "</small>", unsafe_allow_html=True)   
+
         col_map1, col_map2, col_map3 = st.columns(3)
         with col_map1:
 
@@ -1082,7 +1091,12 @@ with tab4:
                     """
                     # 6. Swap!
                     plot_placeholder.markdown(final_painted_era_html, unsafe_allow_html=True)
-                
+        
+        st.markdown("</small>", unsafe_allow_html=True)
+        st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1.05rem; letter-spacing: 2px;'>"
+        "**Deploy model for GRACE comparison analysis**"
+        "</small>", unsafe_allow_html=True)   
+        
         uploaded_model = st.file_uploader("Upload Pre-trained Model (.pkl)", type=["pkl"])
 
         if st.button("GRACE Comparison Maps", type="primary"):
@@ -1230,7 +1244,7 @@ with tab5:
     #Everything under with col_input 
     with col1:
         
-        st.markdown("<small style = 'text-align: center; color: #8892B0; font-size: 1rem; letter-spacing: 2px;'>"
+        st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1rem; letter-spacing: 2px;'>"
         "**Choose points of interest**"
         "</small>", unsafe_allow_html=True)
 
