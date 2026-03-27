@@ -1145,6 +1145,7 @@ with tab4:
                                     margin: 0 auto;
                                     background-color: #0b0f19; /* Matched to your Streamlit theme */
                                     border: 1px solid rgba(0, 229, 255, 0.4); /* Solid neon line instead of dashed */
+                                    margin-top: +80px;
                                     border-radius: 8px;
                                     color: #00E5FF;
                                     font-family: monospace;
@@ -1218,6 +1219,7 @@ with tab4:
                                 .my-isolated-painted-plot {{
                                     animation: paintRoller 2.5s linear forwards;
                                     width: 100%;
+                                    margin-top: +80px;
                                     border-radius: 8px;
                                     transform-origin: top; 
                                 }}
@@ -1254,25 +1256,26 @@ with tab5:
         # key = "lat_min" : forces Streamlit to permanently remember whatever number the user types in here
         with col_lat: 
             lat = st.number_input("Latitude", min_value=float(limit_lat_min), max_value=float(limit_lat_max), 
-                value=float(limit_lat_min), step=0.25, format="%.2f", key="lat_4_stats")
+                value=float(limit_lat_min), step=0.1, format="%.2f", key="lat_4_stats")
             
         with col_lon: 
             lon = st.number_input("Longitude", min_value=float(limit_lon_min), max_value=float(limit_lon_max), 
-                value=float(limit_lon_min), step=0.25, format="%.2f", key="lon_4_stats")
+                value=float(limit_lon_min), step=0.1, format="%.2f", key="lon_4_stats")
         
         col_year1, col_year2 = st.columns(2)
         
         with col_year1:
-            start_year = st.number_input(" Starting Year", min_value=2002, max_value=2024, value=2020)
+            start_year = st.number_input("Starting Year", min_value=2002, max_value=2024, value=2020)
         
         with col_year2:
             end_year = st.number_input("Ending Year", min_value=2002, max_value=2024, value=2021)
 
-        #Little extra space for the button
         st.markdown("<br>", unsafe_allow_html=True)
         #Evaluation button
-        run_stats_btn = st.button("📊 RUN EVALUATION", type="primary", use_container_width=True)
-
+        run_stats_btn = st.button("Evaluation", type="primary", use_container_width=True)
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        
         feat_im_btn = st.button("Feature Importance Pie", type="primary", use_container_width=True)
     with col2:
         # Create a dedicated container for the stats chart
@@ -1338,14 +1341,9 @@ with tab5:
                     
                     # 5. Swap out the placeholder!
                     plot_placeholder.markdown(final_painted_plot_sts, unsafe_allow_html=True)
-
-        
-
-    
-
-    with col2: 
-        map_container = st.empty()
+       
         if feat_im_btn:
+            map_container = st.empty()
             #NA to dw me natasa
             X_train, X_test, y_train, y_test = tr.data_4_train(selected_features= st.session_state['selected_features'] , x= st.session_state['x'],
                                                                dataset= st.session_state['merged'])

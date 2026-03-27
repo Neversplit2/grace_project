@@ -290,7 +290,7 @@ def model_eval_plot(dataframe):
 
     r_score, p_value = dpr.corr_pearson(dataframe)
     
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 8),)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 9))
  
     #Map 1
     #lwe_thickness
@@ -301,9 +301,9 @@ def model_eval_plot(dataframe):
     ax1.plot(plot_dates, dataframe["lwe_pred"], color='green', linestyle='-', linewidth=2, label="Predicted CSR", alpha=0.7, 
              marker='x')
 
-    ax1.set_title(f"Actual vs Predicted LWE for \n Lat: {dataframe['lat'].iloc[0]:.2f}, Lon: {dataframe['lon'].iloc[0]:.2f} R: {r_score:.4f} ", fontsize=12, fontweight='bold')
-    ax1.set_xlabel("Time")
-    ax1.set_ylabel("LWE (cm)")
+    ax1.set_title(f"Actual vs Predicted LWE for \n Lat: {dataframe['lat'].iloc[0]:.2f}, Lon: {dataframe['lon'].iloc[0]:.2f} R: {r_score:.4f} ", fontsize=12, fontweight='bold', fontfamily='monospace')
+    ax1.set_xlabel("Time", fontfamily='monospace')
+    ax1.set_ylabel("LWE (cm)", fontfamily='monospace')
     ax1.legend()
     ax1.grid(True, linestyle='--', alpha=0.5)
 
