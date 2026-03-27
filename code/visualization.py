@@ -320,7 +320,7 @@ def CSR_plot(model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA,
         plt.show()
 
 #statistical analysis
-#dataframe = df_pred_4_stats_cl
+#dataframe = merged_ev_stats_cl
 
 def model_eval_plot(dataframe, output):
     # yaxis= lwe_thickness/lwe_pred and x_axis= time (year-month)

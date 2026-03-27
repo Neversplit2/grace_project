@@ -1259,12 +1259,89 @@ with tab5:
         with col_lon: 
             lon = st.number_input("Longitude", min_value=float(limit_lon_min), max_value=float(limit_lon_max), 
                 value=float(limit_lon_min), step=0.25, format="%.2f", key="lon_4_stats")
-    
+        
+        col_year1, col_year2 = st.columns(2)
+        
+        with col_year1:
+            start_year = st.number_input(" Starting Year", min_value=2002, max_value=2024, value=2020)
+        
+        with col_year2:
+            end_year = st.number_input("Ending Year", min_value=2002, max_value=2024, value=2021)
+
+        #Little extra space for the button
         st.markdown("<br>", unsafe_allow_html=True)
-            
-            # 1. THE BUTTON
-            # 'use_container_width=True' makes it stretch cleanly across the column
+        #Evaluation button
+        run_stats_btn = st.button("📊 RUN EVALUATION", type="primary", use_container_width=True)
+
         feat_im_btn = st.button("Feature Importance Pie", type="primary", use_container_width=True)
+    with col2:
+        # Create a dedicated container for the stats chart
+        stats_container = st.container()
+        
+        if run_stats_btn:
+            #NEW
+            with stats_container:
+                plot_placeholder = st.empty()
+                # 1. Run the pipeline
+                merged_ev_stats_cl = m4p.pipe_stats(
+                    df_ERA=st.session_state['df_ERA'], 
+                    full_model_path=st.session_state["global_model"], 
+                    start_year=int(start_year), 
+                    end_year=int(end_year),
+                    df_CSR_on_ERA_grid=st.session_state['df_CSR_on_ERA_grid'],
+                    target_lat=st.session_state['lat_4_stats'],
+                    target_lon=st.session_state['lon_4_stats']
+                )
+                
+                # 2. THE SAFETY NET: Drop rows that have NaNs (like ocean points)
+                clean_df = merged_ev_stats_cl.dropna(subset=['lwe_thickness', 'lwe_pred'])
+                
+                # 3. Check if we still have at least 2 rows for the Pearson math
+                if len(clean_df) < 2:
+                    st.warning("🚨 Not enough valid data to plot! This usually happens if you clicked over the ocean (GRACE data is masked) or there is no data for these specific years.")
+                else:
+                    # 4. Generate the plot with the CLEANED data
+                    fig_stats = v4p.model_eval_plot(clean_df)
+
+                    buf_sts = io.BytesIO()
+                    fig_stats.savefig(buf_sts, format="png", transparent=True, bbox_inches='tight')
+                    buf_sts.seek(0)
+                    img_base_sts = base64.b64encode(buf_sts.read()).decode("utf-8")
+
+                    final_painted_plot_sts = f"""
+                    <style>
+                        @keyframes paintRoller {{
+                            0% {{
+                                -webkit-clip-path: inset(0 100% 0 0);
+                                clip-path: inset(0 100% 0 0);
+                                transform: scaleX(0.99); 
+                                opacity: 0.8;
+                            }}
+                            100% {{
+                                -webkit-clip-path: inset(0 0 0 0);
+                                clip-path: inset(0 0 0 0);
+                                transform: scaleY(1);
+                                opacity: 1;
+                            }}
+                        }}
+
+                        .my-isolated-painted-plot {{
+                            animation: paintRoller 2.5s linear forwards;
+                            width: 100%;
+                            border-radius: 8px;
+                            margin-top: -50px;
+                            transform-origin: top; 
+                        }}
+                    </style>
+                    <img class="my-isolated-painted-plot" src="data:image/png;base64,{img_base_sts}" alt="Painted Feature Importance Pie">
+                    """
+                    
+                    # 5. Swap out the placeholder!
+                    plot_placeholder.markdown(final_painted_plot_sts, unsafe_allow_html=True)
+
+        
+
+    
 
     with col2: 
         map_container = st.empty()
