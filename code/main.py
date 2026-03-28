@@ -210,7 +210,7 @@ if __name__ == "__main__":
     extension = str(input(f"{Fore.CYAN}Insert .extension (eg. .jpg) {Fore.RESET}"))
    
     output = vis.dynamic_t(folder_name, title, extension)
-    vis.feature_importance_pie(full_model_path, X_train, output)   
+    vis.feature_importance_pie2(full_model_path, X_train, output)   
 
     choice = input(f"{Fore.CYAN}Would you like to create comparison grace raw/predicted statistical analysis plot? Write YES/NO {Fore.RESET}").strip().upper()
     if choice not in ["YES", "NO"]:
