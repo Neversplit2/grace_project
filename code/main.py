@@ -61,7 +61,7 @@ if __name__ == "__main__":
 
         output_rfe = vis.dynamic_t(folder_name_rfe, title_rfe, extension_rfe)
 
-        vis.rfe_plot2(rfe, x, output_rfe)
+        vis.rfe_plot(rfe, x, output_rfe)
     
   
         X_train, X_test, y_train, y_test = tr.data_4_train(selected_features, x, merged)

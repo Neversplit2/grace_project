@@ -33,39 +33,8 @@ def dynamic_t(directory, filename, extension=""):
         output_path = os.path.join(directory,f"{filename}_{i}{extension}")
         i=i+1
     return output_path.replace("\\", "/")   
- 
-#RFE_ranking
-#rfe = rfe , x = x, output = output_rfe
+
 def rfe_plot(rfe, x, output):
-    df_ranking = pd.DataFrame()
-    # Creating column "Feature" in order to save the rfe feature names participating 
-    df_ranking["Feature"] = x.columns
-    # Creating column "Rank" in order to save the rfe feature ranking
-    df_ranking["Rank"] = rfe.ranking_ 
-    # Sorting df_ranking based on column "Rank", in ascending order (True)
-    df_ranking = df_ranking.sort_values(by=['Rank'], ascending=True)
-    #print(df_ranking)
-
-    # Creating figure
-    plt.figure(figsize=(4, 5), dpi=200) 
-    # hue = controls the colour by grouping the input data
-    # creating the barplot graph
-    sns.barplot(data=df_ranking, x="Rank", y="Feature", hue="Rank",palette="coolwarm", legend=False)
-
-    #Formatting
-    plt.title(f"RFE Feature Ranking (Top {rfe.n_features_} Selected)", fontsize=11, fontweight='bold', family= 'monospace' )
-    plt.xlabel("Rank (1 = Selected, Higher = Eliminated Early)", fontsize=8, family= 'monospace')
-    plt.ylabel("Features", fontsize=8)
-    plt.grid(axis="x", linestyle="--", alpha=0.6)
-    #Changing feature fontsize
-    plt.yticks(fontsize=6)
-    # Show the plot
-    plt.tight_layout()
-
-    plt.savefig(output)
-    plt.show()
-
-def rfe_plot2(rfe, x, output):
     df_ranking = pd.DataFrame()
     df_ranking["Feature"] = x.columns
     df_ranking["Rank"] = rfe.ranking_ 
@@ -426,9 +395,9 @@ def feature_importance_pie(model, X_train, output):
     colors = [cmap(i) for i in np.linspace(0, 1, n_features)][::-1]
 
     # --- PLOTTING ---
-    plt.style.use('dark_background') # Base dark theme
-    fig, ax = plt.subplots(figsize=(10, 10), dpi=150) # Higher DPI for sharper lines
-    fig.patch.set_facecolor('#0b0f19') # Match your UI background
+    plt.style.use('default') 
+    fig, ax = plt.subplots(figsize=(4.5, 4.5), dpi=180) # Higher DPI for sharper lines
+    fig.patch.set_facecolor("#ffffff") 
     
     # Simple Pie Chart
     #wedges = slices , texts = features, autotexts= percentage
@@ -437,7 +406,7 @@ def feature_importance_pie(model, X_train, output):
         labels=df['Feature'], 
         autopct='%1.1f%%',      # Shows percentage with 1 decimal
         startangle=140,          # Starts the first slice at the top
-        pctdistance=0.9,
+        pctdistance=0.88,
         colors= colors,
         radius =1.1,
         #textprops={'color': "white"}
@@ -452,11 +421,11 @@ def feature_importance_pie(model, X_train, output):
 
     for text in autotexts:
         text.set_fontfamily('monospace') # Sci-fi style
-        text.set_fontsize(7.5)
+        text.set_fontsize(7)
         text.set_weight('bold')          # Makes names stand out
         text.set_color("#000000")       
 
     ax.set_title("Feature Importance", color="#00E5FF", fontfamily="monospace", fontsize=14, pad=25)
     
-    fig.savefig(output, bbox_inches='tight')
+    fig.savefig(output)
     fig.show()
