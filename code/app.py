@@ -1293,9 +1293,69 @@ with tab5:
         stats_container = st.container()
         
         if run_stats_btn:
-            #NEW
+   
             with stats_container:
                 plot_placeholder = st.empty()
+               
+                # 2. Inject the Neon Skeleton Loader instantly!
+                eval_skeleton_html = """
+                <style>
+                    @keyframes wetPaintPulseEval {
+                        0% { background-color: rgba(0, 229, 255, 0.02); box-shadow: 0 0 5px rgba(0, 229, 255, 0.1); }
+                        50% { background-color: rgba(0, 229, 255, 0.08); box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); }
+                        100% { background-color: rgba(0, 229, 255, 0.02); box-shadow: 0 0 5px rgba(0, 229, 255, 0.1); }
+                    }
+                    
+                    @keyframes scanlineEval {
+                        0% { transform: translateY(-150px); opacity: 0; }
+                        10% { opacity: 1; }
+                        90% { opacity: 1; }
+                        100% { transform: translateY(150px); opacity: 0; } 
+                    }
+
+                    @keyframes blinkEval {
+                        0%, 100% { opacity: 1; }
+                        50% { opacity: 0; }
+                    }
+
+                    .eval-skeleton-loader {
+                        position: relative; 
+                        width: 100%;
+                        height: 350px; 
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        margin: 0 auto;
+                        background-color: #0b0f19; 
+                        border: 1px solid rgba(0, 229, 255, 0.4); 
+                        border-radius: 8px;
+                        color: #00E5FF;
+                        font-family: monospace;
+                        font-size: 15px;
+                        letter-spacing: 2px;
+                        overflow: hidden; 
+                        animation: wetPaintPulseEval 2s infinite ease-in-out; 
+                    }
+
+                    .eval-skeleton-loader::before {
+                        content: "";
+                        position: absolute;
+                        width: 200%;
+                        height: 3px;
+                        background-color: rgba(0, 229, 255, 0.6);
+                        box-shadow: 0 0 15px rgba(0, 229, 255, 1);
+                        animation: scanlineEval 4.5s linear infinite;
+                    }
+
+                    .eval-skeleton-loader::after {
+                        content: "CALCULATING MODEL EVALUATION METRICS";
+                        animation: blinkEval 1s step-end infinite;
+                    }
+                </style>
+                <div class="eval-skeleton-loader"></div>
+                """
+                plot_placeholder.markdown(eval_skeleton_html, unsafe_allow_html=True)
+           
                 # 1. Run the pipeline
                 merged_ev_stats_cl = m4p.pipe_stats(
                     df_ERA=st.session_state['df_ERA'], 
