@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 import numpy as np
 import requests, joblib
 import data_processing as dpr
-import time, io, base64 
+import time, io, base64, math
 import training as tr
 
 
@@ -1237,10 +1237,16 @@ with tab5:
         "</h3>", unsafe_allow_html=True)
     
     # 1. Access the bounds from Tab 1 using st.session_state
-    limit_lat_min = st.session_state.get("lat_min", -17.0) # -17.0: fallback value just in case Tab 1 hasn't been touched
-    limit_lat_max = st.session_state.get("lat_max", 5.0)
-    limit_lon_min = st.session_state.get("lon_min", -80.0)
-    limit_lon_max = st.session_state.get("lon_max", -50.0)
+    raw_lat_min = st.session_state.get("lat_min", -17.0)
+    raw_lat_max = st.session_state.get("lat_max", 5.0)
+    raw_lon_min = st.session_state.get("lon_min", -80.0)
+    raw_lon_max = st.session_state.get("lon_max", -50.0)
+    
+    #2. FORCE TO 0.1 RESOLUTION GRID
+    limit_lat_min = round(round(raw_lat_min, 1) + 0.1, 1)
+    limit_lat_max = round(round(raw_lat_max, 1) - 0.1, 1)
+    limit_lon_min = round(round(raw_lon_min, 1) + 0.1, 1)
+    limit_lon_max = round(round(raw_lon_max, 1) - 0.1, 1)
 
     col1, col2 = st.columns([1, 1.5]) 
     
@@ -1268,7 +1274,8 @@ with tab5:
             start_year = st.number_input("Starting Year", min_value=2002, max_value=2024, value=2020)
         
         with col_year2:
-            end_year = st.number_input("Ending Year", min_value=2002, max_value=2024, value=2021)
+            default_end = max(2021, start_year + 1)
+            end_year = st.number_input("Ending Year", min_value=start_year + 1, max_value=2025, value=default_end)
 
         st.markdown("<br>", unsafe_allow_html=True)
         #Evaluation button
@@ -1362,6 +1369,7 @@ with tab5:
 
                     # 5. Build the "Paint Roller" Reveal Animation!
                     # Notice all the double curly braces {{ }} in the CSS!
+                             
                     final_painted_plot_fi = f"""
                     <style>
                         @keyframes paintRoller {{
