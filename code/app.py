@@ -883,56 +883,60 @@ with tab2:
                     st.session_state['selected_features'] = selected_features
                     st.session_state['x'] = x
 
+                    #NEW
                     time.sleep(5.5)
                     
-                    with display_screen.container():
-                        # 1. Generate the plot
-                        fig_rfe = v4p.rfe_plot(rfe, x)
-                        fig_rfe.patch.set_facecolor('#0b0f19') 
-                        
-                        # 2. Convert the Matplotlib plot to a base64 image string
-                        buf = io.BytesIO()
-                        fig_rfe.savefig(buf, format="png", facecolor='#0b0f19', bbox_inches='tight')
-                        buf.seek(0)
-                        img_base64 = base64.b64encode(buf.read()).decode("utf-8")
+                    # 1. Generate the plot
+                    fig_rfe = v4p.rfe_plot(rfe, x)
+                    fig_rfe.patch.set_facecolor('#0b0f19') 
+                    
+                    # 2. Convert the Matplotlib plot to a base64 image string
+                    buf = io.BytesIO()
+                    fig_rfe.savefig(buf, format="png", facecolor='#0b0f19', bbox_inches='tight')
+                    buf.seek(0)
+                    img_base64 = base64.b64encode(buf.read()).decode("utf-8")
 
-                        #3. Inject CSS and the Image together with the Paint Wipe!
-                        st.markdown(f"""
-                            <style>
-                                @keyframes paintRollerRfe {{
-                                    0% {{
-
-                                        /* Start hidden, wiped up from the bottom */
-                                        -webkit-clip-path: inset(0 0 100% 0); /*inset(top, right, bottom, left) cut off 100% of ... */
-                                        clip-path: inset(0 0 100% 0);
-                                        transform: scaleY(0.99); 
-                                        opacity: 0.8;
-                                    }}
-                                    100% {{
-                                        /* End fully revealed */
-                                        -webkit-clip-path: inset(0 0 0 0);
-                                        clip-path: inset(0 0 0 0);
-                                        transform: scaleY(1);
-                                        opacity: 1;
-                                    }}
+                    # 3. OVERWRITE the terminal in display_screen with the plot + stabilizer!
+                    display_screen.markdown(f"""
+                        <style>
+                            @keyframes paintRollerRfe {{
+                                0% {{
+                                    -webkit-clip-path: inset(0 0 100% 0); 
+                                    clip-path: inset(0 0 100% 0);
+                                    transform: scaleY(0.95); 
+                                    opacity: 0.8;
                                 }}
-                                
-                                .my-isolated-rfe-plot {{
-                                    /* 2.5s duration with a smooth ease-in-out curve */
-                                    animation: paintRollerRfe 2.5s linear forwards;
-                                    
-                                    width: 100%; 
-                                    display: block;
-                                    margin: 0 auto;
-                                    margin-top: -100px; /* Kept your layout fix! */
-                                    border-radius: 8px; 
-                                    transform-origin: top; /* Ensures the wipe pulls downward natively */
+                                100% {{
+                                    -webkit-clip-path: inset(0 0 0 0);
+                                    clip-path: inset(0 0 0 0);
+                                    transform: scaleY(1);
+                                    opacity: 1;
                                 }}
-                            </style>
+                            }}
                             
+                            .my-isolated-rfe-plot {{
+                                animation: paintRollerRfe 2.5s linear forwards;
+                                width: 100%; 
+                                display: block;
+                                margin: 0 auto;
+                                margin-top: -80px;
+                                border-radius: 8px; 
+                                transform-origin: top; 
+                            }}
+
+                            /* The magic anti-jump wrapper */
+                            .plot-stabilizer {{
+                                overflow-anchor: none; /* Tells browser: DO NOT scroll to me! */
+                                min-height: 550px; /* Instantly reserves the space so no jumping occurs */
+                                width: 100%;
+                            }}
+                        </style>
+                        
+                        <div class="plot-stabilizer">
                             <img class="my-isolated-rfe-plot" src="data:image/png;base64,{img_base64}" alt="RFE Plot">
-                        """, unsafe_allow_html=True)
-                
+                        </div>
+                    """, unsafe_allow_html=True)
+
                 else:
                     st.error("Merge failed. Data is empty.")
             except Exception as e:
