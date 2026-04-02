@@ -1182,7 +1182,7 @@ with tab4:
                             plot_placeholder.markdown(skeleton_html, unsafe_allow_html=True)
                             
                             # 3. Run heavy computation (same logic)
-                            csr_fig = v4p.CSR_plot(
+                            csr_fig = v4p.CSR_plot2(
                                 model=uploaded_model, year=map_year, month=map_month, 
                                 dataset_CSR=st.session_state['ds_CSR_sliced'], dataset_CSR2=st.session_state['df_CSR_on_ERA_grid'], 
                                 dataset_ERA=st.session_state['df_ERA'], var_to_plot='lwe_thickness', basin_name=basin_name

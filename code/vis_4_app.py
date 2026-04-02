@@ -12,6 +12,7 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import training as tr
+from matplotlib.colors import TwoSlopeNorm
 
 def rfe_plot(rfe, x):
     df_ranking = pd.DataFrame()
@@ -226,8 +227,22 @@ def CSR_plot(model, year, month, dataset_CSR, dataset_CSR2, dataset_ERA, var_to_
         time_str = f"{month:02d}-{year}" 
 
         # Plot
-        vmin = data_actual.quantile(0.02).item()
-        vmax = data_actual.quantile(0.98).item()
+        # vmin = data_actual.quantile(0.02).item()
+        # vmax = data_actual.quantile(0.98).item()
+        #NEW
+        # 1. Calculate raw quantiles from the observed data
+        vmin_raw = data_actual.quantile(0.02).item()
+        vmax_raw = data_actual.quantile(0.98).item()
+
+        # 2. Find the largest absolute value
+        abs_max = max(abs(vmin_raw), abs(vmax_raw))
+        
+        # 3. Apply symmetric bounds (forces 0 to be exactly white)
+        vmin = -abs_max
+        vmax = abs_max
+        #NEW
+
+    
 
         fig, (ax1, ax2, ax3) = plt.subplots(
             1, 3, figsize=(20, 8),
@@ -257,6 +272,150 @@ def CSR_plot(model, year, month, dataset_CSR, dataset_CSR2, dataset_ERA, var_to_
             robust=True,
             cbar_kwargs={"label": "Predicted LWE (cm)", "orientation": "horizontal", "pad": 0.05,"fraction": 0.03},
             vmin=vmin, vmax=vmax
+        )
+        ax2.set_title(f"{basin_name} Predicted LWE\n {time_str}", fontsize=14, fontweight="bold")
+        ax2.coastlines(resolution="10m")
+        ax2.add_feature(cfeature.BORDERS, linestyle=":", edgecolor='gray')
+        ax2.add_feature(cfeature.RIVERS, color="lightblue", alpha=0.5)
+        ax2.gridlines(draw_labels= True, linewidth=0.5, linestyle="--", alpha=0.5, color='gray')
+
+        # Map 3
+        # Note: data_slice is now an Xarray DataArray, so .plot works!
+        plot = data_slice_diff.plot.pcolormesh(
+            ax=ax3,
+            transform=ccrs.PlateCarree(),
+            cmap="Reds",     
+            robust=True,
+            vmin=0 , vmax=15,    
+            cbar_kwargs={"orientation": "horizontal", "fraction": 0.03,"pad": 0.05, "label": "LWE difference (cm)"}
+            )
+
+        ax3.set_title(f"Difference between predicted and raw {basin_name}'s \n data {time_str}", fontsize=14, fontweight='bold')
+        ax3.coastlines(resolution="10m", color="black", linewidth=1)
+        ax3.add_feature(cfeature.BORDERS, linestyle=":", edgecolor='gray')
+        ax3.add_feature(cfeature.RIVERS, color='lightblue', linewidth=0.8)
+        ax3.gridlines(draw_labels=True, linewidth=0.5, color='gray', alpha=0.5, linestyle='--')
+
+        return fig 
+    
+def CSR_plot2(model, year, month, dataset_CSR, dataset_CSR2, dataset_ERA, var_to_plot, basin_name):
+    model = joblib.load(model)
+    target_ym = f"{year}-{month:02d}"
+   
+    # -------------------------
+    # ERA5 data after prediction
+    # -------------------------
+   # dataset = , model = full_model_path, year = map_year, month = map_month
+    input_ERA_data = dpr.prediction(dataset_ERA, model, year, month, )
+
+        #data_predicted2 is the dataframe that i am gonna use for the lwe_diff
+    data_predicted2 = input_ERA_data.copy()
+
+    #ds_pred = input_ERA_data.groupby(["lat", "lon"])[["lwe_pred"]].mean().to_xarray()
+    ds_pred = input_ERA_data.set_index(["lat", "lon"])[["lwe_pred"]].to_xarray()
+    data_predicted = ds_pred["lwe_pred"]
+
+    t_index = pd.DatetimeIndex(dataset_CSR.time.values)
+    mask = (t_index.year == year) & (t_index.month == month)
+    
+    data_exist = mask.any()    
+    #picked_ts = pd.Timestamp(data_actual.time.values)
+    #time_str = picked_ts.strftime("%Y-%m")
+
+    time_str = f"{month:02d}-{year}"
+
+    if data_exist == False:
+        print(Fore.RED + f"No CSR data found for {month}/{year}{Fore.RESET}! \n {Fore.CYAN} Creating plot from the predicted lwe thickness {Fore.RESET} ")
+        #Predicted map
+        
+        vmin = data_predicted.quantile(0.02).item()
+        vmax= data_predicted.quantile(0.98).item()
+        
+        fig, ax = plt.subplots(figsize=(10, 8), projection=ccrs.PlateCarree()) 
+      
+        plot = data_predicted.plot.pcolormesh(
+            ax=ax,
+            transform=ccrs.PlateCarree(),
+            cmap="RdBu",
+            robust=True,
+            cbar_kwargs={"label": "Predicted LWE (cm)", "orientation": "horizontal", "pad": 0.05,"fraction": 0.03},
+            vmin=vmin, vmax=vmax
+        )
+        ax.set_title(f"{basin_name} Predicted LWE\n {time_str}", fontsize=14, fontweight="bold")
+        ax.coastlines(resolution="10m")
+        ax.add_feature(cfeature.BORDERS, linestyle=":", edgecolor='gray')
+        ax.add_feature(cfeature.RIVERS, color="lightblue", alpha=0.5)
+        ax.gridlines(draw_labels= True, linewidth=0.5, linestyle="--", alpha=0.5, color='gray')
+
+        return fig 
+
+    else:
+        # -------------------------
+        # lwe_difference
+        # -------------------------
+        idx = int(np.where(mask)[0][0])
+        data_actual = dataset_CSR[var_to_plot].isel(time=idx)
+        
+        dataset_diff = pd.merge(
+            dataset_CSR2,
+            data_predicted2,
+            on=["year", "month", "lat", "lon"],
+            how="inner",
+            suffixes=("_grace", "_grace_pred")
+        )
+
+        data_out=['t2m', 'tp', 'e', 'pev', 'ssro', 'sro', 'evabs','swvl1', 'swvl2', 'swvl3', 'swvl4', 'lai_hv', 'lai_lv']
+        dataset_diff = dataset_diff.drop(columns=data_out, errors='ignore')
+        dataset_diff["lwe_difference"] = abs(dataset_diff["lwe_pred"] - dataset_diff["lwe_thickness"])
+
+        input_diff_data = dataset_diff[(dataset_diff['year'] == year) & (dataset_diff['month'] == month)]
+        
+        ds_diff = input_diff_data.set_index(['lat', 'lon']).to_xarray()
+        data_slice_diff = ds_diff['lwe_difference']
+
+        # 4. Handle Time String Manually
+        # Since we lost the 'valid_time' column during earlier processing, we construct the string ourselves
+        time_str = f"{month:02d}-{year}" 
+
+        # Plot
+        vmin = data_predicted.quantile(0.02).item()
+        vmax = data_predicted.quantile(0.98).item()
+        
+        # TwoSlopeNorm REQUIRES vmin to be < 0 and vmax to be > 0.
+        # This is a safety catch just in case a completely dry/wet month breaks the rule.
+        vmin = min(vmin, -0.1)
+        vmax = max(vmax, 0.1)
+        
+        div_norm = TwoSlopeNorm(vmin=vmin, vcenter=0, vmax=vmax)
+
+        fig, (ax1, ax2, ax3) = plt.subplots(
+            1, 3, figsize=(20, 8),
+            subplot_kw={"projection": ccrs.PlateCarree()}
+        )
+
+        # Map 1
+        data_actual.plot.pcolormesh(
+            ax=ax1,
+            transform=ccrs.PlateCarree(),
+            cmap="RdBu",
+            norm=div_norm,      # <-- Use the new norm here
+            extend="both",
+            cbar_kwargs={"label": "LWE (cm)", "orientation": "horizontal", "pad": 0.05, "fraction": 0.03},
+        )
+        ax1.set_title(f"{basin_name} Observed LWE\n{time_str}", fontsize=14, fontweight="bold")
+        ax1.coastlines(resolution="10m")
+        ax1.add_feature(cfeature.BORDERS, linestyle=":", edgecolor='gray')
+        ax1.add_feature(cfeature.RIVERS, color="lightblue", alpha=0.5)
+        ax1.gridlines(draw_labels= True, linewidth=0.5, linestyle="--", alpha=0.5, color='gray')
+
+        # Map 2
+        data_predicted.plot.pcolormesh(
+            ax=ax2,
+            transform=ccrs.PlateCarree(),
+            cmap="RdBu",
+            norm=div_norm,      # <-- Use the new norm here
+            extend="both",
+            cbar_kwargs={"label": "Predicted LWE (cm)", "orientation": "horizontal", "pad": 0.05,"fraction": 0.03},
         )
         ax2.set_title(f"{basin_name} Predicted LWE\n {time_str}", fontsize=14, fontweight="bold")
         ax2.coastlines(resolution="10m")
@@ -325,6 +484,8 @@ def model_eval_plot(dataframe):
     ax2.grid(True, linestyle=':', alpha=0.5)
 
     return fig
+
+
 
 def feature_importance_pie(model, X_train):
  
