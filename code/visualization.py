@@ -150,13 +150,13 @@ def CSR_plot(model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA,
     # -------------------------
     # ERA5 data after prediction
     # -------------------------
-   # dataset = , model = full_model_path, year = map_year, month = map_month
+    # dataset = , model = full_model_path, year = map_year, month = map_month
     input_ERA_data = dpr.prediction(dataset_ERA, model, year, month, )
 
-        #data_predicted2 is the dataframe that i am gonna use for the lwe_diff
+    # data_predicted2 is the dataframe that i am gonna use for the lwe_diff
     data_predicted2 = input_ERA_data.copy()
 
-    #ds_pred = input_ERA_data.groupby(["lat", "lon"])[["lwe_pred"]].mean().to_xarray()
+    # ds_pred = input_ERA_data.groupby(["lat", "lon"])[["lwe_pred"]].mean().to_xarray()
     ds_pred = input_ERA_data.set_index(["lat", "lon"])[["lwe_pred"]].to_xarray()
     data_predicted = ds_pred["lwe_pred"]
 
@@ -164,17 +164,42 @@ def CSR_plot(model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA,
     mask = (t_index.year == year) & (t_index.month == month)
     
     data_exist = mask.any()    
-    #picked_ts = pd.Timestamp(data_actual.time.values)
-    #time_str = picked_ts.strftime("%Y-%m")
 
     time_str = f"{month:02d}-{year}"
 
     if data_exist == False:
         print(Fore.RED + f"No CSR data found for {month}/{year}{Fore.RESET}! \n {Fore.CYAN} Creating plot from the predicted lwe thickness {Fore.RESET} ")
-        #Predicted map
+        # Predicted map
         
+        # 1. Get raw bounds (FIXED: Uses data_predicted because data_actual doesn't exist here)
         vmin = data_predicted.quantile(0.02).item()
-        vmax= data_predicted.quantile(0.98).item()
+        vmax = data_predicted.quantile(0.98).item()
+        
+        # Safety catch for zero crossing
+        vmin = min(vmin, -0.1)
+        vmax = max(vmax, 0.1)
+
+        # 2. Calculate the normalized position of zero
+        zero_pos = (0 - vmin) / (vmax - vmin)
+
+        # 3. Start with the original colormap
+        orig_cmap = plt.get_cmap("RdBu")
+
+        # 4. Extract the exact color arrays
+        n_neg = int(256 * zero_pos)
+        n_pos = 256 - n_neg
+
+        # For the negative side: Grab the EXACT rich reds from the original colormap (0.0 to 0.5)
+        colors_neg = orig_cmap(np.linspace(0.0, 0.5, n_neg))
+
+        # For the positive side: Grab the blues, boosting the end point to 0.9 to make it pop (0.5 to 0.9)
+        colors_pos = orig_cmap(np.linspace(0.5, 0.9, n_pos))
+
+        # Combine the two halves
+        all_colors = np.vstack((colors_neg, colors_pos))
+
+        # 5. Create the new colormap from the high-res array
+        boosted_rdbu = mcolors.LinearSegmentedColormap.from_list("boosted_rdbu", all_colors)
         
         plt.figure(figsize=(10,8))
 
@@ -182,10 +207,11 @@ def CSR_plot(model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA,
         plot = data_predicted.plot.pcolormesh(
             ax=ax,
             transform=ccrs.PlateCarree(),
-            cmap="RdBu",
-            robust=True,
-            cbar_kwargs={"label": "Predicted LWE (cm)", "orientation": "horizontal", "pad": 0.05,"fraction": 0.03},
-            vmin=vmin, vmax=vmax
+            cmap=boosted_rdbu,
+            vmin=vmin,           
+            vmax=vmax,
+            extend="both",
+            cbar_kwargs={"label": "Predicted LWE (cm)", "orientation": "horizontal", "pad": 0.05, "fraction": 0.03, "spacing": "proportional"}
         )
         ax.set_title(f"{basin_name} Predicted LWE\n {time_str}", fontsize=14, fontweight="bold")
         ax.coastlines(resolution="10m")
@@ -223,12 +249,37 @@ def CSR_plot(model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA,
         data_slice_diff = ds_diff['lwe_difference']
 
         # 4. Handle Time String Manually
-        # Since we lost the 'valid_time' column during earlier processing, we construct the string ourselves
         time_str = f"{month:02d}-{year}" 
 
-        # Plot
+        # 1. Get raw bounds
         vmin = data_actual.quantile(0.02).item()
         vmax = data_actual.quantile(0.98).item()
+        
+        # Safety catch for zero crossing
+        vmin = min(vmin, -0.1)
+        vmax = max(vmax, 0.1)
+
+        # 2. Calculate the normalized position of zero
+        zero_pos = (0 - vmin) / (vmax - vmin)
+
+        # 3. Start with the original colormap
+        orig_cmap = plt.get_cmap("RdBu")
+
+        # 4. Extract the exact color arrays
+        n_neg = int(256 * zero_pos)
+        n_pos = 256 - n_neg
+
+        # For the negative side: Grab the EXACT rich reds from the original colormap (0.0 to 0.5)
+        colors_neg = orig_cmap(np.linspace(0.0, 0.5, n_neg))
+
+        # For the positive side: Grab the blues, boosting the end point to 0.9 to make it pop (0.5 to 0.9)
+        colors_pos = orig_cmap(np.linspace(0.5, 0.9, n_pos))
+
+        # Combine the two halves
+        all_colors = np.vstack((colors_neg, colors_pos))
+
+        # 5. Create the new colormap from the high-res array
+        boosted_rdbu = mcolors.LinearSegmentedColormap.from_list("boosted_rdbu", all_colors)
 
         fig, (ax1, ax2, ax3) = plt.subplots(
             1, 3, figsize=(20, 8),
@@ -239,10 +290,11 @@ def CSR_plot(model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA,
         data_actual.plot.pcolormesh(
             ax=ax1,
             transform=ccrs.PlateCarree(),
-            cmap="RdBu",
-            robust=True,
-            cbar_kwargs={"label": "LWE (cm)", "orientation": "horizontal", "pad": 0.05, "fraction": 0.03},
-            vmin=vmin, vmax=vmax
+            cmap=boosted_rdbu,
+            vmin=vmin,           
+            vmax=vmax,
+            extend="both",
+            cbar_kwargs={"label": "LWE (cm)", "orientation": "horizontal", "pad": 0.05, "fraction": 0.03, "spacing": "proportional"},
         )
         ax1.set_title(f"{basin_name} Observed LWE\n{time_str}", fontsize=14, fontweight="bold")
         ax1.coastlines(resolution="10m")
@@ -254,10 +306,11 @@ def CSR_plot(model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA,
         data_predicted.plot.pcolormesh(
             ax=ax2,
             transform=ccrs.PlateCarree(),
-            cmap="RdBu",
-            robust=True,
-            cbar_kwargs={"label": "Predicted LWE (cm)", "orientation": "horizontal", "pad": 0.05,"fraction": 0.03},
-            vmin=vmin, vmax=vmax
+            cmap=boosted_rdbu,
+            vmin=vmin,           
+            vmax=vmax,
+            extend="both",
+            cbar_kwargs={"label": "Predicted LWE (cm)", "orientation": "horizontal", "pad": 0.05, "fraction": 0.03, "spacing": "proportional"},
         )
         ax2.set_title(f"{basin_name} Predicted LWE\n {time_str}", fontsize=14, fontweight="bold")
         ax2.coastlines(resolution="10m")
@@ -274,7 +327,7 @@ def CSR_plot(model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA,
             robust=True,
             vmin=0 , vmax=15,    
             cbar_kwargs={"orientation": "horizontal", "fraction": 0.03,"pad": 0.05, "label": "LWE difference (cm)"}
-            )
+        )
 
         ax3.set_title(f"Difference between predicted and raw {basin_name}'s data {time_str}", fontsize=14, fontweight='bold')
         ax3.coastlines(resolution="10m", color="black", linewidth=1)
@@ -286,6 +339,8 @@ def CSR_plot(model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA,
         plt.savefig(output, dpi=300, bbox_inches="tight")
         print(f" Map saved to: {output}")
         plt.show()
+
+
 
 #statistical analysis
 #dataframe = df_pred_4_stats_cl
