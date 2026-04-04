@@ -339,12 +339,12 @@ def corr_pearson(dataframe):
 
 # stats
 #dataset_CSR = df_CSR , dataset_pred = data_predicted, dataset_diff = dataset_diff
-def stats_lwe(dataframe_CSR, dataframe_pred, dataframe_diff):
+def stats_lwe(dataframe_pred, dataframe_diff):
     #LWE_thickness
-    lwe_thickness_min = dataframe_CSR["lwe_thickness"].min()
-    lwe_thickness_max = dataframe_CSR["lwe_thickness"].max()
-    lwe_thickness_mean = dataframe_CSR["lwe_thickness"].mean()
-    lwe_thickness_std = dataframe_CSR["lwe_thickness"].std()
+    lwe_thickness_min = dataframe_diff["lwe_thickness"].min()
+    lwe_thickness_max = dataframe_diff["lwe_thickness"].max()
+    lwe_thickness_mean = dataframe_diff["lwe_thickness"].mean()
+    lwe_thickness_std = dataframe_diff["lwe_thickness"].std()
 
     #LWE_pred
     lwe_pred_min = dataframe_pred["lwe_pred"].min()
