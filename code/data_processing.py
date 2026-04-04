@@ -10,10 +10,11 @@ from colorama import Fore
 from scipy.interpolate import griddata
 import os, joblib, sys
 from scipy.stats import pearsonr
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 import plotly.graph_objects as go
 import math
 import requests
+
 
 #ERA5 data 
 def ERA5_data_downloader():
@@ -336,39 +337,44 @@ def corr_pearson(dataframe):
 
     return r_score, p_value
 
-#APP 
-# Globe
+# stats
+#dataset_CSR = df_CSR , dataset_pred = data_predicted, dataset_diff = dataset_diff
+def stats_lwe(dataframe_CSR, dataframe_pred, dataframe_diff):
+    #LWE_thickness
+    lwe_thickness_min = dataframe_CSR["lwe_thickness"].min()
+    lwe_thickness_max = dataframe_CSR["lwe_thickness"].max()
+    lwe_thickness_mean = dataframe_CSR["lwe_thickness"].mean()
+    lwe_thickness_std = dataframe_CSR["lwe_thickness"].std()
 
-def get_xyz(lon, lat, radius=1.0):
-            lon_r = math.radians(lon)
-            lat_r = math.radians(lat)
-            x = radius * math.cos(lat_r) * math.cos(lon_r)
-            y = radius * math.cos(lat_r) * math.sin(lon_r)
-            z = radius * math.sin(lat_r)
-            return x, y, z
-
-def get_3d_coastlines():
-    url = "https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json"
-    try:
-        data = requests.get(url).json()
-    except:
-        return [], [], [] # Safe fallback if offline
-
-    xs, ys, zs = [], [], []
-    def add_line(coords):
-        for lon, lat in coords:
-            x, y, z = get_xyz(lon, lat, radius=1.01) # Radius 1.01 hovers just above the surface
-            xs.append(x); ys.append(y); zs.append(z) 
-            xs.append(None); ys.append(None); zs.append(None) # Breaks the line between continents
-        #data = ALL WORLD COOORDS
-        #So inside the data there is a folder named features, which contains the geometry of each country
-        # We read this feature for each country and create an if statment 
-        for feature in data.get('features', []): 
-            geom = feature.get('geometry')
-            if not geom: continue
-            if geom['type'] == 'Polygon':
-                for poly in geom['coordinates']: add_line(poly)
-            elif geom['type'] == 'MultiPolygon':
-                for multipoly in geom['coordinates']:
-                    for poly in multipoly: add_line(poly)
-    return xs, ys, zs
+    #LWE_pred
+    lwe_pred_min = dataframe_pred["lwe_pred"].min()
+    lwe_pred_max = dataframe_pred["lwe_pred"].max()
+    lwe_pred_mean = dataframe_pred["lwe_pred"].mean()
+    lwe_pred_std = dataframe_pred["lwe_pred"].std()
+    
+    #LWE_difference
+    lwe_diff_min = dataframe_diff["lwe_difference"].min()
+    lwe_diff_max = dataframe_diff["lwe_difference"].max()
+    lwe_diff_mean = dataframe_diff["lwe_difference"].mean()
+    lwe_diff_std = dataframe_diff["lwe_difference"].std()
+    
+    #model evaluation
+    mse = mean_squared_error(dataframe_diff["lwe_thickness"], dataframe_diff["lwe_pred"])
+    rmse = np.sqrt(mse)
+    mae = mean_absolute_error(dataframe_diff["lwe_thickness"], dataframe_diff["lwe_pred"])
+    
+    # Build the DataFrame dictionary
+    # We use 'None' for the error metrics under CSR and Predicted because they don't apply there.
+    stats_dict = {
+        "Metric": ["Min", "Max", "Mean", "Std Dev", "MSE", "RMSE", "MAE"],
+        "CSR (Observed)": [lwe_thickness_min, lwe_thickness_max, lwe_thickness_mean, lwe_thickness_std, None, None, None],
+        "Predicted": [lwe_pred_min, lwe_pred_max, lwe_pred_mean, lwe_pred_std, None, None, None],
+        "Difference": [lwe_diff_min, lwe_diff_max, lwe_diff_mean, lwe_diff_std, mse, rmse, mae]
+    }
+    
+    df_stats = pd.DataFrame(stats_dict).set_index("Metric")
+    
+    # Round to 4 decimal places to remove the massive floating point numbers
+    df_stats = df_stats.round(4)
+    
+    return df_stats

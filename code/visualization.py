@@ -340,7 +340,7 @@ def CSR_plot(model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA,
         print(f" Map saved to: {output}")
         plt.show()
 
-
+        return  data_predicted2, dataset_diff
 
 #statistical analysis
 #dataframe = df_pred_4_stats_cl

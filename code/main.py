@@ -199,8 +199,13 @@ if __name__ == "__main__":
 
     df_CSR_on_ERA_grid = dpr.CSR_interp(df_CSR, df_ERA)
    
-    vis.CSR_plot(full_model_path, map_year, map_month, output_CSR, ds_CSR_sliced, df_CSR_on_ERA_grid, df_ERA, var_to_plot, basin_name)
+    data_predicted, dataset_diff = vis.CSR_plot(full_model_path, map_year, map_month, output_CSR, ds_CSR_sliced, df_CSR_on_ERA_grid, df_ERA, var_to_plot, basin_name)
     
+    stats_table = dpr.stats_lwe(df_CSR, data_predicted, dataset_diff)
+    
+    print(f"\n{Fore.CYAN}--- LWE STATISTICS (cm) ---{Fore.RESET}")
+    print(stats_table)
+
     choice = input(f"{Fore.CYAN}Would you like to plot feature importance? Write YES/NO {Fore.RESET}").strip().upper()
     if choice not in ["YES", "NO"]:
         print(f"{Fore.RED}Error: Invalid input '{choice}'. Please type exactly 'YES' or 'NO'. Exiting...{Fore.RESET}")
