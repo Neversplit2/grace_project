@@ -326,13 +326,19 @@ def CSR_plot(model, year, month, dataset_CSR, dataset_CSR2, dataset_ERA, var_to_
         ax2.gridlines(draw_labels= True, linewidth=0.5, linestyle="--", alpha=0.5, color='gray')
 
         # Map 3
+        dynamic_vmax = data_slice_diff.quantile(0.95).item()
+        
+        # 2. Add a safety floor so tiny errors don't stretch the map to look extremely red
+        dynamic_vmax = max(dynamic_vmax, 7.0)
+
         # Note: data_slice is now an Xarray DataArray, so .plot works!
         plot = data_slice_diff.plot.pcolormesh(
             ax=ax3,
             transform=ccrs.PlateCarree(),
             cmap="Reds",     
             robust=True,
-            vmin=0 , vmax=15,    
+            vmin=0 ,
+            vmax=dynamic_vmax,    
             cbar_kwargs={"orientation": "horizontal", "fraction": 0.03,"pad": 0.05, "label": "LWE difference (cm)"}
             )
 
