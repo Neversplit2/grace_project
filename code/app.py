@@ -884,22 +884,34 @@ with tab2:
                     st.session_state['x'] = x
 
                     time.sleep(5.5)
-                    #NEW
-                        
+
+                    #NEW2
                     # 1. Generate the plot
                     fig_rfe = v4p.rfe_plot(rfe, x)
                     fig_rfe.patch.set_facecolor('#0b0f19') 
 
-                    # 2. Convert the Matplotlib plot to a buffer (Base64 encoding is no longer needed!)
+                    # 2. Convert the Matplotlib plot to a buffer
                     buf = io.BytesIO()
                     fig_rfe.savefig(buf, format="png", facecolor='#0b0f19', bbox_inches='tight')
                     buf.seek(0)
+
+                    # --- NEW: Encode the buffer to base64 so the HTML button can download it ---
+                    b64_img = base64.b64encode(buf.read()).decode()
+                    buf.seek(0) # CRITICAL: Reset the buffer back to 0 so st.image can still read it!
 
                     # 3. OVERWRITE the terminal in display_screen with a container holding CSS and the native image
                     with display_screen.container():
                         
                         st.markdown(f"""
-                            <div id="rfe-stabilizer-anchor"></div>
+                            <div id="rfe-stabilizer-anchor">
+                                <a href="data:image/png;base64,{b64_img}" download="RFE_Plot.png" class="custom-download-icon" title="Download Plot">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="7 10 12 15 17 10"></polyline>
+                                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                                    </svg>
+                                </a>
+                            </div>
                             <style>
                                 @keyframes paintRollerRfe {{
                                     0% {{
@@ -919,6 +931,8 @@ with tab2:
                                 /* 1. THE MAGIC SPACER: Sucks the image up 80px */
                                 div.element-container:has(#rfe-stabilizer-anchor) {{
                                     margin-bottom: -80px; 
+                                    position: relative; /* CRITICAL: Anchors the download icon */
+                                    z-index: 20; /* Ensures the icon stays clickable */
                                 }}
 
                                 /* 2. THE ANTI-JUMP STABILIZER */
@@ -942,64 +956,36 @@ with tab2:
                                     transform-origin: top; 
                                     width: 100%;
                                 }}
+
+                                /* --- NEW: Styling for the Download Icon (Dark Theme Optimized) --- */
+                                .custom-download-icon {{
+                                    position: absolute;
+                                    right: 40px; /* Decreased from 45px to move it slightly right */
+                                    top: -97.5px;  /* Changed from -65px to -90px to push it much higher */
+                                    color: rgba(255, 255, 255, 0.7); 
+                                    background-color: rgba(30, 30, 30, 0.6); 
+                                    border-radius: 4px;
+                                    padding: 6px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    transition: all 0.2s ease-in-out;
+                                    text-decoration: none; 
+                                    box-shadow: 0px 2px 4px rgba(0,0,0,0.5);
+                                }}
+
+                                .custom-download-icon:hover {{
+                                    color: rgba(255, 255, 255, 1);
+                                    background-color: rgba(60, 60, 60, 0.9);
+                                    transform: scale(1.05);
+                                }}
                             </style>
                         """, unsafe_allow_html=True)
                         
                         # Render the native image directly
                         st.image(buf, output_format="PNG", use_container_width=True)
-                        
-                    #NEW
 
-                    # # 1. Generate the plot
-                    # fig_rfe = v4p.rfe_plot(rfe, x)
-                    # fig_rfe.patch.set_facecolor('#0b0f19') 
-                    
-                    # # 2. Convert the Matplotlib plot to a base64 image string
-                    # buf = io.BytesIO()
-                    # fig_rfe.savefig(buf, format="png", facecolor='#0b0f19', bbox_inches='tight')
-                    # buf.seek(0)
-                    # img_base64 = base64.b64encode(buf.read()).decode("utf-8")
-
-                    # # 3. OVERWRITE the terminal in display_screen with the plot + stabilizer!
-                    # display_screen.markdown(f"""
-                    #     <style>
-                    #         @keyframes paintRollerRfe {{
-                    #             0% {{
-                    #                 -webkit-clip-path: inset(0 0 100% 0); 
-                    #                 clip-path: inset(0 0 100% 0);
-                    #                 transform: scaleY(0.95); 
-                    #                 opacity: 0.8;
-                    #             }}
-                    #             100% {{
-                    #                 -webkit-clip-path: inset(0 0 0 0);
-                    #                 clip-path: inset(0 0 0 0);
-                    #                 transform: scaleY(1);
-                    #                 opacity: 1;
-                    #             }}
-                    #         }}
-                            
-                    #         .my-isolated-rfe-plot {{
-                    #             animation: paintRollerRfe 2.5s linear forwards;
-                    #             width: 100%; 
-                    #             display: block;
-                    #             margin: 0 auto;
-                    #             margin-top: -80px;
-                    #             border-radius: 8px; 
-                    #             transform-origin: top; 
-                    #         }}
-
-                    #         /* The magic anti-jump wrapper */
-                    #         .plot-stabilizer {{
-                    #             overflow-anchor: none; /* Tells browser: DO NOT scroll to me! */
-                    #             min-height: 550px; /* Instantly reserves the space so no jumping occurs */
-                    #             width: 100%;
-                    #         }}
-                    #     </style>
-                        
-                    #     <div class="plot-stabilizer">
-                    #         <img class="my-isolated-rfe-plot" src="data:image/png;base64,{img_base64}" alt="RFE Plot">
-                    #     </div>
-                    # """, unsafe_allow_html=True)
+                    #NEW2
 
                 else:
                     st.error("Merge failed. Data is empty.")
