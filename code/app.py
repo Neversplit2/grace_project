@@ -884,58 +884,122 @@ with tab2:
                     st.session_state['x'] = x
 
                     time.sleep(5.5)
-                    
-
+                    #NEW
+                        
                     # 1. Generate the plot
                     fig_rfe = v4p.rfe_plot(rfe, x)
                     fig_rfe.patch.set_facecolor('#0b0f19') 
-                    
-                    # 2. Convert the Matplotlib plot to a base64 image string
+
+                    # 2. Convert the Matplotlib plot to a buffer (Base64 encoding is no longer needed!)
                     buf = io.BytesIO()
                     fig_rfe.savefig(buf, format="png", facecolor='#0b0f19', bbox_inches='tight')
                     buf.seek(0)
-                    img_base64 = base64.b64encode(buf.read()).decode("utf-8")
 
-                    # 3. OVERWRITE the terminal in display_screen with the plot + stabilizer!
-                    display_screen.markdown(f"""
-                        <style>
-                            @keyframes paintRollerRfe {{
-                                0% {{
-                                    -webkit-clip-path: inset(0 0 100% 0); 
-                                    clip-path: inset(0 0 100% 0);
-                                    transform: scaleY(0.95); 
-                                    opacity: 0.8;
-                                }}
-                                100% {{
-                                    -webkit-clip-path: inset(0 0 0 0);
-                                    clip-path: inset(0 0 0 0);
-                                    transform: scaleY(1);
-                                    opacity: 1;
-                                }}
-                            }}
-                            
-                            .my-isolated-rfe-plot {{
-                                animation: paintRollerRfe 2.5s linear forwards;
-                                width: 100%; 
-                                display: block;
-                                margin: 0 auto;
-                                margin-top: -80px;
-                                border-radius: 8px; 
-                                transform-origin: top; 
-                            }}
-
-                            /* The magic anti-jump wrapper */
-                            .plot-stabilizer {{
-                                overflow-anchor: none; /* Tells browser: DO NOT scroll to me! */
-                                min-height: 550px; /* Instantly reserves the space so no jumping occurs */
-                                width: 100%;
-                            }}
-                        </style>
+                    # 3. OVERWRITE the terminal in display_screen with a container holding CSS and the native image
+                    with display_screen.container():
                         
-                        <div class="plot-stabilizer">
-                            <img class="my-isolated-rfe-plot" src="data:image/png;base64,{img_base64}" alt="RFE Plot">
-                        </div>
-                    """, unsafe_allow_html=True)
+                        st.markdown(f"""
+                            <div id="rfe-stabilizer-anchor"></div>
+                            <style>
+                                @keyframes paintRollerRfe {{
+                                    0% {{
+                                        -webkit-clip-path: inset(0 0 100% 0); 
+                                        clip-path: inset(0 0 100% 0);
+                                        transform: scaleY(0.95); 
+                                        opacity: 0.8;
+                                    }}
+                                    100% {{
+                                        -webkit-clip-path: inset(0 0 0 0);
+                                        clip-path: inset(0 0 0 0);
+                                        transform: scaleY(1);
+                                        opacity: 1;
+                                    }}
+                                }}
+                                
+                                /* 1. THE MAGIC SPACER: Sucks the image up 80px */
+                                div.element-container:has(#rfe-stabilizer-anchor) {{
+                                    margin-bottom: -80px; 
+                                }}
+
+                                /* 2. THE ANTI-JUMP STABILIZER */
+                                /* We apply your exact logic to the outermost container so the space is reserved immediately! */
+                                div.element-container:has(#rfe-stabilizer-anchor) + div.element-container {{
+                                    overflow-anchor: none; 
+                                    min-height: 550px;     
+                                    width: 100%;
+                                }}
+
+                                /* Keeps the image centered inside the reserved space */
+                                div.element-container:has(#rfe-stabilizer-anchor) + div.element-container div[data-testid="stImage"] {{
+                                    display: flex;
+                                    justify-content: center;
+                                }}
+
+                                /* 3. The animation on the image itself */
+                                div.element-container:has(#rfe-stabilizer-anchor) + div.element-container img {{
+                                    animation: paintRollerRfe 2.5s linear forwards;
+                                    border-radius: 8px; 
+                                    transform-origin: top; 
+                                    width: 100%;
+                                }}
+                            </style>
+                        """, unsafe_allow_html=True)
+                        
+                        # Render the native image directly
+                        st.image(buf, output_format="PNG", use_container_width=True)
+                        
+                    #NEW
+
+                    # # 1. Generate the plot
+                    # fig_rfe = v4p.rfe_plot(rfe, x)
+                    # fig_rfe.patch.set_facecolor('#0b0f19') 
+                    
+                    # # 2. Convert the Matplotlib plot to a base64 image string
+                    # buf = io.BytesIO()
+                    # fig_rfe.savefig(buf, format="png", facecolor='#0b0f19', bbox_inches='tight')
+                    # buf.seek(0)
+                    # img_base64 = base64.b64encode(buf.read()).decode("utf-8")
+
+                    # # 3. OVERWRITE the terminal in display_screen with the plot + stabilizer!
+                    # display_screen.markdown(f"""
+                    #     <style>
+                    #         @keyframes paintRollerRfe {{
+                    #             0% {{
+                    #                 -webkit-clip-path: inset(0 0 100% 0); 
+                    #                 clip-path: inset(0 0 100% 0);
+                    #                 transform: scaleY(0.95); 
+                    #                 opacity: 0.8;
+                    #             }}
+                    #             100% {{
+                    #                 -webkit-clip-path: inset(0 0 0 0);
+                    #                 clip-path: inset(0 0 0 0);
+                    #                 transform: scaleY(1);
+                    #                 opacity: 1;
+                    #             }}
+                    #         }}
+                            
+                    #         .my-isolated-rfe-plot {{
+                    #             animation: paintRollerRfe 2.5s linear forwards;
+                    #             width: 100%; 
+                    #             display: block;
+                    #             margin: 0 auto;
+                    #             margin-top: -80px;
+                    #             border-radius: 8px; 
+                    #             transform-origin: top; 
+                    #         }}
+
+                    #         /* The magic anti-jump wrapper */
+                    #         .plot-stabilizer {{
+                    #             overflow-anchor: none; /* Tells browser: DO NOT scroll to me! */
+                    #             min-height: 550px; /* Instantly reserves the space so no jumping occurs */
+                    #             width: 100%;
+                    #         }}
+                    #     </style>
+                        
+                    #     <div class="plot-stabilizer">
+                    #         <img class="my-isolated-rfe-plot" src="data:image/png;base64,{img_base64}" alt="RFE Plot">
+                    #     </div>
+                    # """, unsafe_allow_html=True)
 
                 else:
                     st.error("Merge failed. Data is empty.")
