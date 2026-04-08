@@ -107,16 +107,24 @@ def RF_learn_curve(X_train, X_test, y_train, y_test):
     return fig
 
 def ERA_plot(dataset, year, month, var_to_plot, basin_name):
+    # 1. FORCE THE DARK THEME EVERY TIME THIS RUNS
+    plt.style.use('dark_background') 
+    
     data_slice = dataset[var_to_plot].sel(valid_time=f'{year}-{month}-01 23:00', method='nearest')
     time_str = data_slice.valid_time.dt.strftime("%m-%Y").item()
+    
     # Find the value that is smaller than 2% of the data
     vmin = data_slice.quantile(0.02).item()
     # Find the value that is smaller than 98% of the data
     vmax = data_slice.quantile(0.98).item()
     
+    # 2. CREATE FIGURE (Removed the redundant plt.axes line here)
     fig, ax = plt.subplots(figsize=(6, 6), subplot_kw={'projection': ccrs.PlateCarree()})
 
-    ax = plt.axes(projection=ccrs.PlateCarree())
+    # 3. APPLY YOUR CUSTOM BACKGROUND COLORS TO MATCH TERMINAL
+    fig.patch.set_facecolor('#0b0f19') 
+    ax.set_facecolor('#0b0f19')
+
     plot = data_slice.plot.pcolormesh(
         ax=ax,
         transform=ccrs.PlateCarree(),
@@ -131,21 +139,22 @@ def ERA_plot(dataset, year, month, var_to_plot, basin_name):
         }
     )
 
-    ax.coastlines(resolution="10m", color="black", linewidth=1)
+    ax.coastlines(resolution="10m", color="white", linewidth=1) # Changed coast to white for visibility
     ax.add_feature(cfeature.BORDERS, linestyle=":", edgecolor='gray')
     ax.add_feature(cfeature.RIVERS, color='lightblue', linewidth=0.8)
 
     gl = ax.gridlines(draw_labels=True, linewidth=0.5, color='gray', alpha=0.5, linestyle='--')
     gl.top_labels = False   
     gl.right_labels = False
-    gl.xlabel_style = {'size': 10}
-    gl.ylabel_style = {'size': 10}
+    gl.xlabel_style = {'size': 10, 'color': '#8892B0'} # explicitly set gridline text color
+    gl.ylabel_style = {'size': 10, 'color': '#8892B0'}
 
     # Title
-    ax.set_title(f"{basin_name.upper()} ERA5 {var_to_plot.lower()}  [{time_str}]", fontfamily='monospace', fontsize=14, fontweight='bold')
+    ax.set_title(f"{basin_name.upper()} ERA5 {var_to_plot.lower()}  [{time_str}]", fontfamily='monospace', fontsize=14, fontweight='bold', color="#00E5FF")
+    
     # Remove default xarray labels
-    ax.set_xlabel("", fontfamily='monospace')
-    ax.set_ylabel("", fontfamily='monospace')
+    ax.set_xlabel("", color="#FFFFFF", fontfamily='monospace')
+    ax.set_ylabel("", color="#FFFFFF", fontfamily='monospace')
 
     return fig
     

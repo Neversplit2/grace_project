@@ -362,7 +362,7 @@ with col1:
     st.markdown("""
         <a href="https://grace.jpl.nasa.gov/data/get-data/jpl_global_mascons/" target="_blank" style="
             text-decoration: none;
-            color: rgb(61, 213, 109); 
+            color: #ffffff;
             background-color: rgba(61, 213, 109, 0.2); 
             padding: 2px 8px;
             border-radius: 0px 10px 0px 10px;
@@ -379,7 +379,7 @@ with col1:
     st.markdown("""
         <a href="https://www2.csr.utexas.edu/grace/RL06_mascons.html" target="_blank" style="
             text-decoration: none;
-            color: #ffffff; /* rgb(61, 213, 109); */ 
+            color: #ffffff; 
             background-color: rgba(61, 213, 109, 0.2); 
             padding: 2px 8px;
             border-radius: 10px 0px 10px 0px;
@@ -401,7 +401,7 @@ with col2:
         <a href="https://cds.climate.copernicus.eu/datasets/reanalysis-era5-land-monthly-means?tab=download" target="_blank" style="
             cursor: crosshair;
             text-decoration: none;
-            color: #00E5FF; /*rgb(61, 213, 109);*/ 
+            color: #ffffff; 
             background-color: rgba(61, 213, 109, 0.2); 
             padding: 2px 8px;
             border-radius: 10px 0px 10px 0px;
@@ -421,7 +421,7 @@ with col3:
 
     st.markdown("""
         <div style="
-            color: rgb(61, 213, 109);
+            color: #ffffff;
             background-color: rgba(61, 213, 109, 0.2);
             padding: 2px 8px;
             border-radius: 10px 0px 10px 0px;
@@ -461,7 +461,7 @@ with tab1:
     #Everything under with col_input 
     with col_input:
         
-        st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1.05rem; letter-spacing: 2px;'>"
+        st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1.1rem; letter-spacing: 2px;'>"
         "**Latitude Bounds**"
         "</small>", unsafe_allow_html=True)
 
@@ -471,7 +471,7 @@ with tab1:
         with col_lat1: lat_min = st.number_input("Min", value=-17.0, step=0.25, format="%.2f", key="lat_min")
         with col_lat2: lat_max = st.number_input("Max", value=5.0, step=0.25, format="%.2f", key="lat_max")
             
-        st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1.05rem; letter-spacing: 2px;'>"
+        st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1.1rem; letter-spacing: 2px;'>"
         "**Longitude Bounds**"
         "</small>", unsafe_allow_html=True)
 
@@ -480,10 +480,10 @@ with tab1:
         with col_lon2: lon_max = st.number_input("Max", value=-50.0, step=0.25, format="%.2f", key="lon_max")
 
 
-        st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1.05rem; letter-spacing: 2px;'>"
+        st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1.1rem; letter-spacing: 2px;'>"
         ""
         "</small>", unsafe_allow_html=True)
-        st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1.05rem; letter-spacing: 2px;'>"
+        st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1.1rem; letter-spacing: 2px;'>"
         "**Target Region & Data Source Selection**"
         "</small>", unsafe_allow_html=True)
 
@@ -597,7 +597,7 @@ with tab2:
         " Recursive Feature Elimination (RFE) "
         "</h3>", unsafe_allow_html=True)
     
-    st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1.05rem; letter-spacing: 2px;'>"
+    st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1.1rem; letter-spacing: 2px;'>"
         "**Run the data preparation pipeline to rank the best ERA5 features.**"
         "</small>", unsafe_allow_html=True)
 
@@ -883,9 +883,9 @@ with tab2:
                     st.session_state['selected_features'] = selected_features
                     st.session_state['x'] = x
 
-                    #NEW
                     time.sleep(5.5)
                     
+
                     # 1. Generate the plot
                     fig_rfe = v4p.rfe_plot(rfe, x)
                     fig_rfe.patch.set_facecolor('#0b0f19') 
@@ -1023,7 +1023,7 @@ with tab4:
         map_container = st.empty() # This is the placeholder for the map
 
     with col1:
-        st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1.05rem; letter-spacing: 2px;'>"
+        st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1.1rem; letter-spacing: 2px;'>"
         "**Select an ERA5 variable to render**"
         "</small>", unsafe_allow_html=True)   
 
@@ -1099,7 +1099,7 @@ with tab4:
                     plot_placeholder.markdown(final_painted_era_html, unsafe_allow_html=True)
         
         st.markdown("</small>", unsafe_allow_html=True)
-        st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1.05rem; letter-spacing: 2px;'>"
+        st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1.1rem; letter-spacing: 2px;'>"
         "**Deploy model for GRACE comparison analysis**"
         "</small>", unsafe_allow_html=True)   
         
@@ -1257,7 +1257,7 @@ with tab5:
     #Everything under with col_input 
     with col1:
         
-        st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1rem; letter-spacing: 2px;'>"
+        st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1.1rem; letter-spacing: 2px;'>"
         "**Choose points of interest**"
         "</small>", unsafe_allow_html=True)
 

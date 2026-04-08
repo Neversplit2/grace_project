@@ -378,3 +378,12 @@ def stats_lwe(dataframe_pred, dataframe_diff):
     df_stats = df_stats.round(4)
     
     return df_stats
+
+#APP
+def get_xyz(lon, lat, radius=1.0):
+    lon_r = math.radians(lon)
+    lat_r = math.radians(lat)
+    x = radius * math.cos(lat_r) * math.cos(lon_r)
+    y = radius * math.cos(lat_r) * math.sin(lon_r)
+    z = radius * math.sin(lat_r)
+    return x, y, z
