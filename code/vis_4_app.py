@@ -316,8 +316,11 @@ def CSR_plot(model, year, month, dataset_CSR, dataset_CSR2, dataset_ERA, var_to_
         ax1.coastlines(resolution="10m")
         ax1.add_feature(cfeature.BORDERS, linestyle=":", edgecolor='gray')
         ax1.add_feature(cfeature.RIVERS, color="lightblue", alpha=0.5)
-        ax1.gridlines(draw_labels= True, linewidth=0.5, linestyle="--", alpha=0.5, color='gray')
-
+        gl1 = ax1.gridlines(draw_labels=True, linewidth=0.5, linestyle="--", alpha=0.5, color='gray')
+        gl1.top_labels = False
+        gl1.right_labels = False
+        gl1.xlabel_style = {'size': 11}  
+        gl1.ylabel_style = {'size': 11}
         # Map 2
         data_predicted.plot.pcolormesh(
             ax=ax2,
@@ -332,7 +335,11 @@ def CSR_plot(model, year, month, dataset_CSR, dataset_CSR2, dataset_ERA, var_to_
         ax2.coastlines(resolution="10m")
         ax2.add_feature(cfeature.BORDERS, linestyle=":", edgecolor='gray')
         ax2.add_feature(cfeature.RIVERS, color="lightblue", alpha=0.5)
-        ax2.gridlines(draw_labels= True, linewidth=0.5, linestyle="--", alpha=0.5, color='gray')
+        gl2 = ax2.gridlines(draw_labels=True, linewidth=0.5, linestyle="--", alpha=0.5, color='gray')
+        gl2.top_labels = False
+        gl2.right_labels = False
+        gl2.left_labels =False
+        gl2.xlabel_style = {'size': 11}  
 
         # Map 3
         dynamic_vmax = data_slice_diff.quantile(0.95).item()
@@ -351,11 +358,18 @@ def CSR_plot(model, year, month, dataset_CSR, dataset_CSR2, dataset_ERA, var_to_
             cbar_kwargs={"orientation": "horizontal", "fraction": 0.03,"pad": 0.05, "label": "LWE difference (cm)"}
             )
 
-        ax3.set_title(f"Difference between predicted and raw {basin_name}'s \n data {time_str}", fontsize=14, fontweight='bold')
+        ax3.set_title(f"Difference between predicted and raw \n GRACE's data {time_str}", fontsize=14, fontweight='bold')
         ax3.coastlines(resolution="10m", color="black", linewidth=1)
         ax3.add_feature(cfeature.BORDERS, linestyle=":", edgecolor='gray')
         ax3.add_feature(cfeature.RIVERS, color='lightblue', linewidth=0.8)
-        ax3.gridlines(draw_labels=True, linewidth=0.5, color='gray', alpha=0.5, linestyle='--')
+        gl3 = ax3.gridlines(draw_labels=True, linewidth=0.5, color='gray', alpha=0.5, linestyle='--')
+        gl3.top_labels = False
+        gl3.left_labels = False
+        gl3.right_labels = False
+        gl3.xlabel_style = {'size': 11}  
+ 
+
+        fig.subplots_adjust(wspace=0.05)
 
         return fig 
     
