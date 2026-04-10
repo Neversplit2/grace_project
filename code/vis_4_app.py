@@ -365,7 +365,7 @@ def CSR_plot(model, year, month, dataset_CSR, dataset_CSR2, dataset_ERA, var_to_
         gl3 = ax3.gridlines(draw_labels=True, linewidth=0.5, color='gray', alpha=0.5, linestyle='--')
         gl3.top_labels = False
         gl3.left_labels = False
-        gl3.right_labels = False
+        # gl3.right_labels = False
         gl3.xlabel_style = {'size': 11}  
  
 
