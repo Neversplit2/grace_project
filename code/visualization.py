@@ -343,7 +343,7 @@ def CSR_plot(model, year, month, output, dataset_CSR, dataset_CSR2, dataset_ERA,
             cbar_kwargs={"orientation": "horizontal", "fraction": 0.03,"pad": 0.05, "label": "LWE difference (cm)"}
         )
 
-        ax3.set_title(f"Difference between predicted and raw \n GRACE's data  {time_str}", fontsize=14, fontweight='bold')
+        ax3.set_title(f"Difference between predicted and raw \n GRACE's data {time_str}", fontsize=14, fontweight='bold')
         ax3.coastlines(resolution="10m", color="black", linewidth=1)
         ax3.add_feature(cfeature.BORDERS, linestyle=":", edgecolor='gray')
         ax3.add_feature(cfeature.RIVERS, color='lightblue', linewidth=0.8)
