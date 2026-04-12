@@ -904,7 +904,7 @@ with tab2:
                         
                         st.markdown(f"""
                             <div id="rfe-stabilizer-anchor">
-                                <a href="data:image/png;base64,{b64_img}" download="RFE_Plot.png" class="custom-download-icon" title="Download Plot">
+                                <a href="data:image/png;base64,{b64_img}" download="RFE_Plot.png" class="custom-download-icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                                         <polyline points="7 10 12 15 17 10"></polyline>
@@ -958,12 +958,14 @@ with tab2:
                                 }}
 
                                 /* --- NEW: Styling for the Download Icon (Dark Theme Optimized) --- */
-                                .custom-download-icon {{
+                                .custom-download-icon,
+                                .custom-download-icon:visited, 
+                                .custom-download-icon:active {{
                                     position: absolute;
                                     right: 40px; /* Decreased from 45px to move it slightly right */
                                     top: -97.5px;  /* Changed from -65px to -90px to push it much higher */
-                                    color: rgba(255, 255, 255, 0.7); 
-                                    background-color: rgba(30, 30, 30, 0.6); 
+                                    color: #00E5FF !important; 
+                                    background-color: #0E1117;
                                     border-radius: 4px;
                                     padding: 6px;
                                     display: flex;
@@ -971,12 +973,12 @@ with tab2:
                                     justify-content: center;
                                     transition: all 0.2s ease-in-out;
                                     text-decoration: none; 
-                                    box-shadow: 0px 2px 4px rgba(0,0,0,0.5);
+                                    /*box-shadow: 0px 2px 4px rgba(0,0,0,0.5);*/
                                 }}
 
                                 .custom-download-icon:hover {{
-                                    color: rgba(255, 255, 255, 1);
-                                    background-color: rgba(60, 60, 60, 0.9);
+                                    color: #00E5FF;
+                                    background-color: #0E1117;
                                     transform: scale(1.05);
                                 }}
                             </style>
@@ -985,7 +987,6 @@ with tab2:
                         # Render the native image directly
                         st.image(buf, output_format="PNG", use_container_width=True)
 
-                    #NEW2
 
                 else:
                     st.error("Merge failed. Data is empty.")
