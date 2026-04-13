@@ -885,7 +885,6 @@ with tab2:
 
                     time.sleep(5.5)
 
-                    #NEW2
                     # 1. Generate the plot
                     fig_rfe = v4p.rfe_plot(rfe, x)
                     fig_rfe.patch.set_facecolor('#0b0f19') 
@@ -904,7 +903,7 @@ with tab2:
                         
                         st.markdown(f"""
                             <div id="rfe-stabilizer-anchor">
-                                <a href="data:image/png;base64,{b64_img}" download="RFE_Plot.png" class="custom-download-icon">
+                                <a href="data:image/png;base64,{b64_img}" download="RFE_{len(selected_features)}_best_features.png" class="custom-download-icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                                         <polyline points="7 10 12 15 17 10"></polyline>
@@ -986,7 +985,6 @@ with tab2:
                         
                         # Render the native image directly
                         st.image(buf, output_format="PNG", use_container_width=True)
-
 
                 else:
                     st.error("Merge failed. Data is empty.")
@@ -1080,13 +1078,12 @@ with tab4:
 
         col_map1, col_map2, col_map3 = st.columns(3)
         with col_map1:
-
             map_year = st.number_input("Year for Map", min_value=2002, max_value=2024, value=2020)
+        
         with col_map2:
-
             map_month = st.number_input("Month for Map", min_value=1, max_value=12, value=5)
-        with col_map3:
-           
+        
+        with col_map3:   
             era_var = st.selectbox("ERA5 Variable", ["t2m", "tp", "e","pev","ssro", "sro", "evabs","swvl1", "swvl2", "swvl3", "swvl4", "lai_hv", "lai_lv"],
                                    help="Choose the hydrologic variable to plot.") 
        
@@ -1095,60 +1092,113 @@ with tab4:
             if 'ds_ERA_sliced' not in st.session_state or 'merged' not in st.session_state:
                 st.warning("⚠️ Please run 'Data Prep & RFE' in Tab 2 first to load the datasets!")
             else:
-                
                 with map_container.container():
-                    plot_placeholder = st.empty()
-                    # 1. Generate the plot
-                    era_fig = v4p.ERA_plot(st.session_state['ds_ERA_sliced'], map_year, map_month, era_var, basin_name)
-                    era_fig.patch.set_facecolor('#0b0f19')
-                    
-                    # 2. Convert the Matplotlib plot to a base64 image string
-                    buf1 = io.BytesIO()
-                    era_fig.savefig(buf1, format="png", facecolor='#0b0f19', bbox_inches='tight')
-                    buf1.seek(0)
-                    img_base64_era = base64.b64encode(buf1.read()).decode("utf-8")
+                        plot_placeholder = st.empty()
+                        
+                        # 1. Generate the plot
+                        era_fig = v4p.ERA_plot(st.session_state['ds_ERA_sliced'], map_year, map_month, era_var, basin_name)
+                        era_fig.patch.set_facecolor('#0b0f19')
+                        
+                        # 2. Convert the Matplotlib plot to a buffer
+                        buf1 = io.BytesIO()
+                        era_fig.savefig(buf1, format="png", facecolor='#0b0f19', bbox_inches='tight')
+                        buf1.seek(0)
+                        
+                        # --- Encode the buffer to base64 so the HTML button can download it ---
+                        img_base64_era = base64.b64encode(buf1.read()).decode("utf-8")
+                        buf1.seek(0) # CRITICAL: Reset the buffer back to 0 so st.image can still read it!
 
-                    # 5. Build the "Paint Roller" Reveal Animation!
-                    # Notice all the double curly braces {{ }} in the CSS!
-                    final_painted_era_html = f"""
-                    <style>
-                        @keyframes paintRoller {{
-                            0% {{
-                                /* Start fully clipped from the bottom (hidden) */
-                                -webkit-clip-path: inset(100% 0 0 0); /* inset(top, right, bottom, left) cut off 100% of ... */
-                                clip-path: inset(100% 0 0 0);
-                                
-                                /* Tiny bit of scale to add weight */
-                                transform: scaleX(0.99); 
-                                opacity: 0.8; /* Solid, not a fade */
-                            }}
-                            100% {{
-                                /* End fully revealed */
-                                -webkit-clip-path: inset(0 0 0 0);
-                                clip-path: inset(0 0 0 0);
-                                
-                                transform: scaleY(1);
-                                opacity: 1;
-                            }}
-                        }}
+                        # 3. OVERWRITE the placeholder with a container holding CSS and the native image
+                        with plot_placeholder.container():
+                            
+                            st.markdown(f"""
+                                <div id="era-stabilizer-anchor">
+                                    <a href="data:image/png;base64,{img_base64_era}" download="ERA5_{era_var}_{map_year}_{map_month}.png" class="custom-download-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="7 10 12 15 17 10"></polyline>
+                                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                                        </svg>
+                                    </a>
+                                </div>
+                                <style>
+                                    /* Keep your original bottom-up ERA animation */
+                                    @keyframes paintRollerEra {{
+                                        0% {{
+                                            -webkit-clip-path: inset(100% 0 0 0); 
+                                            clip-path: inset(100% 0 0 0);
+                                            transform: scaleX(0.99); 
+                                            opacity: 0.8;
+                                        }}
+                                        100% {{
+                                            -webkit-clip-path: inset(0 0 0 0);
+                                            clip-path: inset(0 0 0 0);
+                                            transform: scaleX(1);
+                                            opacity: 1;
+                                        }}
+                                    }}
+                                    
+                                    /* 1. THE MAGIC SPACER (Pushing the plot further down) */
+                                    div.element-container:has(#era-stabilizer-anchor) {{
+                                        margin-bottom: -20px; /* <--- Lowers the whole plot */
+                                        position: relative; 
+                                        z-index: 20; 
+                                    }}
 
-                        .my-isolated-painted-plot {{
-                            animation: paintRoller 2.5s linear forwards;
-                            width: 100%;
-                            /* Add these two lines to keep it centered after shrinking */
-                            display: block;
-                            margin: 0 auto;
-                            margin-top: -100px;
-                            border-radius: 8px;
-                            transform-origin: top; 
-                        }}
-                    </style>
-                    
-                    <img class="my-isolated-painted-plot" src="data:image/png;base64,{img_base64_era}" alt="Painted ERA5 feature Plot">
-                    """
-                    # 6. Swap!
-                    plot_placeholder.markdown(final_painted_era_html, unsafe_allow_html=True)
-        
+                                    /* 2. THE ANTI-JUMP STABILIZER */
+                                    div.element-container:has(#era-stabilizer-anchor) + div.element-container {{
+                                        overflow-anchor: none; 
+                                        min-height: 550px;     
+                                        width: 100%;
+                                    }}
+
+                                    /* 3. CENTER THE 75% IMAGE */
+                                    div.element-container:has(#era-stabilizer-anchor) + div.element-container div[data-testid="stImage"] {{
+                                        display: flex;
+                                        justify-content: center;
+                                        width: 80%;      
+                                        margin: 0 auto; 
+                                    }}
+
+                                    /* Apply animation to the native image */
+                                    div.element-container:has(#era-stabilizer-anchor) + div.element-container img {{
+                                        animation: paintRollerEra 2.5s linear forwards;
+                                        border-radius: 8px; 
+                                        transform-origin: bottom; 
+                                        width: 100%;
+                                    }}
+
+                                    /* 4. GLUE THE DOWNLOAD ICON TO THE IMAGE */
+                                    .custom-download-icon,
+                                    .custom-download-icon:visited, 
+                                    .custom-download-icon:active {{
+                                        position: absolute;
+                                        /* 100% - 75% width = 25% empty space total / 2 = 12.5% right margin. 
+                                           Plus 45px to clear the Fullscreen button! */
+                                        right: 40px; 
+                                        top: -38.5px;  /* <--- Adjusted to match the new margin-bottom */
+                                        color: #00E5FF !important; 
+                                        background-color: #0E1117;
+                                        border-radius: 4px;
+                                        padding: 6px;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        transition: all 0.2s ease-in-out;
+                                        text-decoration: none; 
+                                    }}
+
+                                    .custom-download-icon:hover {{
+                                        color: #00E5FF !important;
+                                        background-color: #0E1117;
+                                        transform: scale(1.05);
+                                    }}
+                                </style>
+                            """, unsafe_allow_html=True)
+                            
+                            # Render the native image directly to get the Fullscreen button!
+                            st.image(buf1, output_format="PNG", use_container_width=True)
+              
         st.markdown("</small>", unsafe_allow_html=True)
         st.markdown("<small style = 'text-align: center; color: #FF00FF; font-size: 1.1rem; letter-spacing: 2px;'>"
         "**Deploy model for GRACE comparison analysis**"
@@ -1241,51 +1291,110 @@ with tab4:
                             csr_fig.patch.set_facecolor('#0b0f19')
                             
                             # 4. Convert to Base64 (same logic)
-                          
                             buf = io.BytesIO()
                             csr_fig.savefig(buf, format="png", facecolor='#0b0f19', bbox_inches='tight')
                             buf.seek(0)
                             img_base64_csr = base64.b64encode(buf.read()).decode("utf-8")
                             
-                            # 5. Build the "Paint Roller" Reveal Animation!
-                            # Notice all the double curly braces {{ }} in the CSS!
-                            final_painted_plot_html = f"""
-                            <style>
-                                @keyframes paintRoller {{
-                                    0% {{
-                                        /* Start fully clipped from the bottom (hidden) */
-                                        -webkit-clip-path: inset(0 100% 0 0); /* inset(top, right, bottom, left) cut off 100% of ... */
-                                        clip-path: inset(0 100% 0 0);
-                                        
-                                        /* Tiny bit of scale to add weight */
-                                        transform: scaleX(0.99); 
-                                        opacity: 0.8; /* Solid, not a fade */
+                            # 5. Build the Anchor, Download Button, and CSS
+                            grace_html = f"""
+                                <div id="grace-stabilizer-anchor">
+                                    <a href="data:image/png;base64,{img_base64_csr}" download="GRACE_lwe_thickness_comparison_map_{map_year}_{map_month}.png" class="custom-download-icon-grace">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="7 10 12 15 17 10"></polyline>
+                                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                                        </svg>
+                                    </a>
+                                </div>
+                                <style>
+                                    /* Left-to-Right GRACE animation */
+                                    @keyframes paintRollerGrace {{
+                                        0% {{
+                                            -webkit-clip-path: inset(0 100% 0 0); 
+                                            clip-path: inset(0 100% 0 0);
+                                            transform: scaleX(0.99); 
+                                            opacity: 0.8;
+                                        }}
+                                        100% {{
+                                            -webkit-clip-path: inset(0 0 0 0);
+                                            clip-path: inset(0 0 0 0);
+                                            transform: scaleX(1);
+                                            opacity: 1;
+                                        }}
                                     }}
-                                    100% {{
-                                        /* End fully revealed */
-                                        -webkit-clip-path: inset(0 0 0 0);
-                                        clip-path: inset(0 0 0 0);
-                                        
-                                        transform: scaleY(1);
-                                        opacity: 1;
+                                    
+                                    /* 1. THE MAGIC SPACER */
+                                    div.element-container:has(#grace-stabilizer-anchor) {{
+                                        margin-bottom: -20px; 
+                                        position: relative; 
+                                        z-index: 20; 
                                     }}
-                                }}
 
-                                .my-isolated-painted-plot {{
-                                    animation: paintRoller 2.5s linear forwards;
-                                    width: 100%;
-                                    margin-top: +80px;
-                                    border-radius: 8px;
-                                    transform-origin: top; 
-                                }}
-                            </style>
-                            
-                            <img class="my-isolated-painted-plot" src="data:image/png;base64,{img_base64_csr}" alt="Painted GRACE Comparison Plot">
+                                    /* 2. THE ANTI-JUMP STABILIZER */
+                                    div.element-container:has(#grace-stabilizer-anchor) + div.element-container {{
+                                        overflow-anchor: none; 
+                                        min-height: 550px;     
+                                        width: 100%;
+                                    }}
+
+                                    /* 3. CENTER THE 75% IMAGE */
+                                    div.element-container:has(#grace-stabilizer-anchor) + div.element-container div[data-testid="stImage"] {{
+                                        display: flex;
+                                        justify-content: center;
+                                        width: 100%;      
+                                        margin: 0 auto; 
+                                        margin-top: 70px;
+                                    }}
+
+                                    /* Apply animation to the native image */
+                                    div.element-container:has(#grace-stabilizer-anchor) + div.element-container img {{
+                                        animation: paintRollerGrace 2.5s linear forwards;
+                                        border-radius: 8px; 
+                                        transform-origin: left; /* Anchored left for L-to-R reveal */
+                                        width: 100%;
+                                    }}
+
+                                    /* 4. GLUE THE DOWNLOAD ICON TO THE IMAGE */
+                                    .custom-download-icon-grace,
+                                    .custom-download-icon-grace:visited, 
+                                    .custom-download-icon-grace:active {{
+                                        position: absolute;
+                                        right: calc(12.5% + 45px); 
+                                        top: -45px;  
+                                        color: #00E5FF !important; 
+                                        background-color: #0E1117;
+                                        border-radius: 4px;
+                                        padding: 6px;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        transition: all 0.2s ease-in-out;
+                                        text-decoration: none; 
+                                    }}
+
+                                    .custom-download-icon-grace:hover {{
+                                        color: #00E5FF !important;
+                                        background-color: #0E1117;
+                                        transform: scale(1.05);
+                                    }}
+                                    
+                                    div.element-container:has(#grace-stabilizer-anchor) + div.element-container div[data-testid="stImage"] button {{
+                                        top: 125px !important; /* <--- This forces it down from the top of the image container */
+                                        right: 10px !important; /* Adjust if it's too far right */
+                                        position: absolute !important;
+                                        z-index: 1000 !important;
+                                    }}
+                                </style>
                             """
                             
-                            # 6. Swap!
-                            plot_placeholder.markdown(final_painted_plot_html, unsafe_allow_html=True)
-                            
+                            # 6. Render HTML, then immediately render Native Image
+                            # Using plot_placeholder.container() allows us to stack the Markdown AND the Image safely
+                            plot_placeholder.empty() # Clear the loading spinner
+                            with plot_placeholder.container():
+                                st.markdown(grace_html, unsafe_allow_html=True)
+                                st.image(buf, output_format="PNG", use_container_width=True)
+                           
 with tab5:
     st.markdown("<h3 style = 'color: #00E5FF; font-family: monospace;  letter-spacing: 2px;'>"
         "Perform statistical Analysis"
