@@ -1297,96 +1297,75 @@ with tab4:
                             img_base64_csr = base64.b64encode(buf.read()).decode("utf-8")
                             
                             # 5. Build the Anchor, Download Button, and CSS
+                           
+                            # KEEP THIS ALIGNED TO THE LEFT TO AVOID THE "TEXT ON SCREEN" BUG
                             grace_html = f"""
-                                <div id="grace-stabilizer-anchor">
-                                    <a href="data:image/png;base64,{img_base64_csr}" download="GRACE_lwe_thickness_comparison_map_{map_year}_{map_month}.png" class="custom-download-icon-grace">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                            <polyline points="7 10 12 15 17 10"></polyline>
-                                            <line x1="12" y1="15" x2="12" y2="3"></line>
-                                        </svg>
-                                    </a>
-                                </div>
-                                <style>
-                                    /* Left-to-Right GRACE animation */
-                                    @keyframes paintRollerGrace {{
-                                        0% {{
-                                            -webkit-clip-path: inset(0 100% 0 0); 
-                                            clip-path: inset(0 100% 0 0);
-                                            transform: scaleX(0.99); 
-                                            opacity: 0.8;
-                                        }}
-                                        100% {{
-                                            -webkit-clip-path: inset(0 0 0 0);
-                                            clip-path: inset(0 0 0 0);
-                                            transform: scaleX(1);
-                                            opacity: 1;
-                                        }}
-                                    }}
-                                    
-                                    /* 1. THE MAGIC SPACER */
-                                    div.element-container:has(#grace-stabilizer-anchor) {{
-                                        margin-bottom: -20px; 
-                                        position: relative; 
-                                        z-index: 20; 
-                                    }}
+                            <div id="grace-stabilizer-anchor">
+                                <a href="data:image/png;base64,{img_base64_csr}" download="GRACE_lwe_thickness_comparison_map_{map_year}_{map_month}.png" class="custom-download-icon-grace">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="7 10 12 15 17 10"></polyline>
+                                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                                    </svg>
+                                </a>
+                            </div>
+                            <style>
+                                @keyframes paintRollerGrace {{
+                                    0% {{ -webkit-clip-path: inset(0 100% 0 0); clip-path: inset(0 100% 0 0); transform: scaleX(0.99); opacity: 0.8; }}
+                                    100% {{ -webkit-clip-path: inset(0 0 0 0); clip-path: inset(0 0 0 0); transform: scaleX(1); opacity: 1; }}
+                                }}
 
-                                    /* 2. THE ANTI-JUMP STABILIZER */
-                                    div.element-container:has(#grace-stabilizer-anchor) + div.element-container {{
-                                        overflow-anchor: none; 
-                                        min-height: 550px;     
-                                        width: 100%;
-                                    }}
+                                /* 1. THE MAGIC SPACER */
+                                div.element-container:has(#grace-stabilizer-anchor) {{
+                                    margin-bottom: -20px; 
+                                    position: relative; 
+                                    z-index: 20; 
+                                }}
 
-                                    /* 3. CENTER THE 75% IMAGE */
-                                    div.element-container:has(#grace-stabilizer-anchor) + div.element-container div[data-testid="stImage"] {{
-                                        display: flex;
-                                        justify-content: center;
-                                        width: 100%;      
-                                        margin: 0 auto; 
-                                        margin-top: 70px;
-                                    }}
+                                /* 2. THE ANTI-JUMP STABILIZER */
+                                div.element-container:has(#grace-stabilizer-anchor) + div.element-container {{
+                                    overflow-anchor: none; 
+                                    min-height: 550px;     
+                                    width: 100%;
+                                }}
 
-                                    /* Apply animation to the native image */
-                                    div.element-container:has(#grace-stabilizer-anchor) + div.element-container img {{
-                                        animation: paintRollerGrace 2.5s linear forwards;
-                                        border-radius: 8px; 
-                                        transform-origin: left; /* Anchored left for L-to-R reveal */
-                                        width: 100%;
-                                    }}
+                                /* 3. CENTER THE IMAGE AND PUSH IT DOWN */
+                                div.element-container:has(#grace-stabilizer-anchor) + div.element-container div[data-testid="stImage"] {{
+                                    display: flex;
+                                    justify-content: center;
+                                    width: 100%;      
+                                    margin: 0 auto; 
+                                    margin-top: 70px; /* This creates the gap where the icons live */
+                                }}
 
-                                    /* 4. GLUE THE DOWNLOAD ICON TO THE IMAGE */
-                                    .custom-download-icon-grace,
-                                    .custom-download-icon-grace:visited, 
-                                    .custom-download-icon-grace:active {{
-                                        position: absolute;
-                                        right: calc(12.5% + 45px); 
-                                        top: -45px;  
-                                        color: #00E5FF !important; 
-                                        background-color: #0E1117;
-                                        border-radius: 4px;
-                                        padding: 6px;
-                                        display: flex;
-                                        align-items: center;
-                                        justify-content: center;
-                                        transition: all 0.2s ease-in-out;
-                                        text-decoration: none; 
-                                    }}
+                                div.element-container:has(#grace-stabilizer-anchor) + div.element-container img {{
+                                    animation: paintRollerGrace 2.5s linear forwards;
+                                    border-radius: 8px; 
+                                    transform-origin: left; 
+                                    width: 100%;
+                                }}
 
-                                    .custom-download-icon-grace:hover {{
-                                        color: #00E5FF !important;
-                                        background-color: #0E1117;
-                                        transform: scale(1.05);
-                                    }}
-                                    
-                                    div.element-container:has(#grace-stabilizer-anchor) + div.element-container div[data-testid="stImage"] button {{
-                                        top: 125px !important; /* <--- This forces it down from the top of the image container */
-                                        right: 10px !important; /* Adjust if it's too far right */
-                                        position: absolute !important;
-                                        z-index: 1000 !important;
-                                    }}
-                                </style>
+                                /* 4. POSITION THE CYAN DOWNLOAD ICON */
+                                .custom-download-icon-grace {{
+                                    position: absolute;
+                                    right: 45px; /* Adjust this to move it left/right */
+                                    top: 20px;   /* Pulls it into the 70px gap we made above */
+                                    color: #00E5FF !important; 
+                                    background-color: #0E1117;
+                                    border-radius: 4px;
+                                    padding: 6px;
+                                    display: flex;
+                                    z-index: 100;
+                                    text-decoration: none; 
+                                }}
+
+                                div.element-container:has(#grace-stabilizer-anchor) + div.element-container button {{
+                                transform: translate(-10px, 58px) !important;
+                                }}
+
+                            </style>
                             """
+
                             
                             # 6. Render HTML, then immediately render Native Image
                             # Using plot_placeholder.container() allows us to stack the Markdown AND the Image safely
