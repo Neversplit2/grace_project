@@ -1243,14 +1243,14 @@ with tab4:
                                 .grace-skeleton-loader {
                                     position: relative; /* Required to keep the scanner line inside */
                                     width: 100%;
-                                    height: 250px; 
+                                    height: 300px; 
                                     display: flex;
                                     align-items: center;
                                     justify-content: center;
                                     margin: 0 auto;
                                     background-color: #0b0f19; /* Matched to your Streamlit theme */
                                     border: 1px solid rgba(0, 229, 255, 0.4); /* Solid neon line instead of dashed */
-                                    margin-top: +80px;
+                                    margin-top: +20px;
                                     border-radius: 8px;
                                     color: #00E5FF;
                                     font-family: monospace;
@@ -1335,7 +1335,7 @@ with tab4:
                                     justify-content: center;
                                     width: 100%;      
                                     margin: 0 auto; 
-                                    margin-top: 70px; /* This creates the gap where the icons live */
+                                    margin-top: 30px; /* This creates the gap where the icons live */
                                 }}
 
                                 div.element-container:has(#grace-stabilizer-anchor) + div.element-container img {{
@@ -1343,13 +1343,15 @@ with tab4:
                                     border-radius: 8px; 
                                     transform-origin: left; 
                                     width: 100%;
+                                    height: 280px;     /* <--- ADDED THIS: Forces the vertical height */
+                                    object-fit: fill;   /* <--- ADDED THIS: Allows it to stretch vertically */
                                 }}
 
                                 /* 4. POSITION THE CYAN DOWNLOAD ICON */
                                 .custom-download-icon-grace {{
                                     position: absolute;
-                                    right: 45px; /* Adjust this to move it left/right */
-                                    top: 20px;   /* Pulls it into the 70px gap we made above */
+                                    right: 33px; /* Adjust this to move it left/right */
+                                    top: -38px;   /* Pulls it into the 70px gap we made above */
                                     color: #00E5FF !important; 
                                     background-color: #0E1117;
                                     border-radius: 4px;
@@ -1359,14 +1361,13 @@ with tab4:
                                     text-decoration: none; 
                                 }}
 
-                                div.element-container:has(#grace-stabilizer-anchor) + div.element-container button {{
-                                transform: translate(-10px, 58px) !important;
-                                }}
+                                /*div.element-container:has(#grace-stabilizer-anchor) + div.element-container button {{ */
+                                /*transform: translate(-10px, 58px) !important;*/        
+                                /*}}*/
 
                             </style>
                             """
 
-                            
                             # 6. Render HTML, then immediately render Native Image
                             # Using plot_placeholder.container() allows us to stack the Markdown AND the Image safely
                             plot_placeholder.empty() # Clear the loading spinner
@@ -1598,8 +1599,10 @@ with tab5:
                         .my-isolated-painted-plot {{
                             animation: paintRoller 2.5s linear forwards;
                             width: 100%;
+                            height: 470px;         /* <--- ADDED THIS: Forces the plot to be shorter */
+                            object-fit: fill;
                             border-radius: 8px;
-                            margin-top: -100px;
+                            margin-top: 0px;
                             transform-origin: top; 
                         }}
                     </style>
