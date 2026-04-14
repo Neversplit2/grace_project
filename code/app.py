@@ -1555,7 +1555,7 @@ with tab5:
        
         if feat_im_btn:
             map_container = st.empty()
-            #NA to dw me natasa
+            
             X_train, X_test, y_train, y_test = tr.data_4_train(selected_features= st.session_state['selected_features'] , x= st.session_state['x'],
                                                                dataset= st.session_state['merged'])
             with map_container.container():
@@ -1564,51 +1564,110 @@ with tab5:
                     #model, #x_train
                     feature_pie = v4p.feature_importance_pie2(model=st.session_state["global_model"], X_train= X_train)
                     feature_pie.patch.set_facecolor('#0b0f19')
-
+                    
                     # 2. Convert the Matplotlib plot to a base64 image string
                     buf_fi = io.BytesIO()
                     feature_pie.savefig(buf_fi, format="png", transparent=True, bbox_inches='tight')
+                    
                     buf_fi.seek(0)
                     img_base_fi = base64.b64encode(buf_fi.read()).decode("utf-8")
 
                     # 5. Build the "Paint Roller" Reveal Animation!
                     # Notice all the double curly braces {{ }} in the CSS!
-                             
-                    final_painted_plot_fi = f"""
-                    <style>
-                        @keyframes paintRoller {{
+                    final_painted_plot_fi = f"""  
+                        <div id="fi-stabilizer-anchor">
+                            <a href="data:image/png;base64,{img_base_fi}" 
+                            download="Feature_Importance_plot.png" 
+                            class="fi-download-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" 
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                            </a>
+                        </div>
+
+                        <style>
+                        @keyframes paintRollerFI {{
                             0% {{
-                                /* Start fully clipped from the bottom (hidden) */
-                                -webkit-clip-path: inset(0 100% 0 0); /* inset(top, right, bottom, left) cut off 100% of ... */
+                                -webkit-clip-path: inset(0 100% 0 0);
                                 clip-path: inset(0 100% 0 0);
-                                
-                                /* Tiny bit of scale to add weight */
-                                transform: scaleX(0.99); 
-                                opacity: 0.8; /* Solid, not a fade */
+                                transform: scaleX(0.99);
+                                opacity: 0.8;
                             }}
                             100% {{
-                                /* End fully revealed */
                                 -webkit-clip-path: inset(0 0 0 0);
                                 clip-path: inset(0 0 0 0);
-                                
-                                transform: scaleY(1);
+                                transform: scaleX(1);
                                 opacity: 1;
                             }}
                         }}
 
-                        .my-isolated-painted-plot {{
-                            animation: paintRoller 2.5s linear forwards;
-                            width: 100%;
-                            height: 470px;         /* <--- ADDED THIS: Forces the plot to be shorter */
-                            object-fit: fill;
-                            border-radius: 8px;
-                            margin-top: 0px;
-                            transform-origin: top; 
+                        /* 1. Spacer */
+                        div.element-container:has(#fi-stabilizer-anchor) {{
+                            margin-bottom: -20px;
+                            position: relative;
+                            z-index: 20;
                         }}
-                    </style>
-                    
-                    <img class="my-isolated-painted-plot" src="data:image/png;base64,{img_base_fi}" alt="Painted Feature Importance Pie">
-                    """
-                    
-                    # 6. Swap!
-                    plot_placeholder.markdown(final_painted_plot_fi, unsafe_allow_html=True)
+
+                        /* 2. Stabilizer */
+                        div.element-container:has(#fi-stabilizer-anchor) + div.element-container {{
+                            overflow-anchor: none;
+                            min-height: 500px;
+                        }}
+
+                        /* 3. Center image and Push it down to make room for icons */
+                        div.element-container:has(#fi-stabilizer-anchor) + div.element-container div[data-testid="stImage"] {{
+                            display: flex;
+                            justify-content: center;
+                            margin-top: 50px; /* This creates the gap where the icons live */
+                        }}
+
+                        div.element-container:has(#fi-stabilizer-anchor) + div.element-container img {{
+                            display: block;
+                            margin: 0 auto;
+                            width: 100%;
+
+                            margin-top: -70px;
+                            height: 470px;         /* Forces the plot to be shorter */
+                            object-fit: contain;
+                            animation: paintRollerFI 2.5s linear forwards;
+                            border-radius: 8px;
+                        }}
+
+                        /* 4. Custom Download Button Positioning */
+                        .fi-download-icon {{
+                            position: absolute;
+                            right: 31px; /* Moved further left to make room for the fullscreen button */
+                            top: -37.5px;
+                            color: #00E5FF !important;
+                            background-color: #0E1117;
+                            border-radius: 4px;
+                            padding: 6px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            z-index: 100;
+                            transition: all 0.2s ease-in-out;
+                            text-decoration: none;
+                        }}
+
+                        .fi-download-icon:hover {{
+                            transform: scale(1.05);
+                        }}
+
+                        /* 5. FORCE THE NATIVE FULLSCREEN BUTTON INTO POSITION */
+                        div.element-container:has(#fi-stabilizer-anchor) + div.element-container button[title="View fullscreen"], 
+                        div.element-container:has(#fi-stabilizer-anchor) + div.element-container [data-testid="StyledFullScreenButton"] {{
+                            transform: translate(-10px, 55px) !important; /* Moves it down into the gap */
+                            z-index: 9999 !important;
+                            opacity: 1 !important; /* Makes it always visible if you prefer */
+                        }}
+
+                        </style>
+                        """
+                    with plot_placeholder.container():
+                            st.markdown(final_painted_plot_fi, unsafe_allow_html=True)
+                            st.image(buf_fi, output_format="PNG", use_container_width=True)
