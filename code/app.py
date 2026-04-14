@@ -1521,37 +1521,105 @@ with tab5:
                     fig_stats.savefig(buf_sts, format="png", transparent=True, bbox_inches='tight')
                     buf_sts.seek(0)
                     img_base_sts = base64.b64encode(buf_sts.read()).decode("utf-8")
+              
+                    final_painted_plot_sts = f"""  
+                        <div id="sts-stabilizer-anchor">
+                            <a href="data:image/png;base64,{img_base_sts}" 
+                            download="Correlation_R_comparison_plot.png" 
+                            class="sts-download-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" 
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                            </a>
+                        </div>
 
-                    final_painted_plot_sts = f"""
-                    <style>
-                        @keyframes paintRoller {{
+                        <style>
+                        @keyframes paintRollerSTS {{
                             0% {{
                                 -webkit-clip-path: inset(0 100% 0 0);
                                 clip-path: inset(0 100% 0 0);
-                                transform: scaleX(0.99); 
+                                transform: scaleX(0.99);
                                 opacity: 0.8;
                             }}
                             100% {{
                                 -webkit-clip-path: inset(0 0 0 0);
                                 clip-path: inset(0 0 0 0);
-                                transform: scaleY(1);
+                                transform: scaleY(1); /* Left as scaleY(1) to keep your diagonal wipe effect */
                                 opacity: 1;
                             }}
                         }}
 
-                        .my-isolated-painted-plot {{
-                            animation: paintRoller 2.5s linear forwards;
-                            width: 100%;
-                            border-radius: 8px;
-                            margin-top: -50px;
-                            transform-origin: top; 
+                        /* 1. Spacer */
+                        div.element-container:has(#sts-stabilizer-anchor) {{
+                            margin-bottom: -20px;
+                            position: relative;
+                            z-index: 20;
                         }}
-                    </style>
-                    <img class="my-isolated-painted-plot" src="data:image/png;base64,{img_base_sts}" alt="Painted Feature Importance Pie">
-                    """
-                    
-                    # 5. Swap out the placeholder!
-                    plot_placeholder.markdown(final_painted_plot_sts, unsafe_allow_html=True)
+
+                        /* 2. Stabilizer */
+                        div.element-container:has(#sts-stabilizer-anchor) + div.element-container {{
+                            overflow-anchor: none;
+                            min-height: 500px;
+                        }}
+
+                        /* 3. Center image and Push it down to make room for icons */
+                        div.element-container:has(#sts-stabilizer-anchor) + div.element-container div[data-testid="stImage"] {{
+                            display: flex;
+                            justify-content: center;
+                            margin-top: 50px; 
+                        }}
+
+                        div.element-container:has(#sts-stabilizer-anchor) + div.element-container img {{
+                            display: block;
+                            margin: 0 auto;
+                            width: 100%;
+                            margin-top: -70px;
+                            height: 470px;        
+                            object-fit: contain;
+                            animation: paintRollerSTS 2.5s linear forwards;
+                            border-radius: 8px;
+                            transform-origin: top;
+                        }}
+
+                        /* 4. Custom Download Button Positioning */
+                        .sts-download-icon {{
+                            position: absolute;
+                            right: 31px; 
+                            top: -37.5px;
+                            color: #00E5FF !important;
+                            background-color: #0E1117;
+                            border-radius: 4px;
+                            padding: 6px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            z-index: 100;
+                            transition: all 0.2s ease-in-out;
+                            text-decoration: none;
+                        }}
+
+                        .sts-download-icon:hover {{
+                            transform: scale(1.05);
+                        }}
+
+                        /* 5. FORCE THE NATIVE FULLSCREEN BUTTON INTO POSITION */
+                        div.element-container:has(#sts-stabilizer-anchor) + div.element-container button[title="View fullscreen"], 
+                        div.element-container:has(#sts-stabilizer-anchor) + div.element-container [data-testid="StyledFullScreenButton"] {{
+                            transform: translate(-10px, 55px) !important; 
+                            z-index: 9999 !important;
+                            opacity: 1 !important; 
+                        }}
+                        </style>
+                        """
+                        
+                        # Render using the new container + st.image logic
+                    with plot_placeholder.container():
+                        st.markdown(final_painted_plot_sts, unsafe_allow_html=True)
+                        st.image(buf_sts, output_format="PNG", use_container_width=True)
        
         if feat_im_btn:
             map_container = st.empty()
