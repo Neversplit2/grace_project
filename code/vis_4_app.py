@@ -297,79 +297,81 @@ def CSR_plot(model, year, month, dataset_CSR, dataset_CSR2, dataset_ERA, var_to_
         # 5. Create the new colormap from the high-res array
         boosted_rdbu = mcolors.LinearSegmentedColormap.from_list("boosted_rdbu", all_colors)
 
-        fig, (ax1, ax2, ax3) = plt.subplots(
-            1, 3, figsize=(20, 8),
-            subplot_kw={"projection": ccrs.PlateCarree()}
-        )
-
-        # Map 1
-        data_actual.plot.pcolormesh(
-            ax=ax1,
-            transform=ccrs.PlateCarree(),
-            cmap= boosted_rdbu,
-            vmin=vmin,           
-            vmax=vmax,
-            extend="both",
-            cbar_kwargs={"label": "LWE (cm)", "orientation": "horizontal", "pad": 0.05, "fraction": 0.03, "spacing": "proportional"},
-        )
-        ax1.set_title(f"{basin_name} Observed LWE\n{time_str}", fontsize=14, fontweight="bold")
-        ax1.coastlines(resolution="10m")
-        ax1.add_feature(cfeature.BORDERS, linestyle=":", edgecolor='gray')
-        ax1.add_feature(cfeature.RIVERS, color="lightblue", alpha=0.5)
-        gl1 = ax1.gridlines(draw_labels=True, linewidth=0.5, linestyle="--", alpha=0.5, color='gray')
-        gl1.top_labels = False
-        gl1.right_labels = False
-        gl1.xlabel_style = {'size': 11}  
-        gl1.ylabel_style = {'size': 11}
-        # Map 2
-        data_predicted.plot.pcolormesh(
-            ax=ax2,
-            transform=ccrs.PlateCarree(),
-            cmap= boosted_rdbu,
-            vmin=vmin,           
-            vmax=vmax,
-            extend="both",
-            cbar_kwargs={"label": "Predicted LWE (cm)", "orientation": "horizontal", "pad": 0.05, "fraction": 0.03, "spacing": "proportional"},
-        )
-        ax2.set_title(f"{basin_name} Predicted LWE\n {time_str}", fontsize=14, fontweight="bold")
-        ax2.coastlines(resolution="10m")
-        ax2.add_feature(cfeature.BORDERS, linestyle=":", edgecolor='gray')
-        ax2.add_feature(cfeature.RIVERS, color="lightblue", alpha=0.5)
-        gl2 = ax2.gridlines(draw_labels=True, linewidth=0.5, linestyle="--", alpha=0.5, color='gray')
-        gl2.top_labels = False
-        gl2.right_labels = False
-        gl2.left_labels =False
-        gl2.xlabel_style = {'size': 11}  
-
-        # Map 3
-        dynamic_vmax = data_slice_diff.quantile(0.95).item()
-        
-        # 2. Add a safety floor so tiny errors don't stretch the map to look extremely red
-        dynamic_vmax = max(dynamic_vmax, 7.0)
-
-        # Note: data_slice is now an Xarray DataArray, so .plot works!
-        plot = data_slice_diff.plot.pcolormesh(
-            ax=ax3,
-            transform=ccrs.PlateCarree(),
-            cmap="Reds",     
-            robust=True,
-            vmin=0 ,
-            vmax=dynamic_vmax,    
-            cbar_kwargs={"orientation": "horizontal", "fraction": 0.03,"pad": 0.05, "label": "LWE difference (cm)"}
+        with plt.style.context('dark_background'):
+            fig, (ax1, ax2, ax3) = plt.subplots(
+                1, 3, figsize=(20, 8),
+                subplot_kw={"projection": ccrs.PlateCarree()},
+                facecolor="#0E1117"  # Match Streamlit's background perfectly
             )
 
-        ax3.set_title(f"Difference between predicted and raw \n GRACE's data {time_str}", fontsize=14, fontweight='bold')
-        ax3.coastlines(resolution="10m", color="black", linewidth=1)
-        ax3.add_feature(cfeature.BORDERS, linestyle=":", edgecolor='gray')
-        ax3.add_feature(cfeature.RIVERS, color='lightblue', linewidth=0.8)
-        gl3 = ax3.gridlines(draw_labels=True, linewidth=0.5, color='gray', alpha=0.5, linestyle='--')
-        gl3.top_labels = False
-        gl3.left_labels = False
-        # gl3.right_labels = False
-        gl3.xlabel_style = {'size': 11}  
- 
+            # Map 1
+            data_actual.plot.pcolormesh(
+                ax=ax1,
+                transform=ccrs.PlateCarree(),
+                cmap= boosted_rdbu,
+                vmin=vmin,           
+                vmax=vmax,
+                extend="both",
+                cbar_kwargs={"label": "LWE (cm)", "orientation": "horizontal", "pad": 0.05, "fraction": 0.03, "spacing": "proportional"},
+            )
+            ax1.set_title(f"{basin_name} Observed LWE\n{time_str}", fontsize=14, fontweight="bold")
+            ax1.coastlines(resolution="10m")
+            ax1.add_feature(cfeature.BORDERS, linestyle=":", edgecolor='gray')
+            ax1.add_feature(cfeature.RIVERS, color="lightblue", alpha=0.5)
+            gl1 = ax1.gridlines(draw_labels=True, linewidth=0.5, linestyle="--", alpha=0.5, color='gray')
+            gl1.top_labels = False
+            gl1.right_labels = False
+            gl1.xlabel_style = {'size': 11, 'color': 'white'}  
+            gl1.ylabel_style = {'size': 11,  'color': 'white'}
+            # Map 2
+            data_predicted.plot.pcolormesh(
+                ax=ax2,
+                transform=ccrs.PlateCarree(),
+                cmap= boosted_rdbu,
+                vmin=vmin,           
+                vmax=vmax,
+                extend="both",
+                cbar_kwargs={"label": "Predicted LWE (cm)", "orientation": "horizontal", "pad": 0.05, "fraction": 0.03, "spacing": "proportional"},
+            )
+            ax2.set_title(f"{basin_name} Predicted LWE\n {time_str}", fontsize=14, fontweight="bold")
+            ax2.coastlines(resolution="10m")
+            ax2.add_feature(cfeature.BORDERS, linestyle=":", edgecolor='gray')
+            ax2.add_feature(cfeature.RIVERS, color="lightblue", alpha=0.5)
+            gl2 = ax2.gridlines(draw_labels=True, linewidth=0.5, linestyle="--", alpha=0.5, color='gray')
+            gl2.top_labels = False
+            gl2.right_labels = False
+            gl2.left_labels =False
+            gl2.xlabel_style = {'size': 11, 'color': 'white'}  
 
-        fig.subplots_adjust(wspace=0.05)
+            # Map 3
+            dynamic_vmax = data_slice_diff.quantile(0.95).item()
+            
+            # 2. Add a safety floor so tiny errors don't stretch the map to look extremely red
+            dynamic_vmax = max(dynamic_vmax, 7.0)
+
+            # Note: data_slice is now an Xarray DataArray, so .plot works!
+            plot = data_slice_diff.plot.pcolormesh(
+                ax=ax3,
+                transform=ccrs.PlateCarree(),
+                cmap="Reds",     
+                robust=True,
+                vmin=0 ,
+                vmax=dynamic_vmax,    
+                cbar_kwargs={"orientation": "horizontal", "fraction": 0.03,"pad": 0.05, "label": "LWE difference (cm)"}
+                )
+
+            ax3.set_title(f"Difference between predicted and raw \n GRACE's data {time_str}", fontsize=14, fontweight='bold')
+            ax3.coastlines(resolution="10m", color="black", linewidth=1)
+            ax3.add_feature(cfeature.BORDERS, linestyle=":", edgecolor='gray')
+            ax3.add_feature(cfeature.RIVERS, color='lightblue', linewidth=0.8)
+            gl3 = ax3.gridlines(draw_labels=True, linewidth=0.5, color='gray', alpha=0.5, linestyle='--')
+            gl3.top_labels = False
+            gl3.left_labels = False
+            # gl3.right_labels = False
+            gl3.xlabel_style = {'size': 11, 'color': 'white'}  
+    
+
+            fig.subplots_adjust(wspace=0.05)
 
         return fig 
     
