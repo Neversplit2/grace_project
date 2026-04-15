@@ -41,3 +41,5 @@ ENV/
 *.jpg
 *.pkl
 *.png
+
+results/
