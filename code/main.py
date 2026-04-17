@@ -253,5 +253,14 @@ if __name__ == "__main__":
         extension_stats = str(input(f"{Fore.CYAN}Insert .extension (eg. .jpg) {Fore.RESET}"))
     
         output_stats = vis.dynamic_t(folder_name_stats, title_stats, extension_stats)
-        vis.model_eval_plot(merged_ev_stats_cl, output_stats)
+        vis.model_eval_1(merged_ev_stats_cl, output_stats)
+
+        folder_name_stats = str(input(f"{Fore.CYAN}Insert folder name you want to save the plot {Fore.RESET}"))
+        title_stats = str(input(f"{Fore.CYAN}Insert map title  {Fore.RESET}"))
+        extension_stats = str(input(f"{Fore.CYAN}Insert .extension (eg. .jpg) {Fore.RESET}"))
+    
+        output_stats = vis.dynamic_t(folder_name_stats, title_stats, extension_stats)
+        vis.model_eval_2(merged_ev_stats_cl, output_stats)
+
+
     

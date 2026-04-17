@@ -411,6 +411,71 @@ def model_eval_plot(dataframe, output):
     print("Map")
     plt.show()
 
+def model_eval_1(dataframe, output):
+    # Create the time variable
+    plot_dates = pd.to_datetime(dataframe[['year', 'month']].assign(DAY=1))
+    
+    # Calculate correlation (needed for the title)
+    r_score, p_value = dpr.corr_pearson(dataframe)
+    
+    # Create a single plot (width 12, height 6 is usually great for time series)
+    with plt.style.context('dark_background'):
+        # Set the figure and axes background color (adjust the hex to match your app perfectly!)
+        bg_color = "#1E1E1E" # You can also use "#0E1117" for Streamlit's default dark mode
+        fig, ax = plt.subplots(figsize=(12, 8), facecolor=bg_color)
+        ax.set_facecolor(bg_color)
+    
+    # Actual -> Yellow dashed
+    ax.plot(plot_dates, dataframe["lwe_thickness"], color='#FFFF00', linestyle='--', linewidth=2, label="JPL", alpha=0.8, 
+             marker='o', markeredgewidth=2.5)
+
+    # Predicted -> Pink solid
+    ax.plot(plot_dates, dataframe["lwe_pred"], color='#FF1493', linestyle='-', linewidth=2, label="Predicted JPL", alpha=0.8, 
+             marker='x', markersize=9, markeredgewidth=2.7)      
+
+    ax.set_title(f"Actual vs Predicted LWE for \n Lat: {dataframe['lat'].iloc[0]:.2f}, Lon: {dataframe['lon'].iloc[0]:.2f} R: {r_score:.4f} ", fontsize=12, fontweight='bold')
+    ax.set_xlabel("Time")
+    ax.set_ylabel("LWE (cm)")
+    ax.legend()
+    ax.grid(True, linestyle='--', alpha=0.5)
+
+    plt.savefig(output, dpi=300, bbox_inches="tight")
+    print(f"Time series plot saved as: {output}")
+    
+    plt.show()
+
+def model_eval_2(dataframe, output):
+    # Calculate correlation (needed for the trend line label)
+    r_score, p_value = dpr.corr_pearson(dataframe)
+    
+    with plt.style.context('dark_background'):
+        # Set the figure and axes background color (adjust the hex to match your app perfectly!)
+        bg_color = "#1E1E1E" # You can also use "#0E1117" for Streamlit's default dark mode
+        fig, ax = plt.subplots(figsize=(10, 8), facecolor=bg_color)
+        ax.set_facecolor(bg_color)
+ 
+    # Scatter Points
+    ax.scatter(dataframe["lwe_thickness"], dataframe["lwe_pred"], color='#0033FF', alpha=0.9, label='Data Points', s=60)
+
+    # Best fit line
+    a, b = np.polyfit(dataframe["lwe_thickness"], dataframe["lwe_pred"], 1)
+    
+    # Line equation
+    regression_line = a * dataframe["lwe_thickness"] + b
+    
+    ax.plot(dataframe["lwe_thickness"], regression_line, color='red', linewidth=2, label=f'Trend Line (R={r_score:.2f})')
+    
+    ax.set_title(f"Correlation Analysis\nScatter Plot & Trend Line", fontsize=12, fontweight='bold')
+    ax.set_xlabel("Actual JPL Values (cm)")
+    ax.set_ylabel("Predicted Values (cm)")
+    ax.legend()
+    ax.grid(True, linestyle=':', alpha=0.5)
+
+    plt.savefig(output, dpi=300, bbox_inches="tight")
+    print(f"Scatter plot saved as: {output}")
+    
+    plt.show()
+
 #learning curves
 def XGB_learn_curve(X_train, X_test, y_train, y_test, output, train_type):
     curve_steps, train_mae_list, val_mae_list = tr.XGBoost_curves(X_train, X_test, y_train, y_test, train_type)
