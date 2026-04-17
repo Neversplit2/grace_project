@@ -1630,7 +1630,7 @@ with tab5:
                     plot_placeholder = st.empty()
                     # 1. Generate the plot
                     #model, #x_train
-                    feature_pie = v4p.feature_importance_pie2(model=st.session_state["global_model"], X_train= X_train)
+                    feature_pie = v4p.feature_importance_pie(model=st.session_state["global_model"], X_train= X_train)
                     feature_pie.patch.set_facecolor('#0b0f19')
                     
                     # 2. Convert the Matplotlib plot to a base64 image string
