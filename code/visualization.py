@@ -376,12 +376,12 @@ def model_eval_plot(dataframe, output):
  
     #Map 1
     #lwe_thickness
-    ax1.plot(plot_dates, dataframe["lwe_thickness"], color='blue', linestyle='--', linewidth=2, label="CSR", alpha=0.7, 
-             marker='o')
+    ax1.plot(plot_dates, dataframe["lwe_thickness"], color='#FFFF00', linestyle='--', linewidth=2, label="CSR", alpha=0.8, 
+             marker='o', markeredgewidth=2.5)
 
     # Predicted -> Green Solid Line
-    ax1.plot(plot_dates, dataframe["lwe_pred"], color='green', linestyle='-', linewidth=2, label="Predicted CSR", alpha=0.7, 
-             marker='x')
+    ax1.plot(plot_dates, dataframe["lwe_pred"], color='#FF1493', linestyle='-', linewidth=2, label="Predicted CSR", alpha=0.8, 
+             marker='x', markersize=9, markeredgewidth=2.7 )      
 
     ax1.set_title(f"Actual vs Predicted LWE for \n Lat: {dataframe['lat'].iloc[0]:.2f}, Lon: {dataframe['lon'].iloc[0]:.2f} R: {r_score:.4f} ", fontsize=12, fontweight='bold')
     ax1.set_xlabel("Time")
@@ -390,7 +390,7 @@ def model_eval_plot(dataframe, output):
     ax1.grid(True, linestyle='--', alpha=0.5)
 
     # Map 2
-    ax2.scatter(dataframe["lwe_thickness"], dataframe["lwe_pred"], color='purple', alpha=0.6, label='Data Points', s=50)
+    ax2.scatter(dataframe["lwe_thickness"], dataframe["lwe_pred"], color='#0033FF', alpha=0.9, label='Data Points', s=60)
 
     # best fit line
     a, b = np.polyfit(dataframe["lwe_thickness"], dataframe["lwe_pred"], 1)
