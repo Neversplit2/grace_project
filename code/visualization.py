@@ -376,11 +376,11 @@ def model_eval_plot(dataframe, output):
  
     #Map 1
     #lwe_thickness
-    ax1.plot(plot_dates, dataframe["lwe_thickness"], color='#FFFF00', linestyle='--', linewidth=2, label="CSR", alpha=0.8, 
+    ax1.plot(plot_dates, dataframe["lwe_thickness"], color='#FFFF00', linestyle='--', linewidth=2, label="Observed LWE", alpha=0.8, 
              marker='o', markeredgewidth=2.5)
 
     # Predicted -> Green Solid Line
-    ax1.plot(plot_dates, dataframe["lwe_pred"], color='#FF1493', linestyle='-', linewidth=2, label="Predicted CSR", alpha=0.8, 
+    ax1.plot(plot_dates, dataframe["lwe_pred"], color='#FF1493', linestyle='-', linewidth=2, label="Predicted LWE", alpha=0.8, 
              marker='x', markersize=9, markeredgewidth=2.7 )      
 
     ax1.set_title(f"Actual vs Predicted LWE for \n Lat: {dataframe['lat'].iloc[0]:.2f}, Lon: {dataframe['lon'].iloc[0]:.2f} R: {r_score:.4f} ", fontsize=12, fontweight='bold')
@@ -390,7 +390,7 @@ def model_eval_plot(dataframe, output):
     ax1.grid(True, linestyle='--', alpha=0.5)
 
     # Map 2
-    ax2.scatter(dataframe["lwe_thickness"], dataframe["lwe_pred"], color='#0033FF', alpha=0.9, label='Data Points', s=60)
+    ax2.scatter(dataframe["lwe_thickness"], dataframe["lwe_pred"], color='#0033FF', alpha=0.9, label='Monthly Observations', s=60)
 
     # best fit line
     a, b = np.polyfit(dataframe["lwe_thickness"], dataframe["lwe_pred"], 1)
@@ -401,8 +401,8 @@ def model_eval_plot(dataframe, output):
     
     
     ax2.set_title(f"Correlation Analysis\nScatter Plot & Trend Line", fontsize=12, fontweight='bold')
-    ax2.set_xlabel("Actual CSR Values (cm)")
-    ax2.set_ylabel("Predicted Values (cm)")
+    ax2.set_xlabel("Observed LWE (cm)", fontweight='bold')
+    ax2.set_ylabel("Predicted LWE (cm)", fontweight='bold')
     ax2.legend()
     ax2.grid(True, linestyle=':', alpha=0.5)
 
@@ -426,16 +426,16 @@ def model_eval_1(dataframe, output):
         ax.set_facecolor(bg_color)
     
     # Actual -> Yellow dashed
-    ax.plot(plot_dates, dataframe["lwe_thickness"], color='#FFFF00', linestyle='--', linewidth=2, label="JPL", alpha=0.8, 
+    ax.plot(plot_dates, dataframe["lwe_thickness"], color='#FFFF00', linestyle='--', linewidth=2, label="Observed LWE", alpha=0.8, 
              marker='o', markeredgewidth=2.5)
 
     # Predicted -> Pink solid
-    ax.plot(plot_dates, dataframe["lwe_pred"], color='#FF1493', linestyle='-', linewidth=2, label="Predicted JPL", alpha=0.8, 
+    ax.plot(plot_dates, dataframe["lwe_pred"], color='#FF1493', linestyle='-', linewidth=2, label="Predicted LWE", alpha=0.8, 
              marker='x', markersize=9, markeredgewidth=2.7)      
 
     ax.set_title(f"Actual vs Predicted LWE for \n Lat: {dataframe['lat'].iloc[0]:.2f}, Lon: {dataframe['lon'].iloc[0]:.2f} R: {r_score:.4f} ", fontsize=12, fontweight='bold')
-    ax.set_xlabel("Time")
-    ax.set_ylabel("LWE (cm)")
+    ax.set_xlabel("Time", fontweight='bold')
+    ax.set_ylabel("LWE (cm)", fontweight='bold')
     ax.legend()
     ax.grid(True, linestyle='--', alpha=0.5)
 
@@ -455,7 +455,7 @@ def model_eval_2(dataframe, output):
         ax.set_facecolor(bg_color)
  
     # Scatter Points
-    ax.scatter(dataframe["lwe_thickness"], dataframe["lwe_pred"], color='#0033FF', alpha=0.9, label='Data Points', s=60)
+    ax.scatter(dataframe["lwe_thickness"], dataframe["lwe_pred"], color='#0033FF', alpha=0.9, label='Monthly Observations', s=60)
 
     # Best fit line
     a, b = np.polyfit(dataframe["lwe_thickness"], dataframe["lwe_pred"], 1)
@@ -466,8 +466,8 @@ def model_eval_2(dataframe, output):
     ax.plot(dataframe["lwe_thickness"], regression_line, color='red', linewidth=2, label=f'Trend Line (R={r_score:.2f})')
     
     ax.set_title(f"Correlation Analysis\nScatter Plot & Trend Line", fontsize=12, fontweight='bold')
-    ax.set_xlabel("Actual JPL Values (cm)")
-    ax.set_ylabel("Predicted Values (cm)")
+    ax.set_xlabel("Observed LWE (cm)", fontweight='bold')
+    ax.set_ylabel("Predicted LWE (cm)", fontweight='bold')
     ax.legend()
     ax.grid(True, linestyle=':', alpha=0.5)
 
