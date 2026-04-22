@@ -21,7 +21,7 @@ def ERA5_data_downloader():
     file_ERA_path = cs.DATA_DIR / cs.ERA5_FILE
     # In case data not existing
     client = cdsapi.Client()
-    dataset = "reanalysis-era5-single-levels-monthly-means"
+    dataset = "reanalysis-era5-land-monthly-means"
     if file_ERA_path.exists():
         print(f"{Fore.GREEN} ERA5 data found :) {Fore.RESET}")
     else: 
