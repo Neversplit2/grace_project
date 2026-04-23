@@ -393,10 +393,17 @@ def model_eval_plot(dataframe):
     ax1.plot(plot_dates, dataframe["lwe_pred"], color='#FF1493', linestyle='-', linewidth=2, label="Predicted LWE", alpha=0.95, 
              marker='x', markersize=9, markeredgewidth=2.7 )      
 
-    ax1.set_title(f"Actual vs Predicted LWE for \n Lat: {dataframe['lat'].iloc[0]:.2f}, Lon: {dataframe['lon'].iloc[0]:.2f} R: {r_score:.4f} ", fontsize=12, fontweight='bold', fontfamily='monospace')
-    ax1.set_xlabel("Time", fontfamily='monospace', fontweight='bold')
-    ax1.set_ylabel("LWE (cm)", fontfamily='monospace', fontweight='bold')
-    ax1.legend()
+    ax1.set_title(f"Actual vs Predicted LWE for \n Lat: {dataframe['lat'].iloc[0]:.2f}, Lon: {dataframe['lon'].iloc[0]:.2f} R: {r_score:.4f} ", fontsize=12, fontfamily = 'monospace' ,fontweight='bold')
+    ax1.set_xlabel("Time", fontfamily = 'monospace', fontweight='bold', fontsize=11)
+    ax1.set_ylabel("LWE (cm)", fontfamily = 'monospace', fontweight='bold', fontsize=11)
+    
+    ax1.legend(
+    loc='upper left',    # Forces it to the top right
+    frameon=True,         # Keeps a slight frame around it
+    handletextpad=0.5,    # Space between icon and text
+    prop={'weight': 'bold'}, # Makes the legend font bold to match your axes
+    )
+    
     ax1.grid(True, linestyle='--', alpha=0.5)
 
     # Map 2
@@ -409,10 +416,15 @@ def model_eval_plot(dataframe):
     
     ax2.plot(dataframe["lwe_thickness"], regression_line, color='red', linewidth=2, label=f'Trend Line (R={r_score:.2f})')
     
-    ax2.set_title(f"Correlation Analysis\nScatter Plot & Trend Line", fontsize=12, fontweight='bold')
-    ax2.set_xlabel("Observed LWE (cm)", fontfamily='monospace', fontweight='bold')
-    ax2.set_ylabel("Predicted LWE (cm)",fontfamily='monospace', fontweight='bold')
-    ax2.legend()
+    ax2.set_title(f"Scatter Plot & Trend Line for \n Lat: {dataframe['lat'].iloc[0]:.2f}, Lon: {dataframe['lon'].iloc[0]:.2f} R: {r_score:.4f} ", fontfamily = 'monospace', fontsize=12, fontweight='bold')
+    ax2.set_xlabel("Observed LWE (cm)", fontfamily = 'monospace', fontweight='bold', fontsize=11)
+    ax2.set_ylabel("Predicted LWE (cm)", fontfamily = 'monospace', fontweight='bold', fontsize=11)
+    ax2.legend(
+    loc='upper left',    
+    frameon=True,         # Keeps a slight frame around it
+    handletextpad=0.5,    # Space between icon and text
+    prop={'weight': 'bold'}, # Makes the legend font bold to match your axes
+    )
     ax2.grid(True, linestyle=':', alpha=0.5)
 
     return fig
