@@ -1,0 +1,79 @@
+/* MAIN GLOBAL STYLES */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #0E1117;
+  color: #A0AEC0;
+  font-family: 'Courier New', monospace;
+  overflow-x: hidden;
+}
+
+/* SCROLLBAR STYLING */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0E1117;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #00E5FF;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00B8D4;
+}
+
+/* ANIMATIONS */
+@keyframes marquee {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-100%, 0);
+  }
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 5px rgba(0, 229, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(0, 229, 255, 0.3);
+  }
+}
+
+/* TEXT SELECTIONS */
+::selection {
+  background-color: #00E5FF;
+  color: #0E1117;
+}
+
+/* MAIN CONTAINER */
+main {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
