@@ -1,0 +1,219 @@
+import React, { useState } from 'react'
+import './Tab4Maps.css'
+
+export default function Tab4Maps({ sessionState, setSessionState }) {
+  const [year, setYear] = useState(2020)
+  const [month, setMonth] = useState(5)
+  const [eraVariable, setEraVariable] = useState('t2m')
+  const [modelFile, setModelFile] = useState(null)
+  const [colormap, setColormap] = useState('viridis')
+  const [mapGenerated, setMapGenerated] = useState(false)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [currentMapType, setCurrentMapType] = useState(null)
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setModelFile(file.name)
+    }
+  }
+
+  const handleGenerateERA5Map = () => {
+    setIsGenerating(true)
+    setCurrentMapType('era5')
+    
+    // Simulate map generation
+    setTimeout(() => {
+      setMapGenerated(true)
+      setIsGenerating(false)
+    }, 2000)
+  }
+
+  const handleGenerateGRACEMap = () => {
+    if (!modelFile) {
+      alert('Please upload a model file first')
+      return
+    }
+    
+    setIsGenerating(true)
+    setCurrentMapType('grace')
+    
+    // Simulate map generation
+    setTimeout(() => {
+      setMapGenerated(true)
+      setIsGenerating(false)
+    }, 2000)
+  }
+
+  const handleDownloadMap = () => {
+    const filename = currentMapType === 'era5' 
+      ? `ERA5_${eraVariable}_${year}_${month}.png`
+      : `GRACE_Comparison_${year}_${month}.png`
+    
+    // Simulate download
+    console.log(`Downloading ${filename}`)
+  }
+
+  return (
+    <div className="tab-container maps-container">
+      <h3 className="tab-title">Geospatial Rendering Engine</h3>
+
+      <div className="maps-layout">
+        {/* LEFT SIDE: CONTROLS */}
+        <div className="maps-controls-panel">
+          
+          {/* SECTION 1: ERA5 Controls */}
+          <div className="maps-section">
+            <h4 className="section-heading">Select an ERA5 variable to render</h4>
+            
+            <div className="era5-controls">
+              <div className="control-group">
+                <label htmlFor="year-input">Year for Map</label>
+                <div className="input-spinner">
+                  <button onClick={() => setYear(year - 1)}>−</button>
+                  <input 
+                    id="year-input"
+                    type="number"
+                    value={year}
+                    onChange={(e) => setYear(parseInt(e.target.value))}
+                    readOnly
+                  />
+                  <button onClick={() => setYear(year + 1)}>+</button>
+                </div>
+              </div>
+
+              <div className="control-group">
+                <label htmlFor="month-input">Month for Map</label>
+                <div className="input-spinner">
+                  <button onClick={() => setMonth(month === 1 ? 12 : month - 1)}>−</button>
+                  <input 
+                    id="month-input"
+                    type="number"
+                    value={month}
+                    onChange={(e) => setMonth(parseInt(e.target.value))}
+                    min="1"
+                    max="12"
+                    readOnly
+                  />
+                  <button onClick={() => setMonth(month === 12 ? 1 : month + 1)}>+</button>
+                </div>
+              </div>
+
+              <div className="control-group">
+                <label htmlFor="era-variable">ERA5 Variable</label>
+                <select 
+                  id="era-variable"
+                  value={eraVariable}
+                  onChange={(e) => setEraVariable(e.target.value)}
+                  className="control-select"
+                >
+                  <option value="t2m">t2m</option>
+                  <option value="tp">tp</option>
+                  <option value="u10m">u10m</option>
+                  <option value="v10m">v10m</option>
+                  <option value="sp">sp</option>
+                </select>
+              </div>
+
+              <div className="info-icon" title="Select ERA5 climate variable">ⓘ</div>
+            </div>
+
+            <button 
+              className={`primary-btn era5-btn ${isGenerating && currentMapType === 'era5' ? 'loading' : ''}`}
+              onClick={handleGenerateERA5Map}
+              disabled={isGenerating}
+            >
+              {isGenerating && currentMapType === 'era5' ? 'Generating...' : 'ERA5 Maps'}
+            </button>
+          </div>
+
+          {/* SECTION 2: GRACE Model Controls */}
+          <div className="maps-section">
+            <h4 className="section-heading">Deploy model for GRACE comparison analysis</h4>
+            
+            <div className="upload-section">
+              <label htmlFor="file-input">Upload Pre-trained Model (.pkl)</label>
+              <div className="upload-box">
+                <div className="upload-icon">☁</div>
+                <p className="upload-text">Drag and drop file here</p>
+                <p className="upload-limit">Limit 200MB per file • PKL</p>
+                <input 
+                  id="file-input"
+                  type="file"
+                  accept=".pkl"
+                  onChange={handleFileUpload}
+                  style={{ display: 'none' }}
+                />
+                <button 
+                  className="browse-btn"
+                  onClick={() => document.getElementById('file-input').click()}
+                >
+                  Browse files
+                </button>
+              </div>
+              {modelFile && (
+                <p className="file-selected">✓ {modelFile}</p>
+              )}
+            </div>
+
+            <button 
+              className={`primary-btn grace-btn ${isGenerating && currentMapType === 'grace' ? 'loading' : ''}`}
+              onClick={handleGenerateGRACEMap}
+              disabled={isGenerating}
+            >
+              {isGenerating && currentMapType === 'grace' ? 'Generating...' : 'GRACE Comparison Maps'}
+            </button>
+          </div>
+        </div>
+
+        {/* RIGHT SIDE: VISUALIZATION */}
+        <div className="maps-visualization-panel">
+          {mapGenerated ? (
+            <div className="map-display-area">
+              <div className="map-header">
+                <h4 className="map-title">
+                  {currentMapType === 'era5' 
+                    ? `ERA5 Map - ${eraVariable.toUpperCase()} (${month}/${year})`
+                    : `GRACE Comparison - ${month}/${year}`
+                  }
+                </h4>
+                <button 
+                  className="download-btn"
+                  onClick={handleDownloadMap}
+                  title="Download map as PNG"
+                >
+                  ↓
+                </button>
+              </div>
+              <div className="map-canvas">
+                <div className="map-placeholder-active">
+                  <div className="map-grid-bg"></div>
+                  <p>Interactive Map Visualization</p>
+                  <p style={{ marginTop: '10px', color: '#00E5FF', fontSize: '12px' }}>
+                    {currentMapType === 'era5' 
+                      ? `Variable: ${eraVariable} | Date: ${month}/${year}`
+                      : `GRACE Comparison Data Loaded`
+                    }
+                  </p>
+                </div>
+              </div>
+              <div className="map-info">
+                <p className="info-text">Map ready for analysis and download</p>
+              </div>
+            </div>
+          ) : (
+            <div className="map-placeholder-empty">
+              <div className="placeholder-content">
+                <p className="placeholder-icon">🗺️</p>
+                <p className="placeholder-text">No map generated yet</p>
+                <p className="placeholder-subtext">
+                  Select ERA5 variables or upload a model to render maps
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
