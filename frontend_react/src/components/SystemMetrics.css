@@ -1,0 +1,90 @@
+.system-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  margin: 0 auto 40px;
+  width: 100%;
+  max-width: 900px;
+  padding: 0 60px;
+  justify-items: center;
+}
+
+.metric-card {
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  transition: all 0.3s ease-in-out;
+  cursor: default;
+  text-align: center;
+  width: 100%;
+  max-width: 280px;
+}
+
+.metric-card:hover {
+  background-color: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.metric-label {
+  color: #A0AEC0;
+  font-size: 14px;
+  text-shadow: 0 0 10px rgba(160, 174, 192, 0.5);
+  margin-bottom: 5px;
+  letter-spacing: 1px;
+  font-family: monospace;
+  text-transform: uppercase;
+}
+
+.metric-value {
+  font-family: 'Courier New', monospace;
+  color: #00E5FF;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.metric-link {
+  display: block;
+  text-decoration: none;
+  color: #ffffff;
+  background-color: rgba(61, 213, 109, 0.2);
+  padding: 6px 12px;
+  border-radius: 0px 10px 0px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: monospace;
+  margin: 0 auto 8px;
+  transition: opacity 0.2s ease-in-out;
+  cursor: pointer;
+  max-width: fit-content;
+}
+
+.metric-link:hover {
+  opacity: 0.7;
+  background-color: rgba(61, 213, 109, 0.4);
+}
+
+.metric-info {
+  color: #ffffff;
+  background-color: rgba(61, 213, 109, 0.2);
+  padding: 4px 10px;
+  border-radius: 10px 0px 10px 0px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: monospace;
+  display: inline-block;
+  margin-top: 6px;
+}
+
+@media (max-width: 768px) {
+  .system-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-value {
+    font-size: 18px;
+  }
+}

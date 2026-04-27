@@ -1,0 +1,31 @@
+.ticker-wrapper {
+  width: 100%;
+  overflow: hidden;
+  background-color: transparent;
+  border-top: 1px solid rgba(0, 229, 255, 0.3);
+  border-bottom: 1px solid rgba(0, 229, 255, 0.3);
+  padding: 8px 0;
+  margin-bottom: 30px;
+}
+
+.ticker-text {
+  display: inline-block;
+  white-space: nowrap;
+  padding-left: 100%;
+  animation: marquee 70s linear infinite;
+  font-family: monospace;
+  color: #00E5FF;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 5px rgba(0, 229, 255, 0.5);
+}
+
+@keyframes marquee {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-100%, 0);
+  }
+}

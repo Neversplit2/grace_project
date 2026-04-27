@@ -1,0 +1,96 @@
+.header {
+  text-align: center;
+  padding: 50px 120px 30px;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.3);
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.main-title {
+  color: #00E5FF;
+  font-family: monospace;
+  letter-spacing: 2px;
+  font-size: 2.2rem;
+  margin-bottom: 25px;
+  padding: 20px 40px;
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+  animation: glow 3s ease-in-out infinite;
+  line-height: 1.4;
+  font-weight: 700;
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.05) 0%, rgba(255, 0, 255, 0.02) 100%);
+}
+
+.header-credits {
+  color: #626A7F;
+  font-family: monospace;
+  font-size: 13px;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.credit-item {
+  display: inline-block;
+  margin: 0 10px;
+}
+
+/* CYBER TOOLTIP STYLING */
+.cyber-tooltip {
+  position: relative;
+  display: inline-block;
+  color: #A0AEC0;
+  cursor: crosshair;
+  border-bottom: 1px dotted #00E5FF;
+  transition: color 0.2s ease-in-out;
+}
+
+.cyber-tooltip:hover {
+  color: #00E5FF;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: 260px;
+  background-color: #0E1117;
+  color: #A0AEC0;
+  text-align: left;
+  border: 1px solid #00E5FF;
+  border-radius: 0px 10px 0px 10px;
+  padding: 12px;
+  position: absolute;
+  z-index: 999;
+  top: 150%;
+  left: 50%;
+  margin-left: -130px;
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+  transform: translateY(10px);
+  font-family: monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: normal;
+}
+
+.cyber-tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0px);
+}
+
+.credential {
+  color: #00E5FF;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .main-title {
+    font-size: 1.8rem;
+  }
+
+  .header-credits {
+    font-size: 12px;
+  }
+}
