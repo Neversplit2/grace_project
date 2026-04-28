@@ -1,0 +1,394 @@
+import React, { useState } from 'react'
+import './Tab5Analysis.css'
+
+export default function Tab5Analysis({ sessionState, setSessionState }) {
+  // Get bounds from Tab 1
+  const rawLatMin = sessionState?.lat_min || -17.0
+  const rawLatMax = sessionState?.lat_max || 5.0
+  const rawLonMin = sessionState?.lon_min || -80.0
+  const rawLonMax = sessionState?.lon_max || -50.0
+
+  // Force to 0.1 resolution grid
+  const limitLatMin = Math.round((Math.round(rawLatMin, 1) + 0.1) * 10) / 10
+  const limitLatMax = Math.round((Math.round(rawLatMax, 1) - 0.1) * 10) / 10
+  const limitLonMin = Math.round((Math.round(rawLonMin, 1) + 0.1) * 10) / 10
+  const limitLonMax = Math.round((Math.round(rawLonMax, 1) - 0.1) * 10) / 10
+
+  // State management
+  const [latitude, setLatitude] = useState(limitLatMin)
+  const [longitude, setLongitude] = useState(limitLonMin)
+  const [startYear, setStartYear] = useState(2020)
+  const [endYear, setEndYear] = useState(2021)
+  const [isLoading, setIsLoading] = useState(false)
+  const [selectedVisualization, setSelectedVisualization] = useState(null) // 'evaluation' | 'importance'
+  const [visualizationData, setVisualizationData] = useState(null)
+  const [error, setError] = useState(null)
+
+  const handleEvaluation = () => {
+    setError(null)
+    setIsLoading(true)
+    setSelectedVisualization('evaluation')
+
+    // Simulate API call to backend
+    setTimeout(() => {
+      // Validation: Check if we have valid data
+      if (latitude < limitLatMin || latitude > limitLatMax || 
+          longitude < limitLonMin || longitude > limitLonMax) {
+        setError('Invalid coordinates. Please check the bounds.')
+        setIsLoading(false)
+        return
+      }
+
+      if (endYear <= startYear) {
+        setError('End year must be after start year.')
+        setIsLoading(false)
+        return
+      }
+
+      // Simulated data
+      const rScore = (0.70 + Math.random() * 0.25).toFixed(4)
+      setVisualizationData({
+        type: 'evaluation',
+        rScore,
+        latitude: latitude.toFixed(2),
+        longitude: longitude.toFixed(2),
+        startYear,
+        endYear,
+      })
+      setIsLoading(false)
+    }, 2000)
+  }
+
+  const handleFeatureImportance = () => {
+    setError(null)
+    setIsLoading(true)
+    setSelectedVisualization('importance')
+
+    // Simulate API call to backend
+    setTimeout(() => {
+      // Simulated feature importance data
+      setVisualizationData({
+        type: 'importance',
+        features: [
+          { name: 't2m', importance: 28.5 },
+          { name: 'tp', importance: 22.3 },
+          { name: 'u10m', importance: 18.7 },
+          { name: 'sp', importance: 15.2 },
+          { name: 'v10m', importance: 15.3 },
+        ]
+      })
+      setIsLoading(false)
+    }, 1500)
+  }
+
+  const handleDownload = () => {
+    const filename = selectedVisualization === 'evaluation'
+      ? `Correlation_R_comparison_plot.png`
+      : `Feature_Importance_plot.png`
+    
+    console.log(`Downloading ${filename}`)
+    // In real implementation, download from API
+  }
+
+  return (
+    <div className="tab-container stats-container">
+      <h3 className="tab-title">Perform Statistical Analysis</h3>
+
+      <div className="stats-layout">
+        {/* LEFT PANEL: CONTROLS */}
+        <div className="stats-controls-panel">
+          
+          {/* Point Selection Section */}
+          <div className="stats-section">
+            <h4 className="section-heading">Choose points of interest</h4>
+            
+            <div className="stats-input-row">
+              <div className="stats-input-group">
+                <label htmlFor="latitude">Latitude</label>
+                <input
+                  id="latitude"
+                  type="number"
+                  min={limitLatMin}
+                  max={limitLatMax}
+                  step={0.1}
+                  value={latitude}
+                  onChange={(e) => setLatitude(parseFloat(e.target.value))}
+                  disabled={isLoading}
+                  className="stats-input"
+                />
+              </div>
+
+              <div className="stats-input-group">
+                <label htmlFor="longitude">Longitude</label>
+                <input
+                  id="longitude"
+                  type="number"
+                  min={limitLonMin}
+                  max={limitLonMax}
+                  step={0.1}
+                  value={longitude}
+                  onChange={(e) => setLongitude(parseFloat(e.target.value))}
+                  disabled={isLoading}
+                  className="stats-input"
+                />
+              </div>
+            </div>
+
+            <div className="stats-input-row">
+              <div className="stats-input-group">
+                <label htmlFor="startYear">Starting Year</label>
+                <input
+                  id="startYear"
+                  type="number"
+                  min={2002}
+                  max={2024}
+                  value={startYear}
+                  onChange={(e) => setStartYear(parseInt(e.target.value))}
+                  disabled={isLoading}
+                  className="stats-input"
+                />
+              </div>
+
+              <div className="stats-input-group">
+                <label htmlFor="endYear">Ending Year</label>
+                <input
+                  id="endYear"
+                  type="number"
+                  min={startYear + 1}
+                  max={2025}
+                  value={endYear}
+                  onChange={(e) => setEndYear(parseInt(e.target.value))}
+                  disabled={isLoading}
+                  className="stats-input"
+                />
+              </div>
+            </div>
+
+            {error && (
+              <div className="error-message">
+                ⚠️ {error}
+              </div>
+            )}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="stats-buttons-group">
+            <button
+              className={`stats-primary-btn ${isLoading && selectedVisualization === 'evaluation' ? 'loading' : ''}`}
+              onClick={handleEvaluation}
+              disabled={isLoading}
+            >
+              {isLoading && selectedVisualization === 'evaluation' ? 'Calculating...' : 'Evaluation'}
+            </button>
+
+            <button
+              className={`stats-primary-btn ${isLoading && selectedVisualization === 'importance' ? 'loading' : ''}`}
+              onClick={handleFeatureImportance}
+              disabled={isLoading}
+            >
+              {isLoading && selectedVisualization === 'importance' ? 'Generating...' : 'Feature Importance Pie'}
+            </button>
+          </div>
+        </div>
+
+        {/* RIGHT PANEL: VISUALIZATION */}
+        <div className="stats-visualization-panel">
+          {isLoading ? (
+            <div className="stats-skeleton-loader">
+              <div className="skeleton-content">
+                {selectedVisualization === 'evaluation' 
+                  ? 'CALCULATING MODEL EVALUATION METRICS' 
+                  : 'GENERATING FEATURE IMPORTANCE CHART'}
+              </div>
+            </div>
+          ) : !visualizationData ? (
+            <div className="stats-placeholder-empty">
+              <div className="placeholder-content">
+                <p className="placeholder-icon">📊</p>
+                <p className="placeholder-text">No analysis generated yet</p>
+                <p className="placeholder-subtext">
+                  Select a location and run evaluation to visualize results
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="stats-display-area">
+              {/* Header with Download */}
+              <div className="stats-header">
+                <h4 className="stats-map-title">
+                  {visualizationData.type === 'evaluation'
+                    ? `Model Evaluation - Lat: ${visualizationData.latitude}, Lon: ${visualizationData.longitude}`
+                    : 'Feature Importance Distribution'}
+                </h4>
+                <button
+                  className="stats-download-btn"
+                  onClick={handleDownload}
+                  title="Download visualization as PNG"
+                >
+                  ↓
+                </button>
+              </div>
+
+              {/* Visualization Content */}
+              <div className="stats-canvas">
+                {visualizationData.type === 'evaluation' ? (
+                  <div className="stats-eval-grid">
+                    {/* Simulated Time Series Chart */}
+                    <div className="stats-chart-item">
+                      <h5>Actual vs Predicted LWE</h5>
+                      <div className="stats-chart-placeholder">
+                        <svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet">
+                          <defs>
+                            <linearGradient id="gridGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                              <stop offset="0%" style={{stopColor: '#00E5FF', stopOpacity: 0.1}} />
+                              <stop offset="100%" style={{stopColor: '#FF00FF', stopOpacity: 0.1}} />
+                            </linearGradient>
+                          </defs>
+                          <rect width="400" height="200" fill="url(#gridGradient)" />
+                          {/* Grid lines */}
+                          {[1, 2, 3, 4].map(i => (
+                            <line
+                              key={`h${i}`}
+                              x1="0"
+                              y1={50 * i}
+                              x2="400"
+                              y2={50 * i}
+                              stroke="rgba(0, 229, 255, 0.1)"
+                              strokeDasharray="4"
+                            />
+                          ))}
+                          {/* Simulated data lines */}
+                          <polyline
+                            points="20,150 80,120 140,100 200,90 260,110 320,80 380,70"
+                            fill="none"
+                            stroke="#FFFF00"
+                            strokeWidth="2"
+                            strokeDasharray="5,5"
+                          />
+                          <polyline
+                            points="20,140 80,110 140,95 200,85 260,105 320,75 380,65"
+                            fill="none"
+                            stroke="#FF1493"
+                            strokeWidth="2"
+                          />
+                          <text x="200" y="190" textAnchor="middle" fill="#A0AEC0" fontSize="10">
+                            Time (Months)
+                          </text>
+                        </svg>
+                      </div>
+                      <p className="chart-label">Yellow: Observed | Pink: Predicted</p>
+                    </div>
+
+                    {/* Scatter Plot Chart */}
+                    <div className="stats-chart-item">
+                      <h5>Scatter Plot & Trend Line (R={visualizationData.rScore})</h5>
+                      <div className="stats-chart-placeholder">
+                        <svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet">
+                          <rect width="400" height="200" fill="rgba(0, 229, 255, 0.05)" />
+                          {/* Trend line */}
+                          <line x1="40" y1="160" x2="380" y2="50" stroke="#FF0000" strokeWidth="2" />
+                          {/* Data points */}
+                          {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                            <circle
+                              key={`dot${i}`}
+                              cx={40 + i * 40}
+                              cy={160 - i * 12}
+                              r="3"
+                              fill="#0033FF"
+                              opacity="0.8"
+                            />
+                          ))}
+                          <text x="200" y="190" textAnchor="middle" fill="#A0AEC0" fontSize="10">
+                            Observed LWE (cm)
+                          </text>
+                        </svg>
+                      </div>
+                      <p className="chart-label">Blue dots: Data | Red line: Trend</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="stats-pie-container">
+                    <svg viewBox="0 0 300 300" preserveAspectRatio="xMidYMid meet" className="stats-pie-chart">
+                      <defs>
+                        <linearGradient id="pieGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" style={{stopColor: '#00FFFF', stopOpacity: 1}} />
+                          <stop offset="25%" style={{stopColor: '#0080FF', stopOpacity: 1}} />
+                          <stop offset="50%" style={{stopColor: '#8000FF', stopOpacity: 1}} />
+                          <stop offset="100%" style={{stopColor: '#FF00FF', stopOpacity: 1}} />
+                        </linearGradient>
+                      </defs>
+                      {/* Pie slices - simplified visualization */}
+                      {visualizationData.features.map((feature, idx) => {
+                        const angle = (feature.importance / 100) * 360 * (idx + 1) / 5
+                        const hue = (idx / visualizationData.features.length) * 360
+                        const x = 150 + 80 * Math.cos((angle - 90) * Math.PI / 180)
+                        const y = 150 + 80 * Math.sin((angle - 90) * Math.PI / 180)
+                        return (
+                          <g key={`slice${idx}`}>
+                            <circle
+                              cx="150"
+                              cy="150"
+                              r="80"
+                              fill={`hsl(${hue}, 100%, 50%)`}
+                              opacity="0.7"
+                              style={{
+                                transform: `rotate(${angle}deg)`,
+                                transformOrigin: '150px 150px',
+                              }}
+                            />
+                            <text
+                              x={x}
+                              y={y}
+                              textAnchor="middle"
+                              fill="#8892B0"
+                              fontSize="11"
+                              fontWeight="bold"
+                              fontFamily="monospace"
+                            >
+                              {feature.name}
+                            </text>
+                          </g>
+                        )
+                      })}
+                      {/* Center circle */}
+                      <circle cx="150" cy="150" r="60" fill="#0b0f19" />
+                      <text
+                        x="150"
+                        y="150"
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                        fill="#00E5FF"
+                        fontSize="16"
+                        fontWeight="bold"
+                        fontFamily="monospace"
+                      >
+                        Features
+                      </text>
+                    </svg>
+                    <div className="stats-pie-legend">
+                      {visualizationData.features.map((feature, idx) => (
+                        <div key={`legend${idx}`} className="legend-item">
+                          <span className="legend-name">{feature.name}</span>
+                          <span className="legend-value">{feature.importance}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer Info */}
+              <div className="stats-info">
+                <p className="stats-info-text">
+                  {visualizationData.type === 'evaluation'
+                    ? `Correlation R: ${visualizationData.rScore} | Period: ${visualizationData.startYear}-${visualizationData.endYear}`
+                    : 'Feature importance sorted by contribution to predictions'}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}

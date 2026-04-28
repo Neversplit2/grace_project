@@ -1,0 +1,77 @@
+import React, { useState } from 'react'
+import './Tab3ModelTraining.css'
+
+export default function Tab3ModelTraining({ sessionState, setSessionState }) {
+  const [modelType, setModelType] = useState('RandomForest')
+  const [epochs, setEpochs] = useState(100)
+  const [testSize, setTestSize] = useState(0.2)
+
+  return (
+    <div className="tab-container">
+      <h3 className="tab-title">Model Training Configuration</h3>
+
+      <p className="section-description">
+        <strong>Train your downscaling model (Optional: Skip if you have a pre-trained model)</strong>
+      </p>
+
+      <div className="training-config">
+        <div className="config-card">
+          <label className="config-label">Model Type</label>
+          <select 
+            value={modelType} 
+            onChange={(e) => setModelType(e.target.value)}
+            className="config-select"
+          >
+            <option value="RandomForest">Random Forest</option>
+            <option value="GradientBoosting">Gradient Boosting</option>
+            <option value="NeuralNetwork">Neural Network</option>
+            <option value="SVM">Support Vector Machine</option>
+          </select>
+        </div>
+
+        <div className="config-card">
+          <label className="config-label">Epochs</label>
+          <input 
+            type="number"
+            value={epochs}
+            onChange={(e) => setEpochs(parseInt(e.target.value))}
+            min="10"
+            max="1000"
+            step="10"
+            className="config-input"
+          />
+        </div>
+
+        <div className="config-card">
+          <label className="config-label">Test Size</label>
+          <input 
+            type="number"
+            value={testSize}
+            onChange={(e) => setTestSize(parseFloat(e.target.value))}
+            min="0.1"
+            max="0.5"
+            step="0.05"
+            className="config-input"
+          />
+        </div>
+      </div>
+
+      <div className="training-actions">
+        <button className="primary-btn">
+          ▶ Start Training
+        </button>
+      </div>
+
+      <div className="training-progress">
+        <div className="progress-header">
+          <h4>Training Progress</h4>
+          <span className="status">Ready</span>
+        </div>
+        <div className="progress-bar">
+          <div className="progress-fill" style={{ width: '0%' }}></div>
+        </div>
+        <p className="progress-text">Awaiting user action...</p>
+      </div>
+    </div>
+  )
+}

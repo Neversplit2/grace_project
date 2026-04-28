@@ -1036,7 +1036,11 @@ with tab3:
         
         if st.button("Train Model", type="primary"):
             try:
-                if  None not in (merged, selected_features, x):
+                merged = st.session_state.get('merged')
+                selected_features = st.session_state.get('selected_features')
+                x = st.session_state.get('x')
+
+                if merged is not None and selected_features is not None and x is not None:
                     with st.spinner(f"Training {model} {selected_model} model..."):
 
                         X_train, X_test, y_train, y_test, best_model = m4p.pipe_model_train(selected_features, x, merged, model, selected_model)

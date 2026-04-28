@@ -1,0 +1,14 @@
+import React from 'react'
+import './Ticker.css'
+
+export default function Ticker() {
+  const tickerText = `WELCOME TO THE GRACE & GRACE-FO DOWNSCALING ENGINE. • TAB 1: DEFINE AREA - BASIN OF INTEREST AND VALIDATE BOUNDARIES WITH THE LIVE NAVIGATION GLOBE. • TAB 2: RUN DATA PREPARATION AND RFE ANALYSIS. • TAB 3: TRAIN YOUR MODEL (OPTIONAL: FEEL FREE TO SKIP IF YOU ALREADY HAVE A PRE-TRAINED MODEL READY TO USE). • TAB 4: THIS IS WHERE MAGIC HAPPENS.. CREATE ANY MAP YOU CAN IMAGINE! • TAB 5: PERFORM STATISTICAL ANALYSIS AND EVALUATE YOUR MODEL'S PERFORMANCE.`
+
+  return (
+    <div className="ticker-wrapper">
+      <div className="ticker-text">
+        {tickerText}
+      </div>
+    </div>
+  )
+}

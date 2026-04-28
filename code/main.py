@@ -159,7 +159,7 @@ if __name__ == "__main__":
         print(Fore.RED + " Invalid input! Terminating programm.")
         sys.exit()
 
-    models_dir = cs.MODELS_DIR
+    models_dir = cs.MODEL_DIR
     
     # Select trained Model
     print(f"\nScanning directory: {models_dir} ")
