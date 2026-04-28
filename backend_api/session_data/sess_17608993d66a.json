@@ -1,0 +1,28 @@
+{
+  "session_id": "sess_17608993d66a",
+  "created_at": "2026-04-28T20:25:42.715147",
+  "last_accessed": "2026-04-28T20:28:42.555945",
+  "data_keys": [
+    "df_ERA",
+    "df_CSR",
+    "ds_ERA_sliced",
+    "ds_CSR_sliced",
+    "merged",
+    "df_CSR_on_ERA_grid",
+    "grace_dataset",
+    "bounds",
+    "rfe",
+    "selected_features",
+    "x",
+    "model_type",
+    "n_features",
+    "trained_model",
+    "model_path",
+    "X_train",
+    "X_test",
+    "y_train",
+    "y_test",
+    "model_name",
+    "train_type"
+  ]
+}

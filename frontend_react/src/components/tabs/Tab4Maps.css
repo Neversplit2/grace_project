@@ -15,7 +15,7 @@
 .maps-controls-panel {
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  gap: 15px;
   overflow-y: auto;
   padding-right: 15px;
   max-height: none;
@@ -43,7 +43,7 @@
   background: linear-gradient(135deg, rgba(0, 229, 255, 0.05) 0%, rgba(255, 0, 255, 0.02) 100%);
   border: 1px solid rgba(0, 229, 255, 0.2);
   border-radius: 8px;
-  padding: 20px;
+  padding: 15px;
 }
 
 .section-heading {
@@ -60,8 +60,8 @@
 .era5-controls {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  margin-bottom: 15px;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 .control-group {
@@ -95,7 +95,7 @@
   border: none;
   color: #00E5FF;
   cursor: pointer;
-  padding: 6px 8px;
+  padding: 4px 6px;
   font-size: 14px;
   transition: all 0.2s ease;
   font-weight: bold;
@@ -113,7 +113,7 @@
   text-align: center;
   font-family: monospace;
   font-size: 13px;
-  padding: 6px;
+  padding: 4px;
   outline: none;
 }
 

@@ -84,7 +84,7 @@ def data_4_train(selected_features, x, dataset):
 
 def XGBoost_tuner(X_train, y_train, train_type):
     print("  XGBoost Tuning...")
-    if train_type == "Light":
+    if train_type in ["Light", "Quick"]:
         param_grid = {
             'n_estimators': [200, 500],
             'max_depth': [6,10],
@@ -94,7 +94,7 @@ def XGBoost_tuner(X_train, y_train, train_type):
             'reg_alpha': [0, 0.1],
             'reg_lambda': [0.5, 1.0]
             }
-    elif train_type =="Heavy":
+    elif train_type in ["Heavy", "Hyper"]:
         param_grid = {
             'n_estimators': [100, 200, 500],
             'max_depth': [10, 20, 6],
@@ -138,7 +138,7 @@ def XGBoost_train(X_train, y_train, train_type):
     return best_model
 
 def RF_tuner(X_train, y_train, train_type):
-    if train_type == "Light":
+    if train_type in ["Light", "Quick"]:
         param_grid = {
             'n_estimators': [200, 300],
             'max_depth': [10, 20],
@@ -146,7 +146,7 @@ def RF_tuner(X_train, y_train, train_type):
             'min_samples_leaf': [1, 2],
             'max_features': ['sqrt']
         }
-    elif train_type =="Heavy":
+    elif train_type in ["Heavy", "Hyper"]:
         param_grid = {
             'n_estimators': [100, 200, 300],
             'max_depth': [10, 20],

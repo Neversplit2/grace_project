@@ -50,7 +50,7 @@ multiurl==0.3.7
 munkres==1.1.4
 narwhals==2.16.0
 nest_asyncio
-netCDF4==1.7.3
+netCDF4
 numpy
 packaging
 pandas==2.3.3
@@ -81,6 +81,7 @@ rpds-py==0.30.0
 scikit-learn==1.7.2
 scipy
 seaborn==0.13.2
+setuptools<70.0.0
 shapely
 six
 smmap==5.0.2

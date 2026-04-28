@@ -5,10 +5,13 @@ import sys
 import os, joblib
 import cartopy.crs as ccrs 
 import cartopy.feature as cfeature 
+import matplotlib
+matplotlib.use('Agg') # Set backend to Agg to prevent GUI thread warnings in background tasks
 import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning) # Hide Cartopy facecolor warnings
 from matplotlib.colors import TwoSlopeNorm
-import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 import seaborn as sns
 import pandas as pd
 import numpy as np
@@ -71,8 +74,8 @@ def rfe_plot(rfe, x):
     return fig
 
 #Learning curves
-def XGB_learn_curve(X_train, X_test, y_train, y_test):
-    curve_steps, train_mae_list, val_mae_list = tr.XGBoost_curves(X_train, X_test, y_train, y_test)
+def XGB_learn_curve(X_train, X_test, y_train, y_test, train_type):
+    curve_steps, train_mae_list, val_mae_list = tr.XGBoost_curves(X_train, X_test, y_train, y_test, train_type)
 
     fig, ax = plt.subplots(figsize=(10, 6), dpi=200) 
     
@@ -88,8 +91,8 @@ def XGB_learn_curve(X_train, X_test, y_train, y_test):
 
     return fig
 
-def RF_learn_curve(X_train, X_test, y_train, y_test):
-    curve_steps, train_mae_list, val_mae_list= tr.RF_curves(X_train, X_test, y_train, y_test)
+def RF_learn_curve(X_train, X_test, y_train, y_test, train_type):
+    curve_steps, train_mae_list, val_mae_list= tr.RF_curves(X_train, X_test, y_train, y_test, train_type)
 
     fig, ax = plt.subplots(figsize=(10, 6), dpi=200)
     

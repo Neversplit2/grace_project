@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import './Tab5Analysis.css'
-import { analysisApi } from '../../services/api'
+import { analysisApi, trainingApi } from '../../services/api'
 
 export default function Tab5Analysis({ sessionId, sessionState, setSessionState, setActiveTab }) {
   // Get bounds from Tab 1
@@ -21,10 +21,44 @@ export default function Tab5Analysis({ sessionId, sessionState, setSessionState,
   const [startYear, setStartYear] = useState(2020)
   const [endYear, setEndYear] = useState(2021)
   const [isLoading, setIsLoading] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
   const [selectedVisualization, setSelectedVisualization] = useState(null) // 'evaluation' | 'importance'
   const [visualizationData, setVisualizationData] = useState(null)
   const [error, setError] = useState(null)
   const [terminalLines, setTerminalLines] = useState([])
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    
+    if (!sessionId) {
+      setError('Session not ready')
+      return
+    }
+
+    setIsUploading(true)
+    setError(null)
+    setTerminalLines(prev => [...prev, `> Uploading model file: ${file.name}...`])
+
+    try {
+      await trainingApi.uploadModel(sessionId, file)
+      
+      setSessionState(prev => ({
+        ...prev,
+        modelTrained: true,
+        modelInfo: {
+          model_name: file.name
+        }
+      }))
+      
+      setTerminalLines(prev => [...prev, `> ✓ Model ${file.name} uploaded successfully!`])
+    } catch (err) {
+      setError(err.message)
+      setTerminalLines(prev => [...prev, `> ✗ Error uploading model: ${err.message}`])
+    } finally {
+      setIsUploading(false)
+    }
+  }
 
   const handleEvaluation = async () => {
     if (!sessionId) {
@@ -67,12 +101,15 @@ export default function Tab5Analysis({ sessionId, sessionState, setSessionState,
         endYear
       )
 
+      // The image string from backend already includes the data:image/png;base64, prefix
+      const plotData = result.data.plot.replace('data:image/png;base64,', '');
+
       setVisualizationData({
         type: 'evaluation',
-        plotBase64: result.plot_base64,
-        rScore: result.r_score?.toFixed(4) || 'N/A',
-        rmse: result.rmse?.toFixed(4) || 'N/A',
-        mae: result.mae?.toFixed(4) || 'N/A',
+        plotBase64: plotData,
+        rScore: result.data.statistics.r_score?.toFixed(4) || 'N/A',
+        rmse: 'N/A', // Not returned by backend
+        mae: 'N/A',  // Not returned by backend
         latitude: latitude.toFixed(2),
         longitude: longitude.toFixed(2),
         startYear,
@@ -82,9 +119,8 @@ export default function Tab5Analysis({ sessionId, sessionState, setSessionState,
       setTerminalLines(prev => [
         ...prev,
         '> ✓ Evaluation completed!',
-        `> R-score: ${result.r_score?.toFixed(4)}`,
-        `> RMSE: ${result.rmse?.toFixed(4)}`,
-        `> MAE: ${result.mae?.toFixed(4)}`
+        `> R-score: ${result.data.statistics.r_score?.toFixed(4)}`,
+        `> P-value: ${result.data.statistics.p_value?.toExponential(2) || 'N/A'}`
       ])
 
       setSessionState(prev => ({
@@ -127,17 +163,19 @@ export default function Tab5Analysis({ sessionId, sessionState, setSessionState,
     try {
       const result = await analysisApi.getFeatureImportance(sessionId)
 
+      const plotData = result.data.plot.replace('data:image/png;base64,', '');
+
       setVisualizationData({
         type: 'importance',
-        plotBase64: result.plot_base64,
-        features: result.feature_importance || []
+        plotBase64: plotData,
+        features: result.data.features || []
       })
 
       setTerminalLines(prev => [
         ...prev,
         '> ✓ Feature importance calculated!',
-        `> Top feature: ${result.feature_importance?.[0]?.feature || 'N/A'}`,
-        `> Total features analyzed: ${result.feature_importance?.length || 0}`
+        `> Top feature: ${result.data.features?.[0]?.feature || 'N/A'}`,
+        `> Total features analyzed: ${result.data.features?.length || 0}`
       ])
 
     } catch (err) {
@@ -253,6 +291,41 @@ export default function Tab5Analysis({ sessionId, sessionState, setSessionState,
             )}
           </div>
 
+          <div className="stats-section" style={{ marginTop: '20px' }}>
+            <h4 className="section-heading">Deploy model for Analysis</h4>
+            <div className="upload-section">
+              <p className="model-info" style={{ fontSize: '11px', color: '#8892B0', margin: '0 0 5px 0', fontFamily: 'monospace' }}>
+                {sessionState?.modelTrained 
+                  ? `✓ Using trained model: ${sessionState.modelInfo?.model_name || 'Unknown'}`
+                  : '⚠ No model trained yet - complete Tab 3 or upload one below'
+                }
+              </p>
+              
+              <div className="file-upload-wrapper">
+                <input 
+                  type="file" 
+                  accept=".pkl" 
+                  onChange={handleFileUpload}
+                  disabled={isUploading || isLoading}
+                  id="model-upload-tab5"
+                  style={{ display: 'none' }}
+                />
+                <label htmlFor="model-upload-tab5" style={{ 
+                    cursor: 'pointer', 
+                    display: 'inline-block',
+                    padding: '4px 8px',
+                    border: '1px solid #8892B0',
+                    borderRadius: '4px',
+                    color: '#8892B0',
+                    fontFamily: 'monospace',
+                    fontSize: '10px'
+                  }}>
+                  {isUploading ? '⏳ Uploading...' : '📁 Browse for .pkl Model'}
+                </label>
+              </div>
+            </div>
+          </div>
+
           {/* Action Buttons */}
           <div className="stats-buttons-group">
             <button
@@ -273,98 +346,103 @@ export default function Tab5Analysis({ sessionId, sessionState, setSessionState,
           </div>
         </div>
 
-        {/* RIGHT PANEL: VISUALIZATION */}
-        <div className="stats-visualization-panel">
-          {isLoading ? (
-            <div className="stats-skeleton-loader">
-              <div className="skeleton-content">
-                {selectedVisualization === 'evaluation' 
-                  ? 'CALCULATING MODEL EVALUATION METRICS' 
-                  : 'GENERATING FEATURE IMPORTANCE CHART'}
-              </div>
+        {/* RIGHT PANEL: TERMINAL */}
+        <div className="terminal-panel-wrapper" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '400px' }}>
+          <div className="terminal-window" style={{ flex: 1, margin: 0, display: 'flex', flexDirection: 'column' }}>
+            <div className="term-header">
+              <div className="term-button close"></div>
+              <div className="term-button minimize"></div>
+              <div className="term-button maximize"></div>
             </div>
-          ) : !visualizationData ? (
-            <div className="stats-placeholder-empty">
-              <div className="placeholder-content">
-                <p className="placeholder-icon">📊</p>
-                <p className="placeholder-text">No analysis generated yet</p>
-                <p className="placeholder-subtext">
-                  {!sessionState?.modelTrained 
-                    ? 'Complete Tab 3 (model training) first'
-                    : 'Select a location and run evaluation to visualize results'
-                  }
+            <div className="term-body" style={{ flex: 1, overflowY: 'auto' }}>
+              {terminalLines.length === 0 && (
+                <p className="term-line" style={{ color: '#626A7F' }}>
+                  &gt; System ready. Configure analysis parameters... <span className="cursor-blink">█</span>
                 </p>
-              </div>
-            </div>
-          ) : (
-            <div className="stats-display-area">
-              {/* Header with Download */}
-              <div className="stats-header">
-                <h4 className="stats-map-title">
-                  {visualizationData.type === 'evaluation'
-                    ? `Model Evaluation - Lat: ${visualizationData.latitude}, Lon: ${visualizationData.longitude}`
-                    : 'Feature Importance Distribution'}
-                </h4>
-                <button
-                  className="stats-download-btn"
-                  onClick={handleDownload}
-                  title="Download visualization as PNG"
-                >
-                  ↓
-                </button>
-              </div>
-
-              {/* Visualization Content */}
-              <div className="stats-canvas">
-                {visualizationData.plotBase64 ? (
-                  <img 
-                    src={`data:image/png;base64,${visualizationData.plotBase64}`}
-                    alt={visualizationData.type === 'evaluation' ? 'Model Evaluation Plot' : 'Feature Importance Plot'}
-                    style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
-                  />
-                ) : (
-                  <div className="stats-placeholder-empty">
-                    <p>No visualization data available</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Footer Info */}
-              <div className="stats-info">
-                <p className="stats-info-text">
-                  {visualizationData.type === 'evaluation'
-                    ? `R-score: ${visualizationData.rScore} | RMSE: ${visualizationData.rmse} | MAE: ${visualizationData.mae} | Period: ${visualizationData.startYear}-${visualizationData.endYear}`
-                    : `Feature importance based on ${sessionState.modelInfo?.model_name || 'trained model'}`
-                  }
+              )}
+              {terminalLines.map((line, idx) => (
+                <p key={idx} className="term-line" style={{ animationDelay: `${idx * 0.1}s` }}>
+                  {line}
                 </p>
-              </div>
+              ))}
+              {isLoading && (
+                <p className="term-line">
+                  &gt; {selectedVisualization === 'evaluation' ? 'Calculating...' : 'Generating...'} <span className="cursor-blink">█</span>
+                </p>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
 
-      {/* Terminal Output */}
-      {terminalLines.length > 0 && (
-        <div className="terminal-window" style={{ marginTop: '20px' }}>
-          <div className="term-header">
-            <div className="term-button close"></div>
-            <div className="term-button minimize"></div>
-            <div className="term-button maximize"></div>
+      {/* BOTTOM PANEL: VISUALIZATION */}
+      <div className="stats-visualization-panel" style={{ marginTop: '30px', height: 'auto', minHeight: '500px' }}>
+        {isLoading ? (
+          <div className="stats-skeleton-loader">
+            <div className="skeleton-content">
+              {selectedVisualization === 'evaluation' 
+                ? 'CALCULATING MODEL EVALUATION METRICS' 
+                : 'GENERATING FEATURE IMPORTANCE CHART'}
+            </div>
           </div>
-          <div className="term-body">
-            {terminalLines.map((line, idx) => (
-              <p key={idx} className="term-line" style={{ animationDelay: `${idx * 0.1}s` }}>
-                {line}
+        ) : !visualizationData ? (
+          <div className="stats-placeholder-empty">
+            <div className="placeholder-content">
+              <p className="placeholder-icon">📊</p>
+              <p className="placeholder-text">No analysis generated yet</p>
+              <p className="placeholder-subtext">
+                {!sessionState?.modelTrained 
+                  ? 'Complete Tab 3 (model training) first'
+                  : 'Select a location and run evaluation to visualize results'
+                }
               </p>
-            ))}
-            {isLoading && (
-              <p className="term-line">
-                &gt; {selectedVisualization === 'evaluation' ? 'Calculating...' : 'Generating...'} <span className="cursor-blink">█</span>
-              </p>
-            )}
+            </div>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="stats-display-area">
+            {/* Header with Download */}
+            <div className="stats-header">
+              <h4 className="stats-map-title">
+                {visualizationData.type === 'evaluation'
+                  ? `Model Evaluation - Lat: ${visualizationData.latitude}, Lon: ${visualizationData.longitude}`
+                  : 'Feature Importance Distribution'}
+              </h4>
+              <button
+                className="stats-download-btn"
+                onClick={handleDownload}
+                title="Download visualization as PNG"
+              >
+                ↓
+              </button>
+            </div>
+
+            {/* Visualization Content */}
+            <div className="stats-canvas">
+              {visualizationData.plotBase64 ? (
+                <img 
+                  src={`data:image/png;base64,${visualizationData.plotBase64}`}
+                  alt={visualizationData.type === 'evaluation' ? 'Model Evaluation Plot' : 'Feature Importance Plot'}
+                  style={{ width: '100%', maxHeight: '800px', objectFit: 'contain', borderRadius: '8px' }}
+                />
+              ) : (
+                <div className="stats-placeholder-empty">
+                  <p>No visualization data available</p>
+                </div>
+              )}
+            </div>
+
+            {/* Footer Info */}
+            <div className="stats-info">
+              <p className="stats-info-text">
+                {visualizationData.type === 'evaluation'
+                  ? `R-score: ${visualizationData.rScore} | Period: ${visualizationData.startYear}-${visualizationData.endYear}`
+                  : `Feature importance based on ${sessionState.modelInfo?.model_name || 'trained model'}`
+                }
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

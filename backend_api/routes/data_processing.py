@@ -16,12 +16,19 @@ import time
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
 
 # Import Python functions
+main_4_app = None
+imports_successful = False
+
 try:
     import main_4_app
     import training as tr
+    import vis_4_app as vis
+    imports_successful = True
     print("✅ Successfully imported Python backend functions (data_processing.py)")
 except ImportError as e:
-    print(f"⚠️ Warning: Could not import backend functions: {e}")
+    print(f"❌ ERROR: Could not import backend functions: {e}")
+    import traceback
+    traceback.print_exc()
 
 # Global session_manager (will be set by main.py)
 session_manager = None
@@ -50,6 +57,9 @@ class RFERequest(BaseModel):
 def run_rfe_task(session_id: str, task_id: str, model_type: str, n_features: int):
     """Background task for RFE feature selection"""
     try:
+        if not imports_successful or main_4_app is None:
+            raise RuntimeError("Backend Python modules not loaded. Check server logs for import errors.")
+        
         active_tasks[task_id] = {
             "status": "in_progress",
             "progress": 5,
@@ -77,14 +87,28 @@ def run_rfe_task(session_id: str, task_id: str, model_type: str, n_features: int
         session_manager.save_data(session_id, "model_type", model_type)
         session_manager.save_data(session_id, "n_features", n_features)
         
+        # Generate RFE plot
+        import io
+        import base64
+        import matplotlib.pyplot as plt
+        
+        fig = vis.rfe_plot(rfe, x)
+        buf = io.BytesIO()
+        fig.savefig(buf, format="png", bbox_inches="tight", facecolor='#0b0f19')
+        buf.seek(0)
+        img_str = base64.b64encode(buf.read()).decode("utf-8")
+        plt.close(fig)
+        
         active_tasks[task_id] = {
             "status": "complete",
             "progress": 100,
             "message": "RFE complete",
             "result": {
                 "selected_features": list(selected_features),
-                "n_features": n_features,
-                "model_type": model_type
+                "n_features_selected": len(selected_features),
+                "n_features_total": merged.shape[1],
+                "model_type": model_type,
+                "rfe_plot_base64": img_str
             }
         }
     
@@ -125,11 +149,18 @@ async def data_prep(request: DataPrepRequest):
                 "timestamp": datetime.utcnow().isoformat()
             }
         
+        # Get ERA5 dataframe to extract available features
+        df_ERA = session_manager.get_data(request.session_id, "df_ERA")
+        available_features = list(df_ERA.columns) if df_ERA is not None else []
+        
         return {
             "status": "success",
             "data": {
                 "message": "Data already prepared in Tab 1",
+                "available_features": len(available_features),
+                "n_samples": merged.shape[0],
                 "merged_shape": list(merged.shape),
+                "feature_names": available_features,
                 "ready_for_rfe": True
             },
             "timestamp": datetime.utcnow().isoformat()
@@ -154,6 +185,14 @@ async def start_rfe(request: RFERequest, background_tasks: BackgroundTasks):
     Returns task_id for polling status
     """
     try:
+        if not imports_successful or main_4_app is None:
+            return {
+                "status": "error",
+                "error_code": "IMPORT_ERROR",
+                "message": "Backend Python modules not loaded. Check server logs for import errors.",
+                "timestamp": datetime.utcnow().isoformat()
+            }
+        
         session = session_manager.get_session(request.session_id)
         if not session:
             raise HTTPException(status_code=404, detail="Session not found")

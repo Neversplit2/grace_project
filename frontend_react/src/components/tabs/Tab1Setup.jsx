@@ -4,10 +4,10 @@ import PlotlyComponent from '../PlotlyComponent'
 import { setupApi } from '../../services/api'
 
 export default function Tab1Setup({ sessionId, sessionState, setSessionState, setActiveTab }) {
-  const [latMin, setLatMin] = useState(-17.0)
-  const [latMax, setLatMax] = useState(5.0)
-  const [lonMin, setLonMin] = useState(-80.0)
-  const [lonMax, setLonMax] = useState(-50.0)
+  const [latMin, setLatMin] = useState('-17.0')
+  const [latMax, setLatMax] = useState('5.0')
+  const [lonMin, setLonMin] = useState('-80.0')
+  const [lonMax, setLonMax] = useState('-50.0')
   const [basinName, setBasinName] = useState('Amazon')
   const [graceDataset, setGraceDataset] = useState('CSR')
   const [coastlines, setCoastlines] = useState({ x: [], y: [], z: [] })
@@ -121,10 +121,10 @@ export default function Tab1Setup({ sessionId, sessionState, setSessionState, se
 
     try {
       const bounds = {
-        lat_min: latMin,
-        lat_max: latMax,
-        lon_min: lonMin,
-        lon_max: lonMax,
+        lat_min: parseFloat(latMin) || 0,
+        lat_max: parseFloat(latMax) || 0,
+        lon_min: parseFloat(lonMin) || 0,
+        lon_max: parseFloat(lonMax) || 0,
       }
 
       const response = await setupApi.loadData(sessionId, bounds, graceDataset)
@@ -172,7 +172,7 @@ export default function Tab1Setup({ sessionId, sessionState, setSessionState, se
                 <input
                   type="number"
                   value={latMin}
-                  onChange={(e) => setLatMin(parseFloat(e.target.value))}
+                  onChange={(e) => setLatMin(e.target.value)}
                   step={0.25}
                   className="number-input"
                 />
@@ -182,7 +182,7 @@ export default function Tab1Setup({ sessionId, sessionState, setSessionState, se
                 <input
                   type="number"
                   value={latMax}
-                  onChange={(e) => setLatMax(parseFloat(e.target.value))}
+                  onChange={(e) => setLatMax(e.target.value)}
                   step={0.25}
                   className="number-input"
                 />
@@ -198,7 +198,7 @@ export default function Tab1Setup({ sessionId, sessionState, setSessionState, se
                 <input
                   type="number"
                   value={lonMin}
-                  onChange={(e) => setLonMin(parseFloat(e.target.value))}
+                  onChange={(e) => setLonMin(e.target.value)}
                   step={0.25}
                   className="number-input"
                 />
@@ -208,7 +208,7 @@ export default function Tab1Setup({ sessionId, sessionState, setSessionState, se
                 <input
                   type="number"
                   value={lonMax}
-                  onChange={(e) => setLonMax(parseFloat(e.target.value))}
+                  onChange={(e) => setLonMax(e.target.value)}
                   step={0.25}
                   className="number-input"
                 />
@@ -263,10 +263,10 @@ export default function Tab1Setup({ sessionId, sessionState, setSessionState, se
 
         <div className="globe-section">
           <PlotlyComponent 
-            latMin={latMin}
-            latMax={latMax}
-            lonMin={lonMin}
-            lonMax={lonMax}
+            latMin={parseFloat(latMin) || 0}
+            latMax={parseFloat(latMax) || 0}
+            lonMin={parseFloat(lonMin) || 0}
+            lonMax={parseFloat(lonMax) || 0}
             basinName={basinName}
             coastlines={coastlines}
           />

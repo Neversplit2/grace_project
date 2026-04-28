@@ -17,13 +17,18 @@ import io
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
 
 # Import Python functions
+imports_successful = False
+
 try:
     import vis_4_app
     import data_processing as dpr
     import configuration_settings as cs
+    imports_successful = True
     print("✅ Successfully imported Python backend functions (maps.py)")
 except ImportError as e:
-    print(f"⚠️ Warning: Could not import backend functions: {e}")
+    print(f"❌ ERROR: Could not import backend functions: {e}")
+    import traceback
+    traceback.print_exc()
 
 # Global session_manager (will be set by main.py)
 session_manager = None
@@ -151,7 +156,7 @@ def generate_grace_map_task(session_id: str, task_id: str, year: int, month: int
         # Get data from session
         model_path = session_manager.get_data(session_id, "model_path")
         ds_ERA_sliced = session_manager.get_data(session_id, "ds_ERA_sliced")
-        df_CSR = session_manager.get_data(session_id, "df_CSR")
+        ds_CSR_sliced = session_manager.get_data(session_id, "ds_CSR_sliced")
         df_CSR_on_ERA_grid = session_manager.get_data(session_id, "df_CSR_on_ERA_grid")
         df_ERA = session_manager.get_data(session_id, "df_ERA")
         bounds = session_manager.get_data(session_id, "bounds")
@@ -171,7 +176,7 @@ def generate_grace_map_task(session_id: str, task_id: str, year: int, month: int
         # Generate the comparison map
         fig = vis_4_app.CSR_plot(
             model_path, year, month,
-            df_CSR, df_CSR_on_ERA_grid, df_ERA,
+            ds_CSR_sliced, df_CSR_on_ERA_grid, df_ERA,
             "lwe_thickness", basin_name
         )
         

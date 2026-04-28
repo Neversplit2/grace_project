@@ -13,6 +13,10 @@ import sys
 from datetime import datetime
 from contextlib import asynccontextmanager
 
+# Configure matplotlib to run headlessly in backend threads
+import matplotlib
+matplotlib.use('Agg')
+
 # Add code directory to path so we can import Python modules
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 

@@ -16,13 +16,19 @@ import io
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
 
 # Import Python functions
+main_4_app = None
+imports_successful = False
+
 try:
     import vis_4_app
     import main_4_app
     import data_processing as dpr
+    imports_successful = True
     print("✅ Successfully imported Python backend functions (analysis.py)")
 except ImportError as e:
-    print(f"⚠️ Warning: Could not import backend functions: {e}")
+    print(f"❌ ERROR: Could not import backend functions: {e}")
+    import traceback
+    traceback.print_exc()
 
 # Global session_manager (will be set by main.py)
 session_manager = None
@@ -131,6 +137,7 @@ async def evaluate_model(request: EvaluateRequest):
         plt.close(eval_fig)
         
         # Calculate statistics
+        merged_stats["lwe_difference"] = abs(merged_stats["lwe_pred"] - merged_stats["lwe_thickness"])
         r_score, p_value = dpr.corr_pearson(merged_stats)
         rmse = dpr.stats_lwe(merged_stats, merged_stats)  # May need adjustment based on function
         

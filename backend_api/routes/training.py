@@ -4,6 +4,7 @@ Endpoints for training ML models with progress tracking
 """
 
 from fastapi import APIRouter, HTTPException, BackgroundTasks, UploadFile, File
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from datetime import datetime
 from typing import List, Optional
@@ -17,13 +18,20 @@ import joblib
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
 
 # Import Python functions
+main_4_app = None
+imports_successful = False
+
 try:
     import main_4_app
     import training as tr
     import configuration_settings as cs
+    import vis_4_app as vis
+    imports_successful = True
     print("✅ Successfully imported Python backend functions (training.py)")
 except ImportError as e:
-    print(f"⚠️ Warning: Could not import backend functions: {e}")
+    print(f"❌ ERROR: Could not import backend functions: {e}")
+    import traceback
+    traceback.print_exc()
 
 # Global session_manager (will be set by main.py)
 session_manager = None
@@ -93,16 +101,27 @@ def run_training_task(session_id: str, task_id: str, model: str, train_type: str
         training_tasks[task_id]["message"] = "Generating learning curves..."
         
         # Generate learning curves
+        learning_curve_base64 = None
         try:
+            import io
+            import base64
+            import matplotlib.pyplot as plt
+            
             if model == "XGBoost":
-                learning_curve_fig = tr.XGBoost_curves(X_train, X_test, y_train, y_test, train_type)
+                fig = vis.XGB_learn_curve(X_train, X_test, y_train, y_test, train_type)
             elif model == "RF":
-                learning_curve_fig = tr.RF_curves(X_train, X_test, y_train, y_test, train_type)
+                fig = vis.RF_learn_curve(X_train, X_test, y_train, y_test, train_type)
             else:
-                learning_curve_fig = None
+                fig = None
+                
+            if fig is not None:
+                buf = io.BytesIO()
+                fig.savefig(buf, format="png", bbox_inches="tight", facecolor='#0b0f19')
+                buf.seek(0)
+                learning_curve_base64 = base64.b64encode(buf.read()).decode("utf-8")
+                plt.close(fig)
         except Exception as e:
             print(f"⚠️ Warning: Could not generate learning curves: {e}")
-            learning_curve_fig = None
         
         # Store results in session
         session_manager.save_data(session_id, "trained_model", best_model)
@@ -119,12 +138,14 @@ def run_training_task(session_id: str, task_id: str, model: str, train_type: str
             "progress": 100,
             "message": "Training complete!",
             "result": {
-                "model": model,
+                "model_name": model,
                 "train_type": train_type,
                 "model_path": str(model_path),
-                "training_samples": len(X_train),
-                "test_samples": len(X_test),
-                "features": list(selected_features)
+                "training_info": {
+                    "n_samples": len(X_train),
+                    "n_features": len(selected_features)
+                },
+                "learning_curve_base64": learning_curve_base64
             }
         }
         print(f"✅ Training task {task_id} complete!")
@@ -321,3 +342,28 @@ async def upload_model(
             "message": str(e),
             "timestamp": datetime.utcnow().isoformat()
         }
+
+@router.get("/download-model")
+async def download_model(session_id: str):
+    """
+    Download the trained model
+    """
+    try:
+        session = session_manager.get_session(session_id)
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+            
+        model_path = session_manager.get_data(session_id, "model_path")
+        if not model_path or not os.path.exists(model_path):
+            raise HTTPException(status_code=404, detail="Model file not found")
+            
+        return FileResponse(
+            path=model_path,
+            filename=os.path.basename(model_path),
+            media_type="application/octet-stream"
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Model download error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

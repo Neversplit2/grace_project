@@ -27,6 +27,11 @@ async function apiFetch(endpoint, options = {}) {
       throw new Error(data.message || `HTTP error! status: ${response.status}`);
     }
 
+    // Check if backend returned an error status in the response body
+    if (data.status === 'error') {
+      throw new Error(data.message || 'Backend error occurred');
+    }
+
     return data;
   } catch (error) {
     console.error(`API Error (${endpoint}):`, error);
@@ -63,13 +68,13 @@ async function pollTaskStatus(taskId, sessionId, statusEndpoint, resultEndpoint,
           onProgress(progress, status);
         }
 
-        if (status === 'completed') {
+        if (status === 'completed' || status === 'complete') {
           // Get final results
           const resultData = await apiFetch(
             `${resultEndpoint}/${taskId}?session_id=${sessionId}`
           );
           resolve(resultData.data);
-        } else if (status === 'failed') {
+        } else if (status === 'failed' || status === 'error') {
           reject(new Error(error || 'Task failed'));
         } else {
           // Continue polling
@@ -245,6 +250,13 @@ export const trainingApi = {
       body: formData,
     });
   },
+
+  /**
+   * Get URL to download trained model
+   */
+  getDownloadModelUrl(sessionId) {
+    return `${API_BASE_URL}/api/training/download-model?session_id=${sessionId}`;
+  },
 };
 
 // ============================================================================
@@ -281,7 +293,7 @@ export const mapsApi = {
 
     // Download the map
     const mapData = await apiFetch(
-      `/api/maps/download/${result.map_id}?session_id=${sessionId}`
+      `/api/maps/download/${result.result.map_id}?session_id=${sessionId}`
     );
 
     return mapData.data;
@@ -315,7 +327,7 @@ export const mapsApi = {
 
     // Download the map
     const mapData = await apiFetch(
-      `/api/maps/download/${result.map_id}?session_id=${sessionId}`
+      `/api/maps/download/${result.result.map_id}?session_id=${sessionId}`
     );
 
     return mapData.data;

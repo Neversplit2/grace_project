@@ -9,6 +9,7 @@ export default function Tab2DataProcessing({ sessionId, sessionState, setSession
   const [numFeatures, setNumFeatures] = useState(5)
   const [terminalLines, setTerminalLines] = useState([])
   const [progress, setProgress] = useState(0)
+  const [rfePlotUrl, setRfePlotUrl] = useState(null)
 
   const handleDataPrep = async () => {
     if (!sessionId) {
@@ -81,10 +82,14 @@ export default function Tab2DataProcessing({ sessionId, sessionState, setSession
         selectedFeatures: result.selected_features,
       }))
 
+      if (result.rfe_plot_base64) {
+        setRfePlotUrl(`data:image/png;base64,${result.rfe_plot_base64}`)
+      }
+
       setIsProcessing(false)
       
-      // Auto-advance to Tab 3
-      setTimeout(() => setActiveTab(2), 2000)
+      // Auto-advance to Tab 3 commented out so user can see the graph
+      // setTimeout(() => setActiveTab(2), 2000)
       
     } catch (err) {
       setTerminalLines(prev => [...prev, `> ✗ Error: ${err.message}`])
@@ -189,6 +194,17 @@ export default function Tab2DataProcessing({ sessionId, sessionState, setSession
                 </p>
               )}
             </div>
+          </div>
+        )}
+
+        {rfePlotUrl && (
+          <div className="rfe-plot-container" style={{ marginTop: '20px', textAlign: 'center' }}>
+            <h4 style={{ color: '#00E5FF', fontFamily: 'monospace', marginBottom: '10px' }}>RFE Feature Ranking Graph</h4>
+            <img 
+              src={rfePlotUrl} 
+              alt="RFE Feature Ranking" 
+              style={{ maxWidth: '100%', borderRadius: '8px', border: '1px solid #1a1a1a', boxShadow: '0 4px 12px rgba(0,229,255,0.1)' }} 
+            />
           </div>
         )}
       </div>

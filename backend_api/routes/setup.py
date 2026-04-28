@@ -15,12 +15,18 @@ import requests
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
 
 # Import Python functions
+main_4_app = None
+imports_successful = False
+
 try:
     import data_processing as dpr
     import main_4_app
-    print("✅ Successfully imported Python backend functions (setup.py)")
+    imports_successful = True
+    print("SUCCESS: Successfully imported Python backend functions (setup.py)")
 except ImportError as e:
-    print(f"⚠️ Warning: Could not import backend functions: {e}")
+    print(f"ERROR: Could not import backend functions: {e}")
+    import traceback
+    traceback.print_exc()
 
 # Global session_manager (will be set by main.py)
 session_manager = None
@@ -120,6 +126,14 @@ async def validate_bounds(request: ValidateBoundsRequest):
 async def load_data(request: LoadDataRequest):
     """Load GRACE and ERA5 data for specified bounds"""
     try:
+        if not imports_successful or main_4_app is None:
+            return {
+                "status": "error",
+                "error_code": "IMPORT_ERROR",
+                "message": "Backend Python modules not loaded. Check server logs for import errors.",
+                "timestamp": datetime.utcnow().isoformat()
+            }
+        
         session = session_manager.get_session(request.session_id)
         if not session:
             raise HTTPException(status_code=404, detail="Session not found")
@@ -131,7 +145,7 @@ async def load_data(request: LoadDataRequest):
             raise ValueError("Invalid longitude bounds")
         
         # Call the actual Python function from main_4_app
-        print(f"🔄 Loading data for bounds: lat=[{request.lat_min}, {request.lat_max}], lon=[{request.lon_min}, {request.lon_max}]")
+        print(f"Loading data for bounds: lat=[{request.lat_min}, {request.lat_max}], lon=[{request.lon_min}, {request.lon_max}]")
         
         df_ERA, df_CSR, ds_ERA_sliced, ds_CSR_sliced, merged, df_CSR_on_ERA_grid = main_4_app.pipe_data_prp(
             request.grace_dataset,
@@ -139,7 +153,7 @@ async def load_data(request: LoadDataRequest):
             request.lon_min, request.lon_max
         )
         
-        print(f"✅ Data loaded successfully!")
+        print(f"Data loaded successfully!")
         
         # Store data in session
         session_manager.save_data(request.session_id, "df_ERA", df_ERA)
@@ -182,7 +196,7 @@ async def load_data(request: LoadDataRequest):
     except HTTPException:
         raise
     except Exception as e:
-        print(f"❌ Error loading data: {e}")
+        print(f"Error loading data: {e}")
         import traceback
         traceback.print_exc()
         return {
@@ -221,7 +235,7 @@ async def get_coastlines():
         raise ValueError("Could not fetch coastlines from any source")
     
     except Exception as e:
-        print(f"❌ Error fetching coastlines: {e}")
+        print(f"Error fetching coastlines: {e}")
         return {
             "status": "error",
             "error_code": "COASTLINES_ERROR",

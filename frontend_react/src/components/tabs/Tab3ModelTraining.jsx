@@ -9,6 +9,7 @@ export default function Tab3ModelTraining({ sessionId, sessionState, setSessionS
   const [progress, setProgress] = useState(0)
   const [status, setStatus] = useState('Ready')
   const [terminalLines, setTerminalLines] = useState([])
+  const [learningCurveUrl, setLearningCurveUrl] = useState(null)
 
   const handleStartTraining = async () => {
     if (!sessionId) {
@@ -57,11 +58,15 @@ export default function Tab3ModelTraining({ sessionId, sessionState, setSessionS
         modelInfo: result
       }))
 
+      if (result.learning_curve_base64) {
+        setLearningCurveUrl(`data:image/png;base64,${result.learning_curve_base64}`)
+      }
+
       setStatus('✅ Training Complete')
       setIsTraining(false)
 
-      // Auto-advance to Tab 4
-      setTimeout(() => setActiveTab(3), 2000)
+      // Auto-advance to Tab 4 commented out so user can see learning curves
+      // setTimeout(() => setActiveTab(3), 2000)
 
     } catch (err) {
       setTerminalLines(prev => [...prev, `> ✗ Error: ${err.message}`])
@@ -106,7 +111,7 @@ export default function Tab3ModelTraining({ sessionId, sessionState, setSessionS
         </div>
       </div>
 
-      <div className="training-actions">
+      <div className="training-actions" style={{ display: 'flex', gap: '15px' }}>
         <button 
           className="primary-btn"
           onClick={handleStartTraining}
@@ -114,6 +119,16 @@ export default function Tab3ModelTraining({ sessionId, sessionState, setSessionS
         >
           {isTraining ? '⏳ Training...' : sessionState?.modelTrained ? '✅ Training Complete' : '▶ Start Training'}
         </button>
+
+        {sessionState?.modelTrained && (
+          <button 
+            className="primary-btn"
+            style={{ borderColor: '#FF00FF', color: '#FF00FF' }}
+            onClick={() => window.open(trainingApi.getDownloadModelUrl(sessionId), '_blank')}
+          >
+            💾 Download Model
+          </button>
+        )}
       </div>
 
       <div className="training-progress">
@@ -151,6 +166,17 @@ export default function Tab3ModelTraining({ sessionId, sessionState, setSessionS
               </p>
             )}
           </div>
+        </div>
+      )}
+
+      {learningCurveUrl && (
+        <div className="learning-curve-container" style={{ marginTop: '20px', textAlign: 'center' }}>
+          <h4 style={{ color: '#00E5FF', fontFamily: 'monospace', marginBottom: '10px' }}>Model Learning Curve</h4>
+          <img 
+            src={learningCurveUrl} 
+            alt="Learning Curve" 
+            style={{ maxWidth: '100%', borderRadius: '8px', border: '1px solid #1a1a1a', boxShadow: '0 4px 12px rgba(0,229,255,0.1)' }} 
+          />
         </div>
       )}
     </div>
