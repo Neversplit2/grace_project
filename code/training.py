@@ -34,14 +34,14 @@ def rfe(dataset, model, n_features_to_select):
         x = df_clean.loc[:, columns_to_select]
         x_rfe = df_rfe.loc[:, columns_to_select]
         print(f"Features included in training: {x.columns.to_list()}")
-        model = xgb.XGBRegressor(objective="reg:squarederror",n_estimators=50, random_state=42, n_jobs=-1)
+        model = xgb.XGBRegressor(objective="reg:squarederror",n_estimators=50, random_state=42, n_jobs=1)
 
     elif model == "RF":
         columns_to_select = ['tp', 'sro', 'ssro', 'e', 'swvl1', 'swvl2', 'swvl3', 'swvl4','pev','t2m','evabs','lai_hv', 'lai_lv']
         x = df_clean.loc[:, columns_to_select]
         x_rfe = df_rfe.loc[:, columns_to_select]
         print(f"Features included in training: {x.columns.to_list()}")
-        model = RandomForestRegressor(n_estimators=50, random_state=42, n_jobs=-1)
+        model = RandomForestRegressor(n_estimators=50, random_state=42, n_jobs=1)
     else:
         print("Invalid model input!")
         print("Please enter 'XGBoost' or 'RF'.")
@@ -105,7 +105,7 @@ def XGBoost_tuner(X_train, y_train, train_type):
             'reg_lambda': [0.1, 0.5, 1.0]
             }
 
-    final_model = xgb.XGBRegressor(objective='reg:squarederror', random_state=42, n_jobs=-1)
+    final_model = xgb.XGBRegressor(objective='reg:squarederror', random_state=42, n_jobs=1)
 
     kf = KFold(n_splits=5, shuffle=True, random_state=42)
 
@@ -115,7 +115,7 @@ def XGBoost_tuner(X_train, y_train, train_type):
         n_iter=12,                     
         cv=kf,
         scoring="neg_mean_absolute_error",
-        n_jobs=-1,                      
+        n_jobs=1,                      
         verbose=2,
         random_state=42
     )
@@ -131,7 +131,7 @@ def XGBoost_train(X_train, y_train, train_type):
         **best_params,
         objective='reg:squarederror',
         random_state=42,
-        n_jobs=-1
+        n_jobs=1
     )
     best_model.fit(X_train, y_train)
     
@@ -155,7 +155,7 @@ def RF_tuner(X_train, y_train, train_type):
             'max_features': ['sqrt', 'log2']
         }  
 #
-    final_model = RandomForestRegressor(random_state=42, n_jobs=-1)
+    final_model = RandomForestRegressor(random_state=42, n_jobs=1)
     
     kf = KFold(n_splits=3, shuffle=True, random_state=42)  # 3-FOLD → faster
     
@@ -165,7 +165,7 @@ def RF_tuner(X_train, y_train, train_type):
         n_iter=8,                     
         cv=kf,
         scoring="neg_mean_absolute_error",
-        n_jobs=-1,
+        n_jobs=1,
         verbose=2,
         random_state=42
     )
@@ -176,12 +176,12 @@ def RF_tuner(X_train, y_train, train_type):
     print("Best Parameters:", best_params)
     return best_params
 
-def RF_train(X_train,y_train):
-    best_params = RF_tuner(X_train,y_train)
+def RF_train(X_train, y_train, train_type):
+    best_params = RF_tuner(X_train, y_train, train_type)
     best_model = RandomForestRegressor(
         **best_params,
         random_state=42,
-        n_jobs=-1
+        n_jobs=1
     )
     best_model.fit(X_train, y_train)
     return best_model
@@ -230,7 +230,7 @@ def XGBoost_curves(X_train, X_test, y_train, y_test, train_type):
         xgb_curves = xgb.XGBRegressor(
             objective='reg:squarederror',
             random_state=42,
-            n_jobs=-1,             
+            n_jobs=1,             
             n_estimators=int(n_trees), 
             **params_without_n     
         )
@@ -271,7 +271,7 @@ def RF_curves(X_train, X_test, y_train, y_test, train_type):
         max_features=best_params['max_features'],
         n_estimators=1,
         warm_start=True,
-        n_jobs=-1
+        n_jobs=1
     )
 
     train_mae_list = []

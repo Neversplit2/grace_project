@@ -2,9 +2,16 @@
 from pathlib import Path
 import os
 
-# Get the absolute path to the code directory
-CODE_DIR = Path(__file__).parent.absolute()
-PROJECT_ROOT = CODE_DIR.parent  # Parent of code/ is grace_project/
+import sys
+
+# Determine the project root dynamically
+if getattr(sys, 'frozen', False):
+    # If running as a compiled PyInstaller executable, the root is where the .exe sits
+    PROJECT_ROOT = Path(sys.executable).parent
+else:
+    # If running as a standard python script, it's the parent of the code/ folder
+    CODE_DIR = Path(__file__).parent.absolute()
+    PROJECT_ROOT = CODE_DIR.parent
 
 # File structure settings - use absolute paths
 DATA_DIR = PROJECT_ROOT / "data"

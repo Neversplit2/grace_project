@@ -8,6 +8,7 @@ __pycache__/
 build/
 develop-eggs/
 dist/
+dist_final/
 downloads/
 eggs/
 .eggs/
@@ -20,6 +21,7 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+_internal/
 
 # Virtual Environment
 venv/

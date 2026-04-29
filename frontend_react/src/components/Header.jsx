@@ -13,9 +13,9 @@ export default function Header() {
           <span className="cyber-tooltip">
             NEVERSPLIT
             <span className="tooltip-text">
-              <span className="credential">[CREDENTIAL: NEVERSPLIT]</span><br />
-              titlos<br />
-              <i>personal info</i>
+              <span className="credential">[NEVERSPLIT]</span><br />
+              Alexandros Karachles<br />
+              <i>akarachle@topo.auth.gr</i>
             </span>
           </span>
         </div>
@@ -24,9 +24,9 @@ export default function Header() {
           <span className="cyber-tooltip">
             ANASTRIA-LAB
             <span className="tooltip-text">
-              <span className="credential">[CREDENTIAL: ANASTRIA-LAB]</span><br />
-              titlos (supervisor oti thes bale).<br />
-              <i>personal info</i>
+              <span className="credential">[ANASTRIA-LAB]</span><br />
+              Anastasia I. Triantafyllou, PhDc.<br />
+              <i>anastria@topo.auth.gr</i>
             </span>
           </span>
         </div>

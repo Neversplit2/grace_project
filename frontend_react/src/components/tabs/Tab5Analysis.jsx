@@ -9,11 +9,11 @@ export default function Tab5Analysis({ sessionId, sessionState, setSessionState,
   const rawLonMin = sessionState?.bounds?.lon_min || -80.0
   const rawLonMax = sessionState?.bounds?.lon_max || -50.0
 
-  // Force to 0.1 resolution grid
-  const limitLatMin = Math.round((Math.round(rawLatMin, 1) + 0.1) * 10) / 10
-  const limitLatMax = Math.round((Math.round(rawLatMax, 1) - 0.1) * 10) / 10
-  const limitLonMin = Math.round((Math.round(rawLonMin, 1) + 0.1) * 10) / 10
-  const limitLonMax = Math.round((Math.round(rawLonMax, 1) - 0.1) * 10) / 10
+  // Force to 0.1 resolution grid without artificially shrinking the bounds
+  const limitLatMin = Math.round(rawLatMin * 10) / 10
+  const limitLatMax = Math.round(rawLatMax * 10) / 10
+  const limitLonMin = Math.round(rawLonMin * 10) / 10
+  const limitLonMax = Math.round(rawLonMax * 10) / 10
 
   // State management
   const [latitude, setLatitude] = useState(limitLatMin)

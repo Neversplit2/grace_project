@@ -3,7 +3,7 @@
  * Handles all communication with FastAPI backend
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5321';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 /**
  * Base fetch wrapper with error handling

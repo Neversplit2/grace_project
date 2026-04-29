@@ -39,8 +39,10 @@ def rfe_plot(rfe, x):
         data=df_ranking, 
         x="Rank", 
         y="Feature", 
+        hue="Feature",
         palette="cool_r", # 'cool' goes from Cyan to Purple
         ax=ax,
+        legend=False,
         # edgecolor="#00E5FF", # Adds a neon glow effect to the bar edges
         linewidth=1
     )
