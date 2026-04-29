@@ -20,6 +20,9 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+dist_final/
+dist_final/session_data/
+dist_final/GraceDownscalingEngine/GraceDownscalingEngine.exe
 
 # Virtual Environment
 venv/
@@ -43,3 +46,5 @@ ENV/
 *.png
 
 results/
+
+*.exe

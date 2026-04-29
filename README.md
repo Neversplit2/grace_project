@@ -1,17 +1,17 @@
 # 🌍 GRACE Downscaling Engine
 
-**A full-stack web application for downscaling GRACE satellite data using machine learning**
+**A full-stack geographic application for downscaling GRACE satellite data using machine learning**
 
-![Status](https://img.shields.io/badge/Status-In%20Development-yellow)
+![Status](https://img.shields.io/badge/Status-Stable-brightgreen)
 ![Backend](https://img.shields.io/badge/Backend-FastAPI-green)
 ![Frontend](https://img.shields.io/badge/Frontend-React-blue)
-![Python](https://img.shields.io/badge/Python-3.13-blue)
+![Machine Learning](https://img.shields.io/badge/ML-XGBoost%20%7C%20Random%20Forest-orange)
 
 ---
 
 ## 📋 Overview
 
-The GRACE Downscaling Engine is a sophisticated tool that combines GRACE (Gravity Recovery and Climate Experiment) satellite data with ERA5 reanalysis data to create high-resolution groundwater storage estimates using machine learning techniques.
+The GRACE Downscaling Engine is a  tool that combines GRACE (Gravity Recovery and Climate Experiment) satellite data with ERA5 reanalysis data to create high-resolution groundwater storage estimates using machine learning techniques.
 
 ### Key Features
 
@@ -23,338 +23,144 @@ The GRACE Downscaling Engine is a sophisticated tool that combines GRACE (Gravit
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Architecture & Project Structure
+
+This project has evolved into a fully decoupled web application architecture.
 
 ```
 grace_project/
-├── backend_api/          # FastAPI REST API (22 endpoints)
-│   ├── routes/           # API route handlers
-│   ├── main.py          # FastAPI application
+├── backend_api/          # FastAPI REST API
+│   ├── routes/           # API endpoints (setup, training, visualization)
+│   ├── main.py           # FastAPI application
 │   └── session_manager.py
-├── frontend_react/       # React + Vite frontend
+├── frontend_react/       # React + Vite dynamic frontend
 │   └── src/
-│       ├── components/   # React components (5 tabs)
+│       ├── components/   # React components (5 workflow tabs)
 │       └── services/     # API service layer
-├── code/                 # Python ML pipeline
-│   ├── main_4_app.py    # Data processing pipeline
-│   ├── training.py      # Model training
-│   ├── vis_4_app.py     # Visualization
+├── code/                 # Core Python ML Data Pipeline
+│   ├── main_4_app.py     # Data processing pipeline entry point
+│   ├── training.py       # Random Forest & XGBoost models
+│   ├── vis_4_app.py      # Plotly & Seaborn map generation
 │   └── data_processing.py
-└── data/                 # Data files (GRACE, ERA5)
+└── data/                 # Raw data files (GRACE, ERA5) (Requires user download)
 ```
-
-### Technology Stack
-
-**Backend:**
-- FastAPI 1.0.0
-- Python 3.13.7
-- Uvicorn ASGI server
-- Session-based state management
-
-**Frontend:**
-- React 18.2.0
-- Vite 5.4.21
-- Plotly.js for 3D visualizations
-- Fetch API for backend communication
-
-**ML Pipeline:**
-- scikit-learn (RFE, Random Forest)
-- XGBoost
-- matplotlib for plotting
-- xarray for NetCDF handling
 
 ---
 
-## 🚀 Quick Start
+## 🚀 How to Run Locally (Developer Mode)
 
-### Prerequisites
+If you are on the `main` branch, you can run the project as a standard web application. You will need to start both the Python backend server and the Node.js frontend server.
 
-- Python 3.13+
+### 1. Prerequisites & Required Data
+- Python 3.11+
 - Node.js 18+
-- ~20-30 GB disk space for data
-- CDS API credentials (for data download)
+- A `data/` folder placed in the root of the project containing your datasets. **Your files must be named exactly as follows (case-sensitive):**
+  - `ERA5_data.nc` (Your ERA5 climate variables dataset)
+  - `CSR_Mascon_Grace.nc` (GRACE CSR dataset)
+  - `JPL_MASCON_GRACE.nc` (GRACE JPL dataset)
 
-### 1. Clone Repository
-
+### 2. Start the Backend (FastAPI)
+Open a terminal, activate your virtual environment, and install dependencies:
 ```bash
-git clone https://github.com/Neversplit2/grace_project.git
-cd grace_project
-```
+# Create and activate venv using uv (Ultra-fast Python package installer)
+uv venv
+.venv\Scripts\activate  # Windows
+# source .venv/bin/activate  # Mac/Linux
 
-### 2. Backend Setup
+# Install all required Python packages
+uv pip install -r grace_requirements.txt
+uv pip install -r backend_api/requirements.txt
+uv pip install fastapi uvicorn python-multipart
 
-```bash
-# Create Python virtual environment
-python -m venv .venv
-source .venv/bin/activate  # Linux/Mac
-# or: .venv\Scripts\activate  # Windows
-
-# Install dependencies
-pip install fastapi uvicorn pydantic python-multipart joblib
-
-# Start backend server
+# Start the server
 cd backend_api
 uvicorn main:app --reload --port 5321
 ```
+*The backend API will run on `http://127.0.0.1:5321`*
 
-Backend will be available at: http://localhost:5321
-
-**API Documentation:** http://localhost:5321/docs
-
-### 3. Frontend Setup
-
+### 3A. Start the Modern Frontend (React)
+Open a **second** terminal, navigate to the React folder, and start the development server:
 ```bash
-# Install dependencies
 cd frontend_react
 npm install
-
-# Configure API URL (copy .env.example to .env)
-cp .env.example .env
-
-# Start development server
 npm run dev
 ```
+*The React UI will automatically open in your browser, typically at `http://localhost:5173`*
 
-Frontend will be available at: http://localhost:3001
-
-**Note:** Make sure to create `.env` from `.env.example` before running. The default configuration connects to `http://localhost:5321`.
+### 3B. Start the Legacy Frontend (Streamlit)
+If you prefer the original Streamlit interface, you can start it instead of (or alongside) the React UI. Open a new terminal and run:
+```bash
+streamlit run code/app.py
+```
+*The Streamlit UI will open at `http://localhost:8501`*
 
 ---
 
-## 📖 Usage Guide
-
-### Workflow Overview
-
-The application follows a 5-tab workflow:
-
+## ⚡ Quick Start Scripts (Mac/Linux)
+If you are on a Unix-based system, you can use the provided bash scripts to launch the services without manually typing the commands:
+```bash
+./QUICK_START.sh
 ```
-Tab 1: Setup & Area Selection
-  ↓ (Define geographic bounds, load GRACE + ERA5 data)
-Tab 2: Data Processing
-  ↓ (Run RFE for feature selection)
-Tab 3: Model Training
-  ↓ (Train Random Forest or XGBoost model)
-Tab 4: Maps & Visualization
-  ↓ (Generate ERA5 and GRACE comparison maps)
-Tab 5: Statistical Analysis
-  ↓ (Evaluate model, analyze feature importance)
-```
-
-### Tab 1: Geographic Setup
-
-1. **Select Study Area**
-   - Use 3D globe to visualize region
-   - Set latitude bounds (-90 to 90)
-   - Set longitude bounds (-180 to 180)
-
-2. **Choose GRACE Dataset**
-   - CSR (Center for Space Research)
-   - JPL (Jet Propulsion Laboratory)
-
-3. **Load Data**
-   - Validates bounds
-   - Downloads/loads GRACE mascon data
-   - Downloads/loads ERA5 climate variables
-   - Processing time: 1-3 minutes
-
-### Tab 2: Data Processing & Feature Selection
-
-1. **Prepare Data**
-   - Validates loaded data
-   - Shows available features
-
-2. **Run RFE**
-   - Choose model type (RF or XGBoost)
-   - Select number of features (5-15 recommended)
-   - Processing time: 2-5 minutes
-   - Results: List of selected features
-
-### Tab 3: Model Training
-
-1. **Configure Training**
-   - Model: Random Forest or XGBoost
-   - Type: Quick (fast) or Hyper (optimized)
-
-2. **Train Model**
-   - Background processing
-   - Real-time progress updates
-   - Processing time: 5-15 minutes
-   - Results: Trained model + metrics
-
-3. **Upload Pre-trained Model** (optional)
-   - Upload .pkl file
-   - Skip training step
-
-### Tab 4: Maps & Visualization
-
-1. **ERA5 Variable Maps**
-   - Choose variable (temp, precipitation, etc.)
-   - Select year and month
-   - Generate high-resolution map
-
-2. **GRACE Comparison**
-   - Observed vs Predicted
-   - Select year and month
-   - Side-by-side visualization
-
-### Tab 5: Statistical Analysis
-
-1. **Model Evaluation**
-   - Select location (lat/lon)
-   - Choose date range
-   - View time series plots
-   - Get R-score and p-value
-
-2. **Feature Importance**
-   - Pie chart visualization
-   - Ranked feature list
-   - Percentage contributions
+This script will display a menu of helper commands (like `./start-streamlit.sh` or `./start-react.sh`) to automatically spin up the interfaces.
 
 ---
 
-## 🧪 Testing
+## 💻 Standalone Desktop Application (.EXE)
 
-### Backend API Tests
+We have successfully packaged the entire Web UI, FastAPI backend, and Machine Learning pipeline into a single, portable Windows Executable!
+
+If you want to use the `.exe` version or build it yourself, **switch to the `exe` branch**.
 
 ```bash
-cd backend_api
-
-# Run validation tests (no data required)
-python test_validation.py
-# Expected: 15/15 tests PASS
-
-# Run end-to-end tests (requires real data)
-python test_end_to_end.py
+git fetch origin
+git checkout exe
 ```
 
-### Manual API Testing
+### How the Standalone Version Works:
+On the `exe` branch, the React frontend is pre-compiled into static HTML/JS files, and the FastAPI backend serves them directly. A master Python script (`main_exe.py`) binds them together, meaning **you do not need Node.js or a web server to run it!**
 
+### Building the Executable Yourself
+If you are on the `exe` branch and want to recompile the desktop app using PyInstaller:
 ```bash
-# Health check
-curl http://localhost:5321/api/health
+# Ensure frontend is built
+cd frontend_react
+npm run build
+cd ..
 
-# Create session
-curl -X POST http://localhost:5321/api/session/create
+# Install PyInstaller
+uv pip install pyinstaller
 
-# Validate bounds
-curl -X POST http://localhost:5321/api/setup/validate-bounds \
-  -H "Content-Type: application/json" \
-  -d '{"session_id":"YOUR_SESSION","lat_min":-20,"lat_max":5,"lon_min":-80,"lon_max":-45}'
+# Package the entire stack into an executable
+uv run pyinstaller grace_app.spec -y --clean --distpath dist_final
 ```
+The final application will be generated inside `dist_final/GraceDownscalingEngine/`. 
+
+### Running the Executable
+**CRITICAL DATA SETUP:** The executable does not package the massive 10GB+ dataset files. To run it successfully:
+1. You MUST create a folder named `data` exactly next to your new `GraceDownscalingEngine.exe` file.
+2. Place your explicitly named `.nc` files (`ERA5_data.nc`, `CSR_Mascon_Grace.nc`, etc.) inside that `data` folder.
+3. Double-click the `.exe`. The app will launch a backend console and automatically open your default browser to the UI!
 
 ---
 
-## 📚 Documentation
+## 📚 Workflow Guide
 
-| Document | Description | Location |
-|----------|-------------|----------|
-| **API Quick Reference** | All 22 endpoints with examples | [`backend_api/QUICK_REFERENCE.md`](backend_api/QUICK_REFERENCE.md) |
-| **Test Summary** | Testing results and coverage | [`backend_api/TEST_SUMMARY.md`](backend_api/TEST_SUMMARY.md) |
-| **Integration Status** | Frontend-backend integration | [`frontend_react/INTEGRATION_STATUS.md`](frontend_react/INTEGRATION_STATUS.md) |
-| **Backend README** | Backend setup details | [`backend_api/README.md`](backend_api/README.md) |
-| **Frontend README** | Frontend setup details | [`frontend_react/README.md`](frontend_react/README.md) |
+The application follows a strict 5-step workflow:
 
----
-
-## 🔧 Configuration
-
-### Backend Configuration
-
-**Environment Variables:**
-- `PORT`: Server port (default: 5321)
-- `HOST`: Server host (default: 127.0.0.1)
-
-**Files:**
-- `backend_api/main.py`: CORS settings, middleware
-- `code/configuration_settings.py`: Data paths, model settings
-
-### Frontend Configuration
-
-**Environment Variables:**
-```bash
-# frontend_react/.env
-VITE_API_URL=http://localhost:5321
-```
+1. **Geographic Setup**: Use the interactive 3D globe to select your bounding box. The backend automatically slices the massive global `.nc` files to your targeted coordinates.
+2. **Feature Selection**: Run Recursive Feature Elimination (RFE) to determine which ERA5 climate variables (Temperature, Soil Moisture, etc.) correlate best with GRACE anomalies in your region.
+3. **Model Training**: Train an XGBoost or Random Forest model (with automatic hyperparameter tuning) to learn the relationship between the ERA5 data and GRACE.
+4. **Visualization**: Generate highly detailed, publication-ready geospatial maps comparing the observed GRACE data vs the predicted AI model outputs.
+5. **Statistical Analysis**: Select a specific coordinate within your bounds to view time-series breakdowns, R-scores, and feature importance pie charts.
 
 ---
 
-## 📊 Project Status
-
-### ✅ Completed
-
-- [x] Backend API implementation (22 endpoints)
-- [x] Session management system
-- [x] Background task processing
-- [x] API service layer (frontend)
-- [x] Tab 1 integration (Geographic Setup)
-- [x] Validation testing (100% pass)
-- [x] API documentation
-
-### ⏳ In Progress
-
-- [ ] Tab 2-5 frontend integration
-- [ ] End-to-end testing with real data
-- [ ] Error boundaries and retry logic
-- [ ] Progress persistence
-
-### 📅 Planned
-
-- [ ] Deployment configuration
-- [ ] Docker containerization
-- [ ] Standalone EXE packaging
-- [ ] User authentication
-- [ ] Result export (CSV, plots)
-- [ ] Multi-user support
-
----
-
-## 🐛 Known Issues
-
-### Issue 1: Data Loading Requires CDS API
-**Solution:** Set up CDS API credentials or create mock data for testing
-
-### Issue 2: Large Memory Requirements
-**Solution:** Ensure ~16 GB RAM for full workflow
-
-### Issue 3: Processing Time
-**Solution:** Background tasks implemented, but still requires patience
-
----
-
-## 🤝 Contributing
-
-This is currently a research project. For questions or collaboration:
-
-**Repository:** https://github.com/Neversplit2/grace_project
-
----
-
-## 📄 License
-
-[Specify your license here]
-
----
-
-## 🙏 Acknowledgments
+## 🤝 Support & Acknowledgments
 
 - **GRACE Mission:** NASA/DLR
 - **ERA5 Data:** Copernicus Climate Data Store
-- **Natural Earth:** Map data
+- **Authors:** Alexandros Karachles & Anastasia I. Triantafyllou (ANASTRIA-LAB)
 
----
-
-## 📞 Support
-
-For issues, questions, or feature requests:
-
-1. Check documentation in `backend_api/` and `frontend_react/`
-2. Review `backend_api/TEST_SUMMARY.md` for testing info
-3. See `backend_api/QUICK_REFERENCE.md` for API details
-
----
-
-**Last Updated:** April 27, 2026  
-**Version:** 1.0.0-beta  
-**Status:** 🟡 Development (Tab 1 integration complete)
+For issues or questions regarding the codebase, please open an issue on the GitHub repository.
 
 🌍 **Building the future of groundwater monitoring with AI** 🚀
