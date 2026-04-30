@@ -159,7 +159,7 @@ The application follows a strict 5-step workflow:
 
 - **GRACE Mission:** NASA/DLR
 - **ERA5 Data:** Copernicus Climate Data Store
-- **Authors:** Alexandros Karachles & Anastasia I. Triantafyllou (ANASTRIA-LAB)
+- **Authors:** Alexandros C. Karachles & Anastasia I. Triantafyllou (ANASTRIA-LAB)
 
 For issues or questions regarding the codebase, please open an issue on the GitHub repository.
 
